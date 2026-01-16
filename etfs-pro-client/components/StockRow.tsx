@@ -1,0 +1,108 @@
+"use client";
+
+import type { StockData } from "@/lib/types";
+import { formatCurrency } from "@/lib/calculations";
+import { ATHBadge } from "./ATHBadge";
+
+interface StockRowProps {
+  stock: StockData;
+  onRemove: (symbol: string) => void;
+}
+
+export function StockRow({ stock, onRemove }: StockRowProps) {
+  const formattedAthDate = new Date(stock.athDate).toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
+
+  // Format daily change with color
+  const dailyChangeColor = stock.dailyChangePercent !== null
+    ? stock.dailyChangePercent >= 0 ? "text-green-400" : "text-red-400"
+    : "text-slate-500";
+  const dailyChangeValue = stock.dailyChangePercent !== null
+    ? `${stock.dailyChangePercent >= 0 ? "+" : ""}${stock.dailyChangePercent.toFixed(2)}%`
+    : "—";
+
+  return (
+    <tr className="stock-row border-b border-slate-800/50">
+      <td className="px-4 py-4">
+        <div className="flex items-center gap-2">
+          <span className="font-mono font-bold text-white">{stock.symbol}</span>
+        </div>
+        <span className="text-xs text-slate-500 block">{stock.name}</span>
+      </td>
+      <td className="px-4 py-4 text-right font-mono">
+        {formatCurrency(stock.currentPrice, stock.currency)}
+      </td>
+      {/* Daily Change */}
+      <td className="px-4 py-4 text-right">
+        <span className={`font-mono ${dailyChangeColor}`}>
+          {dailyChangeValue}
+        </span>
+      </td>
+      <td className="px-4 py-4 text-right">
+        <span className="font-mono">
+          {formatCurrency(stock.allTimeHigh, stock.currency)}
+        </span>
+        <span className="text-xs text-slate-500 block">{formattedAthDate}</span>
+      </td>
+      <td className="px-4 py-4 text-right">
+        <div className="flex items-center justify-end gap-2">
+          {stock.isNearATH && <ATHBadge />}
+          <span
+            className={`font-mono ${
+              stock.percentDown <= 0 ? "text-green-400" : "text-red-400"
+            }`}
+          >
+            -{stock.percentDown.toFixed(2)}%
+          </span>
+        </div>
+      </td>
+      <td className="px-4 py-4 text-right">
+        <div className="flex items-center justify-end gap-2">
+          {stock.isNearATH && <ATHBadge />}
+          <span
+            className={`font-mono ${
+              stock.percentToATH <= 0 ? "text-green-400" : "text-amber-400"
+            }`}
+          >
+            +{stock.percentToATH.toFixed(2)}%
+          </span>
+        </div>
+      </td>
+      {/* Expense Ratio (ETFs only) */}
+      <td className="px-4 py-4 text-right">
+        <span className="font-mono text-slate-300">
+          {stock.expenseRatio !== null ? `${stock.expenseRatio.toFixed(2)}%` : "—"}
+        </span>
+      </td>
+      {/* Dividend Yield */}
+      <td className="px-4 py-4 text-right">
+        <span className={`font-mono ${stock.dividendYield && stock.dividendYield > 0 ? "text-cyan-400" : "text-slate-500"}`}>
+          {stock.dividendYield !== null ? `${stock.dividendYield.toFixed(2)}%` : "—"}
+        </span>
+      </td>
+      <td className="px-4 py-4 text-right">
+        <button
+          onClick={() => onRemove(stock.symbol)}
+          className="p-1 rounded hover:bg-red-500/20 transition-colors text-slate-500 hover:text-red-400"
+          title="Remove from watchlist"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </td>
+    </tr>
+  );
+}
