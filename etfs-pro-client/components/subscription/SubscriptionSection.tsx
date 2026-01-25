@@ -1,0 +1,107 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { PricingCard } from "./PricingCard";
+import {
+  FREE_FEATURES,
+  PREMIUM_FEATURES,
+  PREMIUM_PRICE_MONTHLY,
+} from "@/lib/constants";
+
+export function SubscriptionSection() {
+  const { user, upgradeToPremium, loading } = useAuth();
+  const router = useRouter();
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState<string | null>(null);
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    setIsUpgrading(true);
+    setUpgradeMessage(null);
+
+    try {
+      await upgradeToPremium();
+      setUpgradeMessage("Upgraded to Premium! Your watchlist limit is now 100 symbols.");
+    } catch (error) {
+      console.error("Upgrade failed:", error);
+      setUpgradeMessage("Failed to upgrade. Please try again.");
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
+
+  const isPremiumUser = user?.isPremium || false;
+
+  return (
+    <section className="mt-20 mb-12">
+      {/* Section header */}
+      <div className="text-center mb-14">
+        <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-medium mb-4">
+          Pricing Plans
+        </span>
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          Upgrade Your Trading Experience
+        </h2>
+        <p className="text-slate-400 max-w-xl mx-auto text-lg">
+          Choose the plan that fits your needs. Upgrade anytime to unlock premium features.
+        </p>
+      </div>
+
+      {/* Pricing cards */}
+      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto px-4">
+        <PricingCard
+          title="Free"
+          price={null}
+          features={FREE_FEATURES}
+          isCurrentPlan={!isPremiumUser && !!user}
+          onAction={!user ? () => router.push("/login") : undefined}
+          actionLabel={!user ? "Get Started" : undefined}
+        />
+        <PricingCard
+          title="Premium"
+          price={PREMIUM_PRICE_MONTHLY}
+          features={PREMIUM_FEATURES}
+          isPremium
+          isCurrentPlan={isPremiumUser}
+          onAction={handleUpgrade}
+          actionLabel={
+            loading
+              ? "Loading..."
+              : isUpgrading
+              ? "Upgrading..."
+              : !user
+              ? "Sign In to Upgrade"
+              : "Upgrade Now"
+          }
+          actionDisabled={loading || isUpgrading || isPremiumUser}
+        />
+      </div>
+
+      {/* Upgrade message */}
+      {upgradeMessage && (
+        <div
+          className={`mt-8 max-w-md mx-auto p-4 rounded-xl text-center text-sm ${
+            upgradeMessage.includes("Failed")
+              ? "bg-red-500/20 text-red-400 border border-red-500/30"
+              : "bg-green-500/20 text-green-400 border border-green-500/30"
+          }`}
+        >
+          {upgradeMessage}
+        </div>
+      )}
+
+      {/* Test mode notice */}
+      {!isPremiumUser && user && (
+        <p className="text-center text-xs text-slate-500 mt-8">
+          Test Mode: Click &quot;Upgrade Now&quot; to simulate premium subscription
+        </p>
+      )}
+    </section>
+  );
+}

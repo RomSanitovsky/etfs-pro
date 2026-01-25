@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import type { StockData, SortField, SortConfig, AssetFilter as AssetFilterType } from "@/lib/types";
 import { DEFAULT_SYMBOLS, DEFAULT_ATH_THRESHOLD, STORAGE_KEYS } from "@/lib/constants";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useAuth } from "@/contexts/AuthContext";
 import { SearchInput } from "./SearchInput";
 import { AddSymbolForm } from "./AddSymbolForm";
 import { SortableHeader } from "./SortableHeader";
@@ -17,6 +18,7 @@ interface WatchlistTableProps {
 }
 
 export function WatchlistTable({ initialData }: WatchlistTableProps) {
+  const { symbolLimit } = useAuth();
   const [watchlist, setWatchlist] = useLocalStorage<string[]>(
     STORAGE_KEYS.WATCHLIST,
     DEFAULT_SYMBOLS
@@ -174,6 +176,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 onAdd={handleAddSymbol}
                 existingSymbols={watchlist}
                 isLoading={isLoading}
+                symbolLimit={symbolLimit}
               />
             </div>
             <div className="flex items-start gap-2">

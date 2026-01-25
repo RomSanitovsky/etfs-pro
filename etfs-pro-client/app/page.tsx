@@ -3,6 +3,8 @@ import { buildStockData } from "@/lib/calculations";
 import { DEFAULT_SYMBOLS, DEFAULT_ATH_THRESHOLD } from "@/lib/constants";
 import { WatchlistTable } from "@/components/WatchlistTable";
 import { StarField } from "@/components/StarField";
+import { Header } from "@/components/Header";
+import { SubscriptionSection } from "@/components/subscription/SubscriptionSection";
 import type { StockData } from "@/lib/types";
 
 export const revalidate = 60;
@@ -39,8 +41,9 @@ export default async function Home() {
   return (
     <div className="min-h-screen relative">
       <StarField />
+      <Header />
 
-      <main className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
+      <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-6xl">
         {/* Header */}
         <header className="text-center mb-12">
           {/* Futuristic Title */}
@@ -98,6 +101,9 @@ export default async function Home() {
             <span>% Needed to reach ATH</span>
           </div>
         </div>
+
+        {/* Subscription Section */}
+        <SubscriptionSection />
       </main>
     </div>
   );

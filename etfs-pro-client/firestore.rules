@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User documents
+    match /users/{userId} {
+      // Users can read their own document
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Users can create their own document on first sign-in
+      allow create: if request.auth != null && request.auth.uid == userId
+        && request.resource.data.isPremium == false
+        && request.resource.data.email == request.auth.token.email;
+
+      // Users can update their own document, but cannot modify isPremium
+      // (isPremium should only be modified by admin/server)
+      allow update: if request.auth != null && request.auth.uid == userId
+        && request.resource.data.isPremium == resource.data.isPremium
+        && request.resource.data.premiumExpiresAt == resource.data.premiumExpiresAt;
+    }
+
+    // Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

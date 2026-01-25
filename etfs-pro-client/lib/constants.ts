@@ -18,3 +18,22 @@ export const STORAGE_KEYS = {
   ATH_CACHE: "etfs-pro-ath-cache",
   ATH_THRESHOLD: "etfs-pro-ath-threshold",
 } as const;
+
+// Subscription tier limits
+export const FREE_TIER_SYMBOL_LIMIT = 8;
+export const PREMIUM_SYMBOL_LIMIT = 100;
+export const PREMIUM_PRICE_MONTHLY = 4;
+
+export const PREMIUM_FEATURES = [
+  "Unlimited symbols in watchlist",
+  "Advanced statistics & analytics",
+  "Custom ATH threshold alerts",
+  "Priority data refresh",
+  "Export watchlist data",
+] as const;
+
+export const FREE_FEATURES = [
+  `Up to ${FREE_TIER_SYMBOL_LIMIT} symbols`,
+  "Basic statistics",
+  "Real-time price tracking",
+] as const;

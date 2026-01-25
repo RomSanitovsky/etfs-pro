@@ -53,3 +53,23 @@ export interface SortConfig {
   field: SortField;
   direction: SortDirection;
 }
+
+// User and Auth types
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string | null;
+  photoURL: string | null;
+  isPremium: boolean;
+  premiumExpiresAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AuthState {
+  user: UserProfile | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export type SubscriptionTier = "free" | "premium";

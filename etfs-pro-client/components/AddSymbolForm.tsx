@@ -13,13 +13,16 @@ interface AddSymbolFormProps {
   onAdd: (symbol: string) => void;
   existingSymbols: string[];
   isLoading?: boolean;
+  symbolLimit: number;
 }
 
 export function AddSymbolForm({
   onAdd,
   existingSymbols,
   isLoading = false,
+  symbolLimit,
 }: AddSymbolFormProps) {
+  const isAtLimit = existingSymbols.length >= symbolLimit;
   const [symbol, setSymbol] = useState("");
   const [error, setError] = useState("");
   const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
@@ -81,6 +84,11 @@ export function AddSymbolForm({
       return;
     }
 
+    if (isAtLimit) {
+      setError(`Limit reached (${symbolLimit} symbols). Upgrade to add more.`);
+      return;
+    }
+
     if (existingSymbols.includes(trimmed)) {
       setError("Symbol already in watchlist");
       return;
@@ -136,9 +144,9 @@ export function AddSymbolForm({
             }}
             onKeyDown={handleKeyDown}
             onFocus={() => symbol.length >= 2 && suggestions.length > 0 && setShowSuggestions(true)}
-            placeholder="Add symbol (e.g., GOOGL)"
-            className="space-input w-full pl-4"
-            disabled={isLoading}
+            placeholder={isAtLimit ? `Limit: ${existingSymbols.length}/${symbolLimit}` : "Add symbol (e.g., GOOGL)"}
+            className={`space-input w-full pl-4 ${isAtLimit ? "border-amber-500/50" : ""}`}
+            disabled={isLoading || isAtLimit}
             autoComplete="off"
           />
           {isSearching && (
@@ -172,10 +180,19 @@ export function AddSymbolForm({
             </ul>
           )}
         </div>
-        <button type="submit" className="space-button" disabled={isLoading}>
-          {isLoading ? "Adding..." : "Add"}
+        <button type="submit" className="space-button" disabled={isLoading || isAtLimit}>
+          {isLoading ? "Adding..." : isAtLimit ? "Full" : "Add"}
         </button>
       </form>
+      {/* Symbol count indicator */}
+      <div className="flex items-center justify-end mt-1 gap-2">
+        <span className={`text-xs ${isAtLimit ? "text-amber-400" : "text-slate-500"}`}>
+          {existingSymbols.length}/{symbolLimit} symbols
+        </span>
+        {isAtLimit && (
+          <span className="text-xs text-cyan-400">Upgrade for more</span>
+        )}
+      </div>
     </div>
   );
 }
