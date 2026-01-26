@@ -1,15 +1,6 @@
-"use client";
-
-import { useCallback } from "react";
+import Link from "next/link";
 
 export function Hero() {
-  const scrollToContent = useCallback(() => {
-    const mainContent = document.getElementById("main-content");
-    if (mainContent) {
-      mainContent.scrollIntoView({ behavior: "smooth" });
-    }
-  }, []);
-
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
       {/* Animated gradient orbs */}
@@ -74,13 +65,13 @@ export function Hero() {
 
         {/* CTA button */}
         <div className="mt-12 hero-fade-in hero-fade-in-delay-4">
-          <button
-            onClick={scrollToContent}
-            className="group relative px-10 py-5 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-xl font-semibold text-white text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(124,58,237,0.5)]"
+          <Link
+            href="/dashboard"
+            className="group relative inline-block px-10 py-5 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-xl font-semibold text-white text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(124,58,237,0.5)]"
           >
             <span className="relative z-10">Start Tracking Free</span>
             <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </button>
+          </Link>
         </div>
       </div>
 
