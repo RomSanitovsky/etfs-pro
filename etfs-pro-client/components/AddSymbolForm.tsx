@@ -14,6 +14,7 @@ interface AddSymbolFormProps {
   existingSymbols: string[];
   isLoading?: boolean;
   symbolLimit: number;
+  isLoggedIn: boolean;
 }
 
 export function AddSymbolForm({
@@ -21,8 +22,10 @@ export function AddSymbolForm({
   existingSymbols,
   isLoading = false,
   symbolLimit,
+  isLoggedIn,
 }: AddSymbolFormProps) {
   const isAtLimit = existingSymbols.length >= symbolLimit;
+  const isDisabled = !isLoggedIn || isAtLimit;
   const [symbol, setSymbol] = useState("");
   const [error, setError] = useState("");
   const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
@@ -78,6 +81,11 @@ export function AddSymbolForm({
   const submitSymbol = (value: string) => {
     setError("");
     const trimmed = value.trim().toUpperCase();
+
+    if (!isLoggedIn) {
+      setError("Please sign in to add symbols");
+      return;
+    }
 
     if (!trimmed) {
       setError("Please enter a symbol");
@@ -144,9 +152,15 @@ export function AddSymbolForm({
             }}
             onKeyDown={handleKeyDown}
             onFocus={() => symbol.length >= 2 && suggestions.length > 0 && setShowSuggestions(true)}
-            placeholder={isAtLimit ? `Limit: ${existingSymbols.length}/${symbolLimit}` : "Add symbol (e.g., GOOGL)"}
-            className={`space-input w-full pl-4 ${isAtLimit ? "border-amber-500/50" : ""}`}
-            disabled={isLoading || isAtLimit}
+            placeholder={
+              !isLoggedIn
+                ? "Sign in to add symbols"
+                : isAtLimit
+                  ? `Limit: ${existingSymbols.length}/${symbolLimit}`
+                  : "Add symbol (e.g., GOOGL)"
+            }
+            className={`space-input w-full pl-4 ${isDisabled ? "border-slate-600/50 opacity-60" : ""}`}
+            disabled={isLoading || isDisabled}
             autoComplete="off"
           />
           {isSearching && (
@@ -180,17 +194,23 @@ export function AddSymbolForm({
             </ul>
           )}
         </div>
-        <button type="submit" className="space-button" disabled={isLoading || isAtLimit}>
-          {isLoading ? "Adding..." : isAtLimit ? "Full" : "Add"}
+        <button type="submit" className="space-button" disabled={isLoading || isDisabled}>
+          {isLoading ? "Adding..." : !isLoggedIn ? "Sign In" : isAtLimit ? "Full" : "Add"}
         </button>
       </form>
       {/* Symbol count indicator */}
       <div className="flex items-center justify-end mt-1 gap-2">
-        <span className={`text-xs ${isAtLimit ? "text-amber-400" : "text-slate-500"}`}>
-          {existingSymbols.length}/{symbolLimit} symbols
-        </span>
-        {isAtLimit && (
-          <span className="text-xs text-cyan-400">Upgrade for more</span>
+        {!isLoggedIn ? (
+          <span className="text-xs text-slate-500">Sign in to customize your watchlist</span>
+        ) : (
+          <>
+            <span className={`text-xs ${isAtLimit ? "text-amber-400" : "text-slate-500"}`}>
+              {existingSymbols.length}/{symbolLimit} symbols
+            </span>
+            {isAtLimit && (
+              <span className="text-xs text-cyan-400">Upgrade for more</span>
+            )}
+          </>
         )}
       </div>
     </div>

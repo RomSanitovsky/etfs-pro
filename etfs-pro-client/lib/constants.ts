@@ -23,7 +23,7 @@ export const STORAGE_KEYS = {
 
 // Subscription tier limits
 export const FREE_TIER_SYMBOL_LIMIT = 15;
-export const PREMIUM_SYMBOL_LIMIT = 100;
+export const PREMIUM_SYMBOL_LIMIT = 1000;
 export const PREMIUM_PRICE_MONTHLY = 4;
 
 export const PREMIUM_FEATURES = [

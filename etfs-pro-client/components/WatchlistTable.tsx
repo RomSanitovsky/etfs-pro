@@ -19,7 +19,7 @@ interface WatchlistTableProps {
 }
 
 export function WatchlistTable({ initialData }: WatchlistTableProps) {
-  const { symbolLimit } = useAuth();
+  const { symbolLimit, user } = useAuth();
   const [watchlist, setWatchlist] = useLocalStorage<string[]>(
     STORAGE_KEYS.WATCHLIST,
     DEFAULT_SYMBOLS
@@ -187,6 +187,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 existingSymbols={watchlist}
                 isLoading={isLoading}
                 symbolLimit={symbolLimit}
+                isLoggedIn={!!user}
               />
             </div>
             <div className="flex items-start gap-2">
