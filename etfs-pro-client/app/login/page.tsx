@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { StarField } from "@/components/StarField";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -11,6 +11,15 @@ import Link from "next/link";
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
+  // Track if this is the initial load vs an auth operation
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  useEffect(() => {
+    // Once loading becomes false for the first time, initial load is complete
+    if (!loading && !initialLoadComplete) {
+      setInitialLoadComplete(true);
+    }
+  }, [loading, initialLoadComplete]);
 
   useEffect(() => {
     if (!loading && user) {
@@ -22,7 +31,8 @@ export default function LoginPage() {
     router.push("/");
   };
 
-  if (loading) {
+  // Only show full-page spinner during initial auth check, not during sign-in attempts
+  if (!initialLoadComplete && loading) {
     return (
       <div className="min-h-screen relative flex items-center justify-center">
         <StarField />

@@ -89,14 +89,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
+    // Don't set global loading - let form components handle their own loading state
+    setState((prev) => ({ ...prev, error: null }));
     try {
       const userProfile = await signInWithEmail(email, password);
       setState({ user: userProfile, loading: false, error: null });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to sign in";
-      setState((prev) => ({ ...prev, loading: false, error: message }));
+      setState((prev) => ({ ...prev, error: message }));
       throw error;
     }
   };
@@ -106,27 +107,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     displayName?: string
   ) => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
+    // Don't set global loading - let form components handle their own loading state
+    setState((prev) => ({ ...prev, error: null }));
     try {
       const userProfile = await signUpWithEmail(email, password, displayName);
       setState({ user: userProfile, loading: false, error: null });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to sign up";
-      setState((prev) => ({ ...prev, loading: false, error: message }));
+      setState((prev) => ({ ...prev, error: message }));
       throw error;
     }
   };
 
   const signInGoogle = async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
+    // Don't set global loading - let the button component handle its own loading state
+    // This prevents the login page from unmounting during the sign-in popup
+    setState((prev) => ({ ...prev, error: null }));
     try {
       const userProfile = await signInWithGoogle();
       setState({ user: userProfile, loading: false, error: null });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to sign in with Google";
-      setState((prev) => ({ ...prev, loading: false, error: message }));
+      setState((prev) => ({ ...prev, error: message }));
       throw error;
     }
   };
