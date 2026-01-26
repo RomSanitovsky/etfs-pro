@@ -13,13 +13,16 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
   const { signInGoogle } = useAuth();
 
   const handleClick = async () => {
+    console.log("[GoogleSignInButton] Button clicked");
     setError("");
     setIsLoading(true);
 
     try {
       await signInGoogle();
+      console.log("[GoogleSignInButton] Sign-in succeeded");
       onSuccess?.();
     } catch (err) {
+      console.error("[GoogleSignInButton] Caught error:", err);
       const error = err as { code?: string; message?: string };
       const code = error.code || "";
       const message = error.message || "Failed to sign in";
@@ -40,10 +43,12 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
         setError("Network error. Please check your connection.");
       } else if (code === "auth/internal-error") {
         setError("Sign-in failed. Please try again.");
+      } else if (message.includes("not configured")) {
+        setError("Firebase not configured. Check environment variables.");
       } else {
-        // Log the full error for debugging
+        // Show actual error message for debugging
         console.error("Google sign-in error:", code, message);
-        setError("Sign-in failed. Please try again.");
+        setError(message || "Sign-in failed. Please try again.");
       }
     } finally {
       setIsLoading(false);

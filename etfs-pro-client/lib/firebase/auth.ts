@@ -80,12 +80,28 @@ async function processGoogleAuthResult(result: UserCredential): Promise<UserProf
 
 // Simple Google sign-in with popup
 export async function signInWithGoogle(): Promise<UserProfile> {
-  const authInstance = getAuthInstance();
-  const provider = getGoogleProvider();
+  console.log("[Auth] signInWithGoogle called");
 
-  // Use simple popup - most reliable across environments
-  const result = await signInWithPopup(authInstance, provider);
-  return processGoogleAuthResult(result);
+  let authInstance;
+  try {
+    authInstance = getAuthInstance();
+    console.log("[Auth] Got auth instance:", !!authInstance);
+  } catch (e) {
+    console.error("[Auth] Failed to get auth instance:", e);
+    throw e;
+  }
+
+  const provider = getGoogleProvider();
+  console.log("[Auth] Created Google provider, calling signInWithPopup...");
+
+  try {
+    const result = await signInWithPopup(authInstance, provider);
+    console.log("[Auth] signInWithPopup succeeded");
+    return processGoogleAuthResult(result);
+  } catch (e) {
+    console.error("[Auth] signInWithPopup failed:", e);
+    throw e;
+  }
 }
 
 export async function signOut(): Promise<void> {
