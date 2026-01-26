@@ -73,3 +73,52 @@ export interface AuthState {
 }
 
 export type SubscriptionTier = "free" | "premium";
+
+// Chart and Stock Detail types
+export type TimeRange = "1D" | "1W" | "1M" | "1Y" | "5Y";
+
+export interface ChartDataPoint {
+  timestamp: number;
+  date: string;
+  price: number;
+}
+
+export interface DetailedQuoteData {
+  symbol: string;
+  shortName: string;
+  longName: string | null;
+  regularMarketPrice: number;
+  regularMarketChange: number;
+  regularMarketChangePercent: number;
+  regularMarketDayHigh: number;
+  regularMarketDayLow: number;
+  regularMarketOpen: number;
+  regularMarketPreviousClose: number;
+  regularMarketVolume: number;
+  averageDailyVolume3Month: number | null;
+  averageDailyVolume10Day: number | null;
+  fiftyTwoWeekHigh: number;
+  fiftyTwoWeekLow: number;
+  fiftyDayAverage: number | null;
+  twoHundredDayAverage: number | null;
+  marketCap: number | null;
+  trailingPE: number | null;
+  forwardPE: number | null;
+  beta: number | null;
+  epsTrailingTwelveMonths: number | null;
+  priceToBook: number | null;
+  dividendYield: number | null;
+  netExpenseRatio: number | null;
+  currency: string;
+  exchange: string;
+  exchangeTimezoneName: string;
+  marketState: string;
+  quoteType: string;
+}
+
+export interface StockDetailData {
+  quote: DetailedQuoteData;
+  chartData: ChartDataPoint[];
+  allTimeHigh: number;
+  athDate: string;
+}

@@ -1,5 +1,5 @@
 import YahooFinance from "yahoo-finance2";
-import type { QuoteData } from "./types";
+import type { QuoteData, TimeRange, ChartDataPoint, DetailedQuoteData } from "./types";
 
 // Create instance for v3.x API
 const yahooFinance = new YahooFinance({ suppressNotices: ["yahooSurvey"] });
@@ -185,4 +185,124 @@ export async function fetchAllTimeHighsBatch(
   }
 
   return results;
+}
+
+// Time range configuration for chart data
+const TIME_RANGE_CONFIG: Record<TimeRange, { period1: string; interval: "1m" | "5m" | "1d" | "1wk" }> = {
+  "1D": { period1: "1d", interval: "5m" },
+  "1W": { period1: "1w", interval: "1d" },
+  "1M": { period1: "1mo", interval: "1d" },
+  "1Y": { period1: "1y", interval: "1d" },
+  "5Y": { period1: "5y", interval: "1wk" },
+};
+
+export async function fetchChartData(
+  symbol: string,
+  range: TimeRange
+): Promise<ChartDataPoint[]> {
+  try {
+    const config = TIME_RANGE_CONFIG[range];
+
+    // Use period2 as now and calculate period1 based on range
+    const now = new Date();
+    let period1Date: Date;
+
+    switch (range) {
+      case "1D":
+        period1Date = new Date(now);
+        period1Date.setDate(period1Date.getDate() - 1);
+        break;
+      case "1W":
+        period1Date = new Date(now);
+        period1Date.setDate(period1Date.getDate() - 7);
+        break;
+      case "1M":
+        period1Date = new Date(now);
+        period1Date.setMonth(period1Date.getMonth() - 1);
+        break;
+      case "1Y":
+        period1Date = new Date(now);
+        period1Date.setFullYear(period1Date.getFullYear() - 1);
+        break;
+      case "5Y":
+        period1Date = new Date(now);
+        period1Date.setFullYear(period1Date.getFullYear() - 5);
+        break;
+    }
+
+    const result = await withRetry(() =>
+      yahooFinance.chart(symbol, {
+        period1: period1Date,
+        period2: now,
+        interval: config.interval,
+      })
+    );
+
+    if (!result.quotes || result.quotes.length === 0) {
+      return [];
+    }
+
+    return result.quotes
+      .filter((q) => q.close !== null && q.close !== undefined)
+      .map((q) => ({
+        timestamp: q.date.getTime(),
+        date: q.date.toISOString(),
+        price: q.close as number,
+      }));
+  } catch (error) {
+    console.error(`Error fetching chart data for ${symbol}:`, error);
+    return [];
+  }
+}
+
+export async function fetchDetailedQuote(symbol: string): Promise<DetailedQuoteData | null> {
+  try {
+    const result = await withRetry(() => yahooFinance.quote(symbol));
+
+    // Type assertion for extended fields
+    const q = result as typeof result & {
+      dividendYield?: number;
+      netExpenseRatio?: number;
+      beta?: number;
+      epsTrailingTwelveMonths?: number;
+      priceToBook?: number;
+      forwardPE?: number;
+    };
+
+    return {
+      symbol: q.symbol,
+      shortName: q.shortName || q.symbol,
+      longName: q.longName || null,
+      regularMarketPrice: q.regularMarketPrice || 0,
+      regularMarketChange: q.regularMarketChange || 0,
+      regularMarketChangePercent: q.regularMarketChangePercent || 0,
+      regularMarketDayHigh: q.regularMarketDayHigh || 0,
+      regularMarketDayLow: q.regularMarketDayLow || 0,
+      regularMarketOpen: q.regularMarketOpen || 0,
+      regularMarketPreviousClose: q.regularMarketPreviousClose || 0,
+      regularMarketVolume: q.regularMarketVolume || 0,
+      averageDailyVolume3Month: q.averageDailyVolume3Month ?? null,
+      averageDailyVolume10Day: q.averageDailyVolume10Day ?? null,
+      fiftyTwoWeekHigh: q.fiftyTwoWeekHigh || 0,
+      fiftyTwoWeekLow: q.fiftyTwoWeekLow || 0,
+      fiftyDayAverage: q.fiftyDayAverage ?? null,
+      twoHundredDayAverage: q.twoHundredDayAverage ?? null,
+      marketCap: q.marketCap ?? null,
+      trailingPE: q.trailingPE ?? null,
+      forwardPE: q.forwardPE ?? null,
+      beta: q.beta ?? null,
+      epsTrailingTwelveMonths: q.epsTrailingTwelveMonths ?? null,
+      priceToBook: q.priceToBook ?? null,
+      dividendYield: q.dividendYield ?? null,
+      netExpenseRatio: q.netExpenseRatio ?? null,
+      currency: q.currency || "USD",
+      exchange: q.fullExchangeName || q.exchange || "Unknown",
+      exchangeTimezoneName: q.exchangeTimezoneName || "America/New_York",
+      marketState: q.marketState || "CLOSED",
+      quoteType: q.quoteType || "EQUITY",
+    };
+  } catch (error) {
+    console.error(`Error fetching detailed quote for ${symbol}:`, error);
+    return null;
+  }
 }

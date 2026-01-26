@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { StockData } from "@/lib/types";
 import { formatCurrency } from "@/lib/calculations";
 import { ATHBadge } from "./ATHBadge";
@@ -26,10 +27,19 @@ export function StockRow({ stock, onRemove }: StockRowProps) {
   return (
     <tr className="stock-row border-b border-slate-800/50">
       <td className="px-4 py-4">
-        <div className="flex items-center gap-2">
-          <span className="font-mono font-bold text-white">{stock.symbol}</span>
-        </div>
-        <span className="text-xs text-slate-500 block">{stock.name}</span>
+        <Link
+          href={`/stock/${stock.symbol}`}
+          className="group block"
+        >
+          <div className="flex items-center gap-2">
+            <span className="font-mono font-bold text-white group-hover:text-cyan-400 transition-colors">
+              {stock.symbol}
+            </span>
+          </div>
+          <span className="text-xs text-slate-500 block group-hover:text-slate-400 transition-colors">
+            {stock.name}
+          </span>
+        </Link>
       </td>
       <td className="px-4 py-4 text-right font-mono">
         {formatCurrency(stock.currentPrice, stock.currency)}
@@ -78,7 +88,7 @@ export function StockRow({ stock, onRemove }: StockRowProps) {
       </td>
       {/* Dividend Yield */}
       <td className="px-4 py-4 text-right">
-        <span className={`font-mono ${stock.dividendYield && stock.dividendYield > 0 ? "text-cyan-400" : "text-slate-500"}`}>
+        <span className={`font-mono ${stock.dividendYield && stock.dividendYield > 0 ? "text-white" : "text-slate-500"}`}>
           {stock.dividendYield !== null ? `${stock.dividendYield.toFixed(2)}%` : "—"}
         </span>
       </td>
