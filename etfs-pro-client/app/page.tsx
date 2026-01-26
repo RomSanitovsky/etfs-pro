@@ -4,6 +4,7 @@ import { DEFAULT_SYMBOLS, DEFAULT_ATH_THRESHOLD } from "@/lib/constants";
 import { WatchlistTable } from "@/components/WatchlistTable";
 import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
+import { Hero } from "@/components/Hero";
 import { SubscriptionSection } from "@/components/subscription/SubscriptionSection";
 import { WhyChooseUsSection } from "@/components/WhyChooseUsSection";
 import type { StockData } from "@/lib/types";
@@ -40,49 +41,29 @@ export default async function Home() {
   const initialData = await getInitialStockData();
 
   return (
-    <div className="min-h-screen relative">
+    <div className="relative">
       <StarField />
       <Header />
 
-      <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-6xl">
-        {/* Header */}
-        <header className="text-center mb-12">
-          {/* Futuristic Title */}
-          <div className="relative inline-block">
-            {/* Glow backdrop */}
-            <div className="absolute inset-0 blur-3xl opacity-30 bg-gradient-to-r from-purple-600 via-cyan-500 to-purple-600 animate-pulse" />
-            
-            {/* Decorative lines */}
-            <div className="absolute -left-8 top-1/2 -translate-y-1/2 w-6 h-px bg-gradient-to-r from-transparent via-cyan-400 to-cyan-400 hidden md:block" />
-            <div className="absolute -right-8 top-1/2 -translate-y-1/2 w-6 h-px bg-gradient-to-l from-transparent via-cyan-400 to-cyan-400 hidden md:block" />
-            
-            {/* Main title */}
-            <h1 className="relative text-4xl md:text-6xl font-black tracking-tight mb-1">
-              <span className="hero-title">
-                ETFs
-              </span>
-              <span className="hero-title-accent mx-2">
-                PRO
-              </span>
-              <span className="hero-title">
-                Tracker
-              </span>
-            </h1>
-            
-            {/* Subtitle bar */}
-            <div className="flex items-center justify-center gap-3 mt-4">
-              <div className="h-px w-12 bg-gradient-to-r from-transparent to-purple-500" />
-              <span className="text-sm font-mono tracking-[0.3em] text-cyan-400/80 uppercase">
-                Real-Time Market Intelligence
-              </span>
-              <div className="h-px w-12 bg-gradient-to-l from-transparent to-purple-500" />
-            </div>
+      {/* Hero Section - Full viewport */}
+      <Hero />
+
+      {/* Main Content Section */}
+      <main id="main-content" className="relative z-10 container mx-auto px-4 py-16 max-w-6xl">
+        {/* Section header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-4">
+            <span className="text-xs font-medium text-cyan-400 tracking-wide uppercase">Live Dashboard</span>
           </div>
-          
-          <p className="text-slate-400 text-base mt-6 max-w-md mx-auto">
-            Track your investments against all-time highs with precision analytics
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            <span className="hero-title">Your</span>
+            <span className="hero-title-accent mx-2">ETF</span>
+            <span className="hero-title">Watchlist</span>
+          </h2>
+          <p className="text-slate-400 max-w-lg mx-auto">
+            Real-time tracking with all-time high analytics and price alerts
           </p>
-        </header>
+        </div>
 
         {/* Main content */}
         <WatchlistTable initialData={initialData} />
