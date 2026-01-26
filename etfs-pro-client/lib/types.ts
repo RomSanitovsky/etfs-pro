@@ -1,4 +1,4 @@
-export type AssetType = "etf" | "stock";
+export type AssetType = "etf" | "stock" | "crypto";
 
 export interface StockData {
   symbol: string;
@@ -16,7 +16,7 @@ export interface StockData {
   assetType: AssetType; // "etf" if has expense ratio, "stock" otherwise
 }
 
-export type AssetFilter = "all" | "etf" | "stock";
+export type AssetFilter = "all" | "etf" | "stock" | "crypto";
 
 export interface QuoteData {
   symbol: string;

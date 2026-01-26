@@ -5,6 +5,7 @@ import { WatchlistTable } from "@/components/WatchlistTable";
 import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
 import { SubscriptionSection } from "@/components/subscription/SubscriptionSection";
+import { WhyChooseUsSection } from "@/components/WhyChooseUsSection";
 import type { StockData } from "@/lib/types";
 
 export const revalidate = 60;
@@ -104,6 +105,9 @@ export default async function Home() {
 
         {/* Subscription Section */}
         <SubscriptionSection />
+
+        {/* Why Choose Us Section */}
+        <WhyChooseUsSection />
       </main>
     </div>
   );

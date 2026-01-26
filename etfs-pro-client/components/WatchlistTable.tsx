@@ -23,6 +23,14 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
     STORAGE_KEYS.WATCHLIST,
     DEFAULT_SYMBOLS
   );
+
+  // Enforce hard cap on watchlist when it exceeds the symbol limit
+  // This handles cases like: user has 20 symbols in localStorage, then goes to free mode
+  useEffect(() => {
+    if (watchlist.length > symbolLimit) {
+      setWatchlist(watchlist.slice(0, symbolLimit));
+    }
+  }, [watchlist, symbolLimit, setWatchlist]);
   const [threshold, setThreshold] = useLocalStorage<number>(
     STORAGE_KEYS.ATH_THRESHOLD,
     DEFAULT_ATH_THRESHOLD
@@ -91,6 +99,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
     all: stocks.length,
     etf: stocks.filter(s => s.assetType === "etf").length,
     stock: stocks.filter(s => s.assetType === "stock").length,
+    crypto: stocks.filter(s => s.assetType === "crypto").length,
   }), [stocks]);
 
   // Sort and filter stocks

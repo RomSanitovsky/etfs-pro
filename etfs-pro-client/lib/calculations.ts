@@ -1,4 +1,18 @@
-import type { StockData, QuoteData } from "./types";
+import type { StockData, QuoteData, AssetType } from "./types";
+
+// Common cryptocurrency symbols that trade with -USD suffix
+const CRYPTO_SYMBOLS = new Set([
+  "BTC-USD", "ETH-USD", "BNB-USD", "XRP-USD", "ADA-USD", "DOGE-USD",
+  "SOL-USD", "DOT-USD", "MATIC-USD", "SHIB-USD", "AVAX-USD", "LINK-USD",
+  "LTC-USD", "UNI-USD", "ATOM-USD", "XLM-USD", "ALGO-USD", "VET-USD",
+  "FIL-USD", "AAVE-USD", "EOS-USD", "XTZ-USD", "THETA-USD", "XMR-USD",
+]);
+
+function isCryptoSymbol(symbol: string): boolean {
+  // Check if it's in our known crypto list or ends with -USD (common pattern)
+  return CRYPTO_SYMBOLS.has(symbol.toUpperCase()) ||
+         (symbol.endsWith("-USD") && !symbol.includes("."));
+}
 
 export function calculatePercentDown(
   currentPrice: number,
@@ -50,9 +64,19 @@ export function buildStockData(
     dailyChangePercent: quote.dailyChangePercent,
     dividendYield: quote.dividendYield,
     expenseRatio: quote.expenseRatio,
-    // Determine asset type: ETFs have expense ratios, stocks don't
-    assetType: quote.expenseRatio !== null ? "etf" : "stock",
+    // Determine asset type: crypto first, then ETFs (have expense ratios), else stocks
+    assetType: determineAssetType(quote.symbol, quote.expenseRatio),
   };
+}
+
+function determineAssetType(symbol: string, expenseRatio: number | null): AssetType {
+  if (isCryptoSymbol(symbol)) {
+    return "crypto";
+  }
+  if (expenseRatio !== null) {
+    return "etf";
+  }
+  return "stock";
 }
 
 export function formatCurrency(value: number, currency: string = "USD"): string {

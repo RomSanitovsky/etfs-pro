@@ -20,12 +20,35 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
       await signInGoogle();
       onSuccess?.();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to sign in";
-      if (message.includes("popup-closed-by-user")) {
-        // User closed the popup, not really an error
+      const error = err as { code?: string; message?: string };
+      const code = error.code || "";
+      const message = error.message || "Failed to sign in";
+
+      // User cancelled - not an error
+      if (code === "auth/popup-closed-by-user" ||
+          code === "auth/cancelled-popup-request" ||
+          message.includes("popup-closed-by-user")) {
         return;
       }
-      setError(message);
+
+      // Redirecting - not an error, show loading state
+      if (message.includes("Redirecting")) {
+        // Keep loading state, user will be redirected
+        return;
+      }
+
+      // Show user-friendly error messages
+      if (code === "auth/popup-blocked") {
+        setError("Popup was blocked. Redirecting to Google sign-in...");
+        return;
+      }
+      if (code === "auth/unauthorized-domain") {
+        setError("This domain is not authorized. Please contact support.");
+      } else if (code === "auth/network-request-failed") {
+        setError("Network error. Please check your connection.");
+      } else {
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }

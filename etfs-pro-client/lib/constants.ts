@@ -7,6 +7,8 @@ export const DEFAULT_SYMBOLS = [
   "AAPL",
   "NVDA",
   "MSFT",
+  "BTC-USD",
+  "ETH-USD",
 ];
 
 export const DEFAULT_ATH_THRESHOLD = 1; // 1% - stocks within this % of ATH get badge
@@ -20,7 +22,7 @@ export const STORAGE_KEYS = {
 } as const;
 
 // Subscription tier limits
-export const FREE_TIER_SYMBOL_LIMIT = 8;
+export const FREE_TIER_SYMBOL_LIMIT = 15;
 export const PREMIUM_SYMBOL_LIMIT = 100;
 export const PREMIUM_PRICE_MONTHLY = 4;
 
