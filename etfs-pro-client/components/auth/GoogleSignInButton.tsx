@@ -26,28 +26,24 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
 
       // User cancelled - not an error
       if (code === "auth/popup-closed-by-user" ||
-          code === "auth/cancelled-popup-request" ||
-          message.includes("popup-closed-by-user")) {
-        return;
-      }
-
-      // Redirecting - not an error, show loading state
-      if (message.includes("Redirecting")) {
-        // Keep loading state, user will be redirected
+          code === "auth/cancelled-popup-request") {
+        setIsLoading(false);
         return;
       }
 
       // Show user-friendly error messages
       if (code === "auth/popup-blocked") {
-        setError("Popup was blocked. Redirecting to Google sign-in...");
-        return;
-      }
-      if (code === "auth/unauthorized-domain") {
-        setError("This domain is not authorized. Please contact support.");
+        setError("Popup was blocked. Please allow popups for this site.");
+      } else if (code === "auth/unauthorized-domain") {
+        setError("This domain is not authorized for sign-in.");
       } else if (code === "auth/network-request-failed") {
         setError("Network error. Please check your connection.");
+      } else if (code === "auth/internal-error") {
+        setError("Sign-in failed. Please try again.");
       } else {
-        setError(message);
+        // Log the full error for debugging
+        console.error("Google sign-in error:", code, message);
+        setError("Sign-in failed. Please try again.");
       }
     } finally {
       setIsLoading(false);

@@ -16,7 +16,6 @@ import {
   signInWithGoogle,
   signOut as firebaseSignOut,
   onAuthChange,
-  checkGoogleRedirectResult,
 } from "@/lib/firebase/auth";
 import { getUserDocument, upgradeToPremiumTest, downgradeFromPremiumTest } from "@/lib/firebase/firestore";
 
@@ -57,29 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Failed to refresh user:", error);
     }
   }, [state.user]);
-
-  // Check for Google redirect result on mount (handles redirect-based sign-in)
-  useEffect(() => {
-    let isMounted = true;
-
-    const handleRedirectResult = async () => {
-      try {
-        const userProfile = await checkGoogleRedirectResult();
-        if (userProfile && isMounted) {
-          setState({ user: userProfile, loading: false, error: null });
-        }
-      } catch (error) {
-        console.error("Redirect result error:", error);
-        // Don't set error state - the auth listener will handle the actual auth state
-      }
-    };
-
-    handleRedirectResult();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   // Listen for auth state changes
   useEffect(() => {

@@ -34,6 +34,17 @@
   box-sizing: border-box;
 }
 
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 body {
   background: var(--space-black);
   color: var(--text-primary);
@@ -41,12 +52,14 @@ body {
   min-height: 100vh;
 }
 
-/* Glass morphism card */
+/* Glass morphism card - optimized for scroll performance */
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: 16px;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Gradient border effect */
@@ -97,32 +110,17 @@ body {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Star field background */
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
-}
+/* Star field background - now handled by CSS-only StarField component */
 
-.star {
-  position: absolute;
-  background: white;
-  border-radius: 50%;
-  animation: twinkle 3s ease-in-out infinite;
-}
-
-/* Table row hover effect */
+/* Table row hover effect - GPU accelerated */
 .stock-row {
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  will-change: transform;
 }
 
 .stock-row:hover {
   background: rgba(124, 58, 237, 0.1);
-  transform: translateX(4px);
+  transform: translateX(4px) translateZ(0);
 }
 
 /* Sort header styling */
