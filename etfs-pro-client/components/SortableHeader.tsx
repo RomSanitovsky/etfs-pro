@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { SortField, SortDirection } from "@/lib/types";
 
 interface SortableHeaderProps {
@@ -8,6 +10,56 @@ interface SortableHeaderProps {
   currentSort: { field: SortField; direction: SortDirection };
   onSort: (field: SortField) => void;
   align?: "left" | "right";
+  tooltip?: string;
+}
+
+interface TooltipPortalProps {
+  content: string;
+  triggerRect: DOMRect | null;
+}
+
+function TooltipPortal({ content, triggerRect }: TooltipPortalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !triggerRect) return null;
+
+  // Calculate position - center above the trigger
+  const tooltipWidth = 256; // w-64 = 16rem = 256px
+  let left = triggerRect.left + triggerRect.width / 2 - tooltipWidth / 2;
+  const top = triggerRect.top - 8; // 8px gap above trigger
+
+  // Keep tooltip within viewport
+  if (left < 8) left = 8;
+  if (left + tooltipWidth > window.innerWidth - 8) {
+    left = window.innerWidth - tooltipWidth - 8;
+  }
+
+  return createPortal(
+    <div
+      className="fixed z-[9999] pointer-events-none"
+      style={{
+        left: `${left}px`,
+        top: `${top}px`,
+        transform: "translateY(-100%)",
+      }}
+    >
+      <div className="px-3 py-2 text-sm font-normal text-slate-200 bg-slate-800/95 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl text-left w-64">
+        <p className="leading-relaxed">{content}</p>
+      </div>
+      <div
+        className="absolute w-0 h-0 border-[6px] border-t-slate-700 border-x-transparent border-b-transparent"
+        style={{
+          left: `${triggerRect.left + triggerRect.width / 2 - left - 6}px`,
+          top: "100%",
+        }}
+      />
+    </div>,
+    document.body
+  );
 }
 
 export function SortableHeader({
@@ -16,8 +68,23 @@ export function SortableHeader({
   currentSort,
   onSort,
   align = "left",
+  tooltip,
 }: SortableHeaderProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const isActive = currentSort.field === field;
+
+  const handleMouseEnter = () => {
+    if (buttonRef.current) {
+      setTriggerRect(buttonRef.current.getBoundingClientRect());
+    }
+    setShowTooltip(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
 
   return (
     <th
@@ -31,6 +98,40 @@ export function SortableHeader({
         {isActive && (
           <span className="text-xs">
             {currentSort.direction === "asc" ? "▲" : "▼"}
+          </span>
+        )}
+        {tooltip && (
+          <span
+            className="relative"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              ref={buttonRef}
+              className="ml-0.5 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
+              onFocus={handleMouseEnter}
+              onBlur={handleMouseLeave}
+              aria-label={`Info about ${label}`}
+            >
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </button>
+
+            {showTooltip && (
+              <TooltipPortal content={tooltip} triggerRect={triggerRect} />
+            )}
           </span>
         )}
       </span>

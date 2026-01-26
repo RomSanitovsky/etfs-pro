@@ -1,6 +1,9 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { DetailedQuoteData } from "@/lib/types";
+import { DEFINITIONS } from "@/lib/definitions";
 
 interface StatsGridProps {
   quote: DetailedQuoteData;
@@ -44,19 +47,123 @@ function formatPercent(value: number | null): string {
   return `${value.toFixed(2)}%`;
 }
 
+interface TooltipPortalProps {
+  content: string;
+  triggerRect: DOMRect | null;
+}
+
+function TooltipPortal({ content, triggerRect }: TooltipPortalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !triggerRect) return null;
+
+  const tooltipWidth = 256;
+  let left = triggerRect.left + triggerRect.width / 2 - tooltipWidth / 2;
+  const top = triggerRect.top - 8;
+
+  if (left < 8) left = 8;
+  if (left + tooltipWidth > window.innerWidth - 8) {
+    left = window.innerWidth - tooltipWidth - 8;
+  }
+
+  return createPortal(
+    <div
+      className="fixed z-[9999] pointer-events-none"
+      style={{
+        left: `${left}px`,
+        top: `${top}px`,
+        transform: "translateY(-100%)",
+      }}
+    >
+      <div className="px-3 py-2 text-sm text-slate-200 bg-slate-800/95 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl w-64">
+        <p className="leading-relaxed">{content}</p>
+      </div>
+      <div
+        className="absolute w-0 h-0 border-[6px] border-t-slate-700 border-x-transparent border-b-transparent"
+        style={{
+          left: `${triggerRect.left + triggerRect.width / 2 - left - 6}px`,
+          top: "100%",
+        }}
+      />
+    </div>,
+    document.body
+  );
+}
+
+interface InfoTooltipProps {
+  content: string;
+}
+
+function InfoTooltip({ content }: InfoTooltipProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const handleMouseEnter = () => {
+    if (buttonRef.current) {
+      setTriggerRect(buttonRef.current.getBoundingClientRect());
+    }
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsVisible(false);
+  };
+
+  return (
+    <span
+      className="relative inline-flex items-center ml-1"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <button
+        ref={buttonRef}
+        className="text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
+        onFocus={handleMouseEnter}
+        onBlur={handleMouseLeave}
+        aria-label="More information"
+      >
+        <svg
+          className="w-3.5 h-3.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </button>
+
+      {isVisible && <TooltipPortal content={content} triggerRect={triggerRect} />}
+    </span>
+  );
+}
+
 interface StatCardProps {
   label: string;
   value: string;
   subValue?: string;
+  tooltip?: string;
 }
 
-function StatCard({ label, value, subValue }: StatCardProps) {
+function StatCard({ label, value, subValue, tooltip }: StatCardProps) {
   return (
     <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-      <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">
-        {label}
-      </p>
-      <p className="text-lg font-mono font-semibold text-white">{value}</p>
+      <div className="flex items-center">
+        <p className="text-xs text-slate-400 uppercase tracking-wide">
+          {label}
+        </p>
+        {tooltip && <InfoTooltip content={tooltip} />}
+      </div>
+      <p className="text-lg font-mono font-semibold text-white mt-1">{value}</p>
       {subValue && (
         <p className="text-xs text-slate-500 mt-0.5">{subValue}</p>
       )}
@@ -92,6 +199,7 @@ export function StatsGrid({ quote, allTimeHigh, athDate }: StatsGridProps) {
         <StatCard
           label="Market Cap"
           value={formatLargeNumber(quote.marketCap)}
+          tooltip={DEFINITIONS.marketCap}
         />
         <StatCard
           label="P/E Ratio"
@@ -99,54 +207,71 @@ export function StatsGrid({ quote, allTimeHigh, athDate }: StatsGridProps) {
           subValue={
             quote.forwardPE ? `Fwd: ${formatNumber(quote.forwardPE)}` : undefined
           }
+          tooltip={DEFINITIONS.peRatio}
         />
         <StatCard
           label="Volume"
           value={formatVolume(quote.regularMarketVolume)}
           subValue={`Avg: ${formatVolume(quote.averageDailyVolume10Day)}`}
+          tooltip={DEFINITIONS.volume}
         />
-        <StatCard label="Beta" value={formatNumber(quote.beta)} />
+        <StatCard
+          label="Beta"
+          value={formatNumber(quote.beta)}
+          tooltip={DEFINITIONS.beta}
+        />
 
         <StatCard
           label="52W Low"
           value={formatCurrency(quote.fiftyTwoWeekLow, quote.currency)}
+          tooltip={DEFINITIONS.fiftyTwoWeekLow}
         />
         <StatCard
           label="52W High"
           value={formatCurrency(quote.fiftyTwoWeekHigh, quote.currency)}
+          tooltip={DEFINITIONS.fiftyTwoWeekHigh}
         />
         <StatCard
           label="50-Day MA"
           value={formatCurrency(quote.fiftyDayAverage, quote.currency)}
+          tooltip={DEFINITIONS.fiftyDayMA}
         />
         <StatCard
           label="200-Day MA"
           value={formatCurrency(quote.twoHundredDayAverage, quote.currency)}
+          tooltip={DEFINITIONS.twoHundredDayMA}
         />
 
         <StatCard
           label="Div Yield"
           value={formatPercent(quote.dividendYield)}
+          tooltip={DEFINITIONS.dividendYield}
         />
         <StatCard
           label="Exp Ratio"
           value={formatPercent(quote.netExpenseRatio)}
+          tooltip={DEFINITIONS.expenseRatio}
         />
         <StatCard
           label="Day Range"
           value={`${formatCurrency(quote.regularMarketDayLow, quote.currency).replace("$", "")} - ${formatCurrency(quote.regularMarketDayHigh, quote.currency).replace("$", "")}`}
+          tooltip={DEFINITIONS.dayRange}
         />
         <StatCard
           label="Prev Close"
           value={formatCurrency(quote.regularMarketPreviousClose, quote.currency)}
+          tooltip={DEFINITIONS.previousClose}
         />
       </div>
 
       {/* 52-Week Range Bar */}
       <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-        <p className="text-xs text-slate-400 uppercase tracking-wide mb-3">
-          52-Week Range
-        </p>
+        <div className="flex items-center mb-3">
+          <p className="text-xs text-slate-400 uppercase tracking-wide">
+            52-Week Range
+          </p>
+          <InfoTooltip content={DEFINITIONS.fiftyTwoWeekRange} />
+        </div>
         <div className="flex items-center gap-3">
           <span className="text-sm font-mono text-slate-400">
             {formatCurrency(quote.fiftyTwoWeekLow, quote.currency)}
@@ -169,9 +294,12 @@ export function StatsGrid({ quote, allTimeHigh, athDate }: StatsGridProps) {
 
       {/* ATH Analysis */}
       <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
-        <p className="text-xs text-slate-400 uppercase tracking-wide mb-3">
-          All-Time High Analysis
-        </p>
+        <div className="flex items-center mb-3">
+          <p className="text-xs text-slate-400 uppercase tracking-wide">
+            All-Time High Analysis
+          </p>
+          <InfoTooltip content={DEFINITIONS.athAnalysis} />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <p className="text-sm text-slate-500 mb-1">All-Time High</p>

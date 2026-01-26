@@ -12,6 +12,7 @@ import { StockRow } from "./StockRow";
 import { SettingsPanel } from "./SettingsPanel";
 import { StatsCards } from "./StatsCards";
 import { AssetFilter } from "./AssetFilter";
+import { DEFINITIONS } from "@/lib/definitions";
 
 interface WatchlistTableProps {
   initialData: StockData[];
@@ -243,6 +244,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 label="Symbol"
                 currentSort={sortConfig}
                 onSort={handleSort}
+                tooltip={DEFINITIONS.symbol}
               />
               <SortableHeader
                 field="currentPrice"
@@ -250,6 +252,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 currentSort={sortConfig}
                 onSort={handleSort}
                 align="right"
+                tooltip={DEFINITIONS.price}
               />
               <SortableHeader
                 field="dailyChangePercent"
@@ -257,6 +260,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 currentSort={sortConfig}
                 onSort={handleSort}
                 align="right"
+                tooltip={DEFINITIONS.dayChange}
               />
               <SortableHeader
                 field="allTimeHigh"
@@ -264,6 +268,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 currentSort={sortConfig}
                 onSort={handleSort}
                 align="right"
+                tooltip={DEFINITIONS.allTimeHigh}
               />
               <SortableHeader
                 field="percentDown"
@@ -271,6 +276,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 currentSort={sortConfig}
                 onSort={handleSort}
                 align="right"
+                tooltip={DEFINITIONS.percentDown}
               />
               <SortableHeader
                 field="percentToATH"
@@ -278,6 +284,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 currentSort={sortConfig}
                 onSort={handleSort}
                 align="right"
+                tooltip={DEFINITIONS.percentToATH}
               />
               <SortableHeader
                 field="expenseRatio"
@@ -285,6 +292,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 currentSort={sortConfig}
                 onSort={handleSort}
                 align="right"
+                tooltip={DEFINITIONS.expenseRatio}
               />
               <SortableHeader
                 field="dividendYield"
@@ -292,6 +300,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 currentSort={sortConfig}
                 onSort={handleSort}
                 align="right"
+                tooltip={DEFINITIONS.dividendYield}
               />
               <th className="px-4 py-3 w-12"></th>
             </tr>
