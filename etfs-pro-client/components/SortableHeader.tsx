@@ -27,12 +27,10 @@ function TooltipPortal({ content, triggerRect }: TooltipPortalProps) {
 
   if (!mounted || !triggerRect) return null;
 
-  // Calculate position - center above the trigger
-  const tooltipWidth = 256; // w-64 = 16rem = 256px
+  const tooltipWidth = 256;
   let left = triggerRect.left + triggerRect.width / 2 - tooltipWidth / 2;
-  const top = triggerRect.top - 8; // 8px gap above trigger
+  const top = triggerRect.top - 8;
 
-  // Keep tooltip within viewport
   if (left < 8) left = 8;
   if (left + tooltipWidth > window.innerWidth - 8) {
     left = window.innerWidth - tooltipWidth - 8;
@@ -88,11 +86,12 @@ export function SortableHeader({
 
   return (
     <th
-      className={`sort-header px-4 py-3 font-semibold text-sm ${
+      className={`sort-header px-4 py-3 font-semibold text-sm relative ${
         align === "right" ? "text-right" : "text-left"
       } ${isActive ? "text-cyan-400" : "text-slate-400"}`}
       onClick={() => onSort(field)}
     >
+      {/* Main label and sort indicator */}
       <span className="inline-flex items-center gap-1">
         {label}
         {isActive && (
@@ -100,41 +99,43 @@ export function SortableHeader({
             {currentSort.direction === "asc" ? "▲" : "▼"}
           </span>
         )}
-        {tooltip && (
-          <span
-            className="relative"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              ref={buttonRef}
-              className="ml-0.5 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
-              onFocus={handleMouseEnter}
-              onBlur={handleMouseLeave}
-              aria-label={`Info about ${label}`}
-            >
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </button>
-
-            {showTooltip && (
-              <TooltipPortal content={tooltip} triggerRect={triggerRect} />
-            )}
-          </span>
-        )}
       </span>
+
+      {/* Info icon - absolutely positioned top-right */}
+      {tooltip && (
+        <span
+          className="absolute top-1 right-1"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            ref={buttonRef}
+            className="p-0.5 text-slate-600 hover:text-slate-400 transition-colors focus:outline-none"
+            onFocus={handleMouseEnter}
+            onBlur={handleMouseLeave}
+            aria-label={`Info about ${label}`}
+          >
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
+
+          {showTooltip && (
+            <TooltipPortal content={tooltip} triggerRect={triggerRect} />
+          )}
+        </span>
+      )}
     </th>
   );
 }
