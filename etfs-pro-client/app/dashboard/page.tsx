@@ -66,7 +66,10 @@ export default async function Dashboard() {
         {/* Legend */}
         <div className="mt-8 flex flex-wrap gap-6 justify-center text-sm text-slate-400">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-amber-400"></span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-semibold">
+              <span className="text-sm">★</span>
+              ATH
+            </span>
             <span>Near ATH</span>
           </div>
           <div className="flex items-center gap-2">
@@ -84,6 +87,13 @@ export default async function Dashboard() {
 
         {/* Why Choose Us Section */}
         <WhyChooseUsSection />
+
+        {/* Legal Disclaimer */}
+        <div className="mt-16 pt-8 border-t border-slate-800">
+          <p className="text-xs text-slate-500 text-center max-w-3xl mx-auto leading-relaxed">
+            <span className="font-semibold text-slate-400">Disclaimer:</span> The information provided on this website is for informational purposes only and does not constitute financial, investment, or trading advice. Price data, all-time high calculations, and other market information may be delayed, inaccurate, or incomplete. We make no representations or warranties regarding the accuracy, completeness, or timeliness of any data displayed. You are solely responsible for verifying all information before making any investment decisions. Past performance is not indicative of future results. Use of this service is at your own risk.
+          </p>
+        </div>
       </main>
     </div>
   );
