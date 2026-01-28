@@ -4,6 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { AddTransactionInput, PortfolioTransaction } from "@/lib/types";
 
+interface SearchResult {
+  symbol: string;
+  name: string;
+  type: string;
+  exchange: string;
+}
+
 export interface EditingTransaction {
   symbol: string;
   transaction: PortfolioTransaction;
@@ -25,6 +32,7 @@ export function AddTransactionModal({
   editingTransaction,
 }: AddTransactionModalProps) {
   const isEditMode = !!editingTransaction;
+  const isSymbolLocked = !!prefilledSymbol || isEditMode;
   const [symbol, setSymbol] = useState(prefilledSymbol);
   const [shares, setShares] = useState("");
   const [pricePerShare, setPricePerShare] = useState("");
@@ -33,8 +41,40 @@ export function AddTransactionModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Symbol search state
+  const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+
   const modalRef = useRef<HTMLDivElement>(null);
   const symbolInputRef = useRef<HTMLInputElement>(null);
+
+  // Debounced symbol search
+  useEffect(() => {
+    if (isSymbolLocked || symbol.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(symbol)}`);
+        const data = await response.json();
+        setSuggestions(data.results || []);
+        setShowSuggestions(true);
+        setSelectedIndex(-1);
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [symbol, isSymbolLocked]);
 
   // Reset form when modal opens (or pre-fill in edit mode)
   useEffect(() => {
@@ -54,18 +94,26 @@ export function AddTransactionModal({
         setNotes("");
       }
       setError(null);
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
       // Focus symbol input if not prefilled and not editing
       if (!prefilledSymbol && !editingTransaction) {
-        symbolInputRef.current?.focus();
+        setTimeout(() => symbolInputRef.current?.focus(), 0);
       }
     }
   }, [isOpen, prefilledSymbol, editingTransaction]);
 
-  // Close on escape key
+  // Close on escape key (close suggestions first if open)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        if (showSuggestions) {
+          setShowSuggestions(false);
+          setSelectedIndex(-1);
+        } else {
+          onClose();
+        }
       }
     };
 
@@ -73,7 +121,40 @@ export function AddTransactionModal({
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, showSuggestions]);
+
+  const handleSelectSuggestion = (suggestion: SearchResult) => {
+    setSymbol(suggestion.symbol);
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setSelectedIndex(-1);
+  };
+
+  const handleSymbolKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+        break;
+      case "Enter":
+        if (selectedIndex >= 0) {
+          e.preventDefault();
+          handleSelectSuggestion(suggestions[selectedIndex]);
+        }
+        break;
+      case "Escape":
+        e.preventDefault();
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        break;
+    }
+  };
 
   // Close on backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -157,22 +238,55 @@ export function AddTransactionModal({
           )}
 
           {/* Symbol */}
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-foreground/80 mb-1.5">
               Symbol
             </label>
-            <input
-              ref={symbolInputRef}
-              type="text"
-              value={symbol}
-              onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-              placeholder="AAPL, VOO, BTC-USD..."
-              className="w-full px-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
-                         text-foreground placeholder-subtle font-mono
-                         focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
-                         transition-colors"
-              disabled={!!prefilledSymbol || isEditMode}
-            />
+            <div className="relative">
+              <input
+                ref={symbolInputRef}
+                type="text"
+                value={symbol}
+                onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                onKeyDown={handleSymbolKeyDown}
+                onFocus={() => symbol.length >= 2 && suggestions.length > 0 && setShowSuggestions(true)}
+                placeholder="Search symbol (e.g., AAPL, VOO)..."
+                className="w-full px-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
+                           text-foreground placeholder-subtle font-mono
+                           focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
+                           transition-colors"
+                disabled={isSymbolLocked}
+                autoComplete="off"
+              />
+              {isSearching && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="w-4 h-4 border-2 border-subtle border-t-cosmic rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+
+            {/* Suggestions dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="absolute z-50 w-full mt-1 bg-background border border-[var(--theme-card-border)] rounded-lg shadow-xl max-h-48 overflow-auto">
+                {suggestions.map((suggestion, index) => (
+                  <li key={suggestion.symbol}>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSuggestion(suggestion)}
+                      className={`w-full px-3 py-2 text-left flex items-center justify-between hover:bg-surface transition-colors ${
+                        index === selectedIndex ? "bg-surface" : ""
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <span className="font-mono font-bold text-foreground">{suggestion.symbol}</span>
+                        <span className="text-muted text-sm ml-2 truncate">{suggestion.name}</span>
+                      </div>
+                      <span className="text-xs text-subtle ml-2 shrink-0">{suggestion.type}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Shares and Price */}
