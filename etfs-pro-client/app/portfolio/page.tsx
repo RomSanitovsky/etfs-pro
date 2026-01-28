@@ -142,7 +142,7 @@ export default function PortfolioPage() {
             {summary && <PortfolioSummaryCards summary={summary} />}
 
             {/* Allocation Pie Chart */}
-            <PortfolioPieChart holdings={holdings} breakdownThreshold={5} />
+            <PortfolioPieChart holdings={holdings} />
 
             {/* Holdings Table */}
             <PortfolioTable

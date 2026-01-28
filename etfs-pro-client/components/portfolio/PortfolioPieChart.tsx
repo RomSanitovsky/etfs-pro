@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -15,9 +15,9 @@ import { formatCurrency } from "@/lib/calculations";
 
 interface PortfolioPieChartProps {
   holdings: PortfolioHoldingWithMetrics[];
-  /** Only show holdings with allocation >= this percentage in the breakdown list; combine the rest into "Others". Default: 0 (show all) */
-  breakdownThreshold?: number;
 }
+
+const THRESHOLD_OPTIONS = [0, 3, 5, 10, 15, 20];
 
 const COLORS = [
   "#8b5cf6", // violet
@@ -102,7 +102,8 @@ function renderCustomLabel(props: PieLabelRenderProps) {
   );
 }
 
-export function PortfolioPieChart({ holdings, breakdownThreshold = 0 }: PortfolioPieChartProps) {
+export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
+  const [breakdownThreshold, setBreakdownThreshold] = useState(5);
   const chartData = useMemo(() => {
     if (!holdings.length) return [];
     return holdings
@@ -206,8 +207,21 @@ export function PortfolioPieChart({ holdings, breakdownThreshold = 0 }: Portfoli
 
           {/* Holdings breakdown */}
           <div className="w-full lg:w-1/2 space-y-2">
-            <div className="text-xs font-semibold text-subtle uppercase tracking-wider mb-3">
-              Holdings Breakdown
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold text-subtle uppercase tracking-wider">
+                Holdings Breakdown
+              </span>
+              <select
+                value={breakdownThreshold}
+                onChange={(e) => setBreakdownThreshold(Number(e.target.value))}
+                className="text-xs bg-surface/50 border border-[var(--theme-card-border)] rounded-md px-2 py-1 text-secondary outline-none focus:border-cosmic transition-colors cursor-pointer"
+              >
+                {THRESHOLD_OPTIONS.map((t) => (
+                  <option key={t} value={t}>
+                    {t === 0 ? "Show all" : `≥ ${t}%`}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {visibleHoldings.map((h, index) => {
