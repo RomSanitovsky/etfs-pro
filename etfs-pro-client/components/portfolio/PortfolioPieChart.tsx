@@ -15,6 +15,8 @@ import { formatCurrency } from "@/lib/calculations";
 
 interface PortfolioPieChartProps {
   holdings: PortfolioHoldingWithMetrics[];
+  /** Only show holdings with allocation >= this percentage in the breakdown list; combine the rest into "Others". Default: 0 (show all) */
+  breakdownThreshold?: number;
 }
 
 const COLORS = [
@@ -100,7 +102,7 @@ function renderCustomLabel(props: PieLabelRenderProps) {
   );
 }
 
-export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
+export function PortfolioPieChart({ holdings, breakdownThreshold = 0 }: PortfolioPieChartProps) {
   const chartData = useMemo(() => {
     if (!holdings.length) return [];
     return holdings
@@ -119,6 +121,31 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
       .filter((h) => h.currentValue > 0)
       .sort((a, b) => b.currentValue - a.currentValue);
   }, [holdings]);
+
+  // Split holdings into visible (above threshold) and others (below threshold)
+  const { visibleHoldings, othersAggregate } = useMemo(() => {
+    if (breakdownThreshold <= 0) return { visibleHoldings: holdingsDetails, othersAggregate: null };
+
+    const visible = holdingsDetails.filter((h) => h.allocationPercent >= breakdownThreshold);
+    const others = holdingsDetails.filter((h) => h.allocationPercent < breakdownThreshold);
+
+    if (!others.length) return { visibleHoldings: visible, othersAggregate: null };
+
+    const othersValue = others.reduce((s, h) => s + h.currentValue, 0);
+    const othersAllocation = others.reduce((s, h) => s + h.allocationPercent, 0);
+    const othersCost = others.reduce((s, h) => s + h.totalCost, 0);
+    const othersPnLPercent = othersCost > 0 ? ((othersValue - othersCost) / othersCost) * 100 : 0;
+
+    return {
+      visibleHoldings: visible,
+      othersAggregate: {
+        count: others.length,
+        currentValue: othersValue,
+        allocationPercent: othersAllocation,
+        unrealizedPnLPercent: othersPnLPercent,
+      },
+    };
+  }, [holdingsDetails, breakdownThreshold]);
 
   if (!chartData.length) return null;
 
@@ -183,7 +210,7 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
               Holdings Breakdown
             </div>
 
-            {holdingsDetails.map((h, index) => {
+            {visibleHoldings.map((h, index) => {
               const pnlPositive = h.unrealizedPnLPercent >= 0;
               return (
                 <div
@@ -232,6 +259,45 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
                 </div>
               );
             })}
+
+            {/* Others row (combined below-threshold holdings) */}
+            {othersAggregate && (
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-surface/30 transition-colors">
+                <span
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{ backgroundColor: "#64748b" }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-foreground">Others</span>
+                    <span className="text-xs text-muted">{othersAggregate.count} holding{othersAggregate.count !== 1 ? "s" : ""}</span>
+                  </div>
+                  <div className="mt-1 h-1 rounded-full bg-surface/50 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${othersAggregate.allocationPercent}%`,
+                        backgroundColor: "#64748b",
+                        opacity: 0.7,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-sm font-mono font-semibold text-foreground">
+                    {formatCurrency(othersAggregate.currentValue)}
+                  </div>
+                  <div
+                    className={`text-xs font-mono ${
+                      othersAggregate.unrealizedPnLPercent >= 0 ? "text-gain" : "text-loss"
+                    }`}
+                  >
+                    {othersAggregate.unrealizedPnLPercent >= 0 ? "+" : ""}
+                    {othersAggregate.unrealizedPnLPercent.toFixed(2)}%
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Total row */}
             <div className="flex items-center gap-3 px-3 py-2.5 mt-1 rounded-lg border-t border-[var(--theme-card-border)]">
