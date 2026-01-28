@@ -187,13 +187,13 @@ export async function fetchAllTimeHighsBatch(
   return results;
 }
 
-// Time range configuration for chart data
-const TIME_RANGE_CONFIG: Record<TimeRange, { period1: string; interval: "1m" | "5m" | "1d" | "1wk" }> = {
-  "1D": { period1: "1d", interval: "5m" },
-  "1W": { period1: "1w", interval: "1d" },
-  "1M": { period1: "1mo", interval: "1d" },
-  "1Y": { period1: "1y", interval: "1d" },
-  "5Y": { period1: "5y", interval: "1wk" },
+// Chart interval per time range
+const TIME_RANGE_INTERVAL: Record<TimeRange, "1m" | "5m" | "1d" | "1wk"> = {
+  "1D": "5m",
+  "1W": "1d",
+  "1M": "1d",
+  "1Y": "1d",
+  "5Y": "1wk",
 };
 
 export async function fetchChartData(
@@ -201,7 +201,7 @@ export async function fetchChartData(
   range: TimeRange
 ): Promise<ChartDataPoint[]> {
   try {
-    const config = TIME_RANGE_CONFIG[range];
+    const interval = TIME_RANGE_INTERVAL[range];
 
     // Use period2 as now and calculate period1 based on range
     const now = new Date();
@@ -234,7 +234,7 @@ export async function fetchChartData(
       yahooFinance.chart(symbol, {
         period1: period1Date,
         period2: now,
-        interval: config.interval,
+        interval,
       })
     );
 

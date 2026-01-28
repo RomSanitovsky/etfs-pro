@@ -8,10 +8,31 @@ const CRYPTO_SYMBOLS = new Set([
   "FIL-USD", "AAVE-USD", "EOS-USD", "XTZ-USD", "THETA-USD", "XMR-USD",
 ]);
 
+// Common materials/commodities futures symbols (Yahoo Finance format)
+const MATERIALS_SYMBOLS = new Set([
+  "GC=F",   // Gold
+  "SI=F",   // Silver
+  "CL=F",   // Crude Oil (WTI)
+  "BZ=F",   // Brent Crude Oil
+  "NG=F",   // Natural Gas
+  "HG=F",   // Copper
+  "PL=F",   // Platinum
+  "PA=F",   // Palladium
+  "ZC=F",   // Corn
+  "ZW=F",   // Wheat
+  "ZS=F",   // Soybeans
+]);
+
 function isCryptoSymbol(symbol: string): boolean {
   // Check if it's in our known crypto list or ends with -USD (common pattern)
   return CRYPTO_SYMBOLS.has(symbol.toUpperCase()) ||
          (symbol.endsWith("-USD") && !symbol.includes("."));
+}
+
+function isMaterialsSymbol(symbol: string): boolean {
+  // Check if it's in our known materials list or ends with =F (futures pattern)
+  return MATERIALS_SYMBOLS.has(symbol.toUpperCase()) ||
+         symbol.endsWith("=F");
 }
 
 export function calculatePercentDown(
@@ -72,6 +93,9 @@ export function buildStockData(
 function determineAssetType(symbol: string, expenseRatio: number | null): AssetType {
   if (isCryptoSymbol(symbol)) {
     return "crypto";
+  }
+  if (isMaterialsSymbol(symbol)) {
+    return "materials";
   }
   if (expenseRatio !== null) {
     return "etf";

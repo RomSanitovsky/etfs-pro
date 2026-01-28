@@ -1,4 +1,4 @@
-export type AssetType = "etf" | "stock" | "crypto";
+export type AssetType = "etf" | "stock" | "crypto" | "materials";
 
 export interface StockData {
   symbol: string;
@@ -16,7 +16,7 @@ export interface StockData {
   assetType: AssetType; // "etf" if has expense ratio, "stock" otherwise
 }
 
-export type AssetFilter = "all" | "etf" | "stock" | "crypto";
+export type AssetFilter = "all" | "etf" | "stock" | "crypto" | "materials";
 
 export interface QuoteData {
   symbol: string;
@@ -62,6 +62,7 @@ export interface UserProfile {
   photoURL: string | null;
   isPremium: boolean;
   premiumExpiresAt: Date | null;
+  watchlist: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -121,4 +122,55 @@ export interface StockDetailData {
   chartData: ChartDataPoint[];
   allTimeHigh: number;
   athDate: string;
+}
+
+// Portfolio types
+export interface PortfolioTransaction {
+  id: string;
+  shares: number;
+  pricePerShare: number;
+  purchaseDate: string; // ISO date string
+  notes?: string;
+  createdAt: string; // ISO date string
+}
+
+export interface PortfolioHolding {
+  symbol: string;
+  transactions: PortfolioTransaction[];
+  totalShares: number;
+  averageCost: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PortfolioHoldingWithMetrics extends PortfolioHolding {
+  currentPrice: number;
+  totalCost: number;
+  currentValue: number;
+  unrealizedPnL: number;
+  unrealizedPnLPercent: number;
+  allocationPercent: number;
+  name?: string;
+  dividendYield: number | null;
+  expectedAnnualDividend: number; // currentValue * dividendYield / 100
+}
+
+export interface PortfolioSummary {
+  totalValue: number;
+  totalCost: number;
+  totalPnL: number;
+  totalPnLPercent: number;
+  holdingsCount: number;
+  topGainer: { symbol: string; pnlPercent: number } | null;
+  topLoser: { symbol: string; pnlPercent: number } | null;
+  expectedAnnualDividend: number; // Sum of all holdings' expected dividends
+  portfolioDividendYield: number; // expectedAnnualDividend / totalValue * 100
+}
+
+export interface AddTransactionInput {
+  symbol: string;
+  shares: number;
+  pricePerShare: number;
+  purchaseDate: string;
+  notes?: string;
 }

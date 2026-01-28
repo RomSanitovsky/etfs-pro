@@ -1,8 +1,18 @@
+"use client";
+
 import { memo } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // Pure CSS starfield - optimized for scroll performance
 // Uses static layers with radial gradients - no animations during scroll
 export const StarField = memo(function StarField() {
+  const { showStars } = useTheme();
+
+  // Don't render stars for non-space themes
+  if (!showStars) {
+    return null;
+  }
+
   return (
     <div
       className="fixed inset-0 overflow-hidden pointer-events-none z-0"

@@ -9,6 +9,9 @@ export const DEFAULT_SYMBOLS = [
   "MSFT",
   "BTC-USD",
   "ETH-USD",
+  "GC=F",   // Gold
+  "SI=F",   // Silver
+  "CL=F",   // Crude Oil
 ];
 
 export const DEFAULT_ATH_THRESHOLD = 1; // 1% - stocks within this % of ATH get badge
@@ -28,6 +31,7 @@ export const PREMIUM_PRICE_MONTHLY = 4;
 
 export const PREMIUM_FEATURES = [
   "Unlimited symbols in watchlist",
+  "Portfolio tracking with P&L analytics",
   "Advanced statistics & analytics",
   "Custom ATH threshold alerts",
   "Priority data refresh",

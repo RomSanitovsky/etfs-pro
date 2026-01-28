@@ -1,31 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --space-black: #0a0b0f;
-  --space-dark: #12141c;
-  --space-darker: #0d0e14;
-  --nebula-purple: #7c3aed;
-  --cosmic-cyan: #06b6d4;
-  --star-gold: #fbbf24;
-  --gain-green: #22c55e;
-  --loss-red: #ef4444;
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-color: rgba(124, 58, 237, 0.2);
-  --glow-purple: rgba(124, 58, 237, 0.4);
-  --glow-cyan: rgba(6, 182, 212, 0.4);
-  --glass-bg: rgba(18, 20, 28, 0.9);
+  /* Default theme values (Space) - will be overridden by ThemeContext */
+  --theme-background: #0a0b0f;
+  --theme-background-secondary: #12141c;
+  --theme-background-tertiary: #0d0e14;
+  --theme-card-bg: rgba(18, 20, 28, 0.9);
+  --theme-card-border: rgba(124, 58, 237, 0.2);
+  --theme-text-primary: #e2e8f0;
+  --theme-text-secondary: #94a3b8;
+  --theme-text-muted: #64748b;
+  --theme-accent: #7c3aed;
+  --theme-accent-secondary: #06b6d4;
+  --theme-gain: #22c55e;
+  --theme-loss: #ef4444;
+  --theme-gold: #fbbf24;
+  --theme-glow-primary: rgba(124, 58, 237, 0.4);
+  --theme-glow-secondary: rgba(6, 182, 212, 0.4);
 }
 
 @theme inline {
-  --color-background: var(--space-black);
-  --color-foreground: var(--text-primary);
-  --color-nebula: var(--nebula-purple);
-  --color-cosmic: var(--cosmic-cyan);
-  --color-gold: var(--star-gold);
-  --color-gain: var(--gain-green);
-  --color-loss: var(--loss-red);
+  --color-background: var(--theme-background);
+  --color-foreground: var(--theme-text-primary);
+  --color-nebula: var(--theme-accent);
+  --color-cosmic: var(--theme-accent-secondary);
+  --color-gold: var(--theme-gold);
+  --color-gain: var(--theme-gain);
+  --color-loss: var(--theme-loss);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -46,12 +47,13 @@
 }
 
 body {
-  background: var(--space-black);
-  color: var(--text-primary);
+  background: var(--theme-background);
+  color: var(--theme-text-primary);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ===== PERFORMANCE OPTIMIZATIONS ===== */
@@ -64,54 +66,26 @@ main {
 
 /* Glass morphism card - optimized: removed expensive backdrop-filter */
 .glass-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--border-color);
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-card-border);
   border-radius: 16px;
   contain: layout paint;
   transform: translateZ(0);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Gradient border effect */
-.gradient-border {
-  position: relative;
-  background: var(--space-dark);
-  border-radius: 12px;
-}
-
-.gradient-border::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: 13px;
-  padding: 1px;
-  background: linear-gradient(135deg, var(--nebula-purple), var(--cosmic-cyan));
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-/* Glow effects */
-.glow-purple {
-  box-shadow: 0 0 20px var(--glow-purple);
-}
-
-.glow-cyan {
-  box-shadow: 0 0 20px var(--glow-cyan);
+/* Light theme specific card styling */
+[data-theme="light"] .glass-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 /* ATH Badge animation - GPU accelerated */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 8px var(--star-gold), 0 0 16px rgba(251, 191, 36, 0.3);
+    box-shadow: 0 0 8px var(--theme-gold), 0 0 16px rgba(251, 191, 36, 0.3);
   }
   50% {
-    box-shadow: 0 0 12px var(--star-gold), 0 0 24px rgba(251, 191, 36, 0.4);
+    box-shadow: 0 0 12px var(--theme-gold), 0 0 24px rgba(251, 191, 36, 0.4);
   }
 }
 
@@ -127,7 +101,11 @@ main {
 }
 
 .stock-row:hover {
-  background: rgba(124, 58, 237, 0.1);
+  background: var(--theme-glow-primary);
+}
+
+[data-theme="light"] .stock-row:hover {
+  background: rgba(37, 99, 235, 0.08);
 }
 
 /* Sort header styling */
@@ -138,34 +116,44 @@ main {
 }
 
 .sort-header:hover {
-  color: var(--cosmic-cyan);
+  color: var(--theme-accent-secondary);
 }
 
 /* Input styling */
 .space-input {
-  background: var(--space-darker);
-  border: 1px solid var(--border-color);
+  background: var(--theme-background-tertiary);
+  border: 1px solid var(--theme-card-border);
   border-radius: 8px;
-  color: var(--text-primary);
+  color: var(--theme-text-primary);
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   padding-right: 1rem;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.3s ease;
 }
 
 .space-input:focus {
   outline: none;
-  border-color: var(--nebula-purple);
-  box-shadow: 0 0 0 3px var(--glow-purple);
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 3px var(--theme-glow-primary);
 }
 
 .space-input::placeholder {
-  color: var(--text-muted);
+  color: var(--theme-text-muted);
+}
+
+[data-theme="light"] .space-input {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .space-input:focus {
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 /* Button styling */
 .space-button {
-  background: linear-gradient(135deg, var(--nebula-purple), var(--cosmic-cyan));
+  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-secondary));
   border: none;
   border-radius: 8px;
   color: white;
@@ -177,7 +165,7 @@ main {
 
 .space-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px var(--glow-purple);
+  box-shadow: 0 4px 20px var(--theme-glow-primary);
 }
 
 .space-button:active {
@@ -197,25 +185,37 @@ main {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--space-darker);
+  background: var(--theme-background-tertiary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--nebula-purple);
+  background: var(--theme-accent);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--cosmic-cyan);
+  background: var(--theme-accent-secondary);
+}
+
+[data-theme="light"]::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+[data-theme="light"]::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+[data-theme="light"]::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Futuristic Hero Title - simplified for performance */
 .hero-title {
   background: linear-gradient(
     135deg,
-    #e2e8f0 0%,
-    #94a3b8 50%,
-    #e2e8f0 100%
+    var(--theme-text-primary) 0%,
+    var(--theme-text-secondary) 50%,
+    var(--theme-text-primary) 100%
   );
   background-size: 200% auto;
   background-clip: text;
@@ -227,9 +227,9 @@ main {
 .hero-title-accent {
   background: linear-gradient(
     135deg,
-    #06b6d4 0%,
-    #7c3aed 50%,
-    #06b6d4 100%
+    var(--theme-accent-secondary) 0%,
+    var(--theme-accent) 50%,
+    var(--theme-accent-secondary) 100%
   );
   background-size: 200% auto;
   background-clip: text;
@@ -238,6 +238,18 @@ main {
   animation: shine 3s linear infinite;
   font-style: italic;
   letter-spacing: 0.05em;
+}
+
+[data-theme="light"] .hero-title {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #334155 50%,
+    #0f172a 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
 }
 
 @keyframes shine {
@@ -280,38 +292,6 @@ main {
   }
 }
 
-/* Stats card scan line animation */
-@keyframes scan-line {
-  0% {
-    top: 0;
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    top: 100%;
-    opacity: 0;
-  }
-}
-
-.animate-scan-line {
-  animation: scan-line 1.5s ease-in-out;
-}
-
-/* Stats card hover glow effect - simplified */
-.stat-card-glow {
-  position: relative;
-  transition: box-shadow 0.2s ease;
-}
-
-.stat-card-glow:hover {
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
-}
-
 /* ===== HERO SECTION STYLES ===== */
 
 /* Smooth scroll for the entire page */
@@ -332,7 +312,7 @@ html {
 .hero-orb-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, var(--nebula-purple) 0%, transparent 60%);
+  background: radial-gradient(circle, var(--theme-accent) 0%, transparent 60%);
   top: -200px;
   left: -200px;
   animation: float-orb-1 25s ease-in-out infinite;
@@ -341,7 +321,7 @@ html {
 .hero-orb-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, var(--cosmic-cyan) 0%, transparent 60%);
+  background: radial-gradient(circle, var(--theme-accent-secondary) 0%, transparent 60%);
   bottom: -150px;
   right: -150px;
   animation: float-orb-2 30s ease-in-out infinite;

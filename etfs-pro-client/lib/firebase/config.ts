@@ -11,19 +11,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Check if Firebase config is available
 const isConfigured = Boolean(firebaseConfig.apiKey);
-
-// Log config status (safe - doesn't expose full keys)
-if (typeof window !== 'undefined') {
-  console.log("[Firebase] Config status:", {
-    isConfigured,
-    hasApiKey: !!firebaseConfig.apiKey,
-    hasAuthDomain: !!firebaseConfig.authDomain,
-    authDomain: firebaseConfig.authDomain,
-    projectId: firebaseConfig.projectId,
-  });
-}
 
 // Initialize Firebase app singleton only if configured
 let app: FirebaseApp | null = null;
@@ -35,14 +23,9 @@ if (isConfigured) {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
     db = getFirestore(app);
-    if (typeof window !== 'undefined') {
-      console.log("[Firebase] Initialized successfully");
-    }
   } catch (e) {
     console.error("[Firebase] Failed to initialize:", e);
   }
-} else {
-  console.warn("[Firebase] Not configured - missing API key");
 }
 
 export { auth, db };

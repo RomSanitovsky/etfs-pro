@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import type { StockData, SortField, SortConfig, AssetFilter as AssetFilterType } from "@/lib/types";
-import { DEFAULT_SYMBOLS, DEFAULT_ATH_THRESHOLD, STORAGE_KEYS } from "@/lib/constants";
+import { DEFAULT_ATH_THRESHOLD, STORAGE_KEYS } from "@/lib/constants";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/contexts/AuthContext";
 import { SearchInput } from "./SearchInput";
 import { AddSymbolForm } from "./AddSymbolForm";
@@ -13,6 +14,8 @@ import { SettingsPanel } from "./SettingsPanel";
 import { StatsCards } from "./StatsCards";
 import { AssetFilter } from "./AssetFilter";
 import { DEFINITIONS } from "@/lib/definitions";
+import { AddTransactionModal } from "./portfolio/AddTransactionModal";
+import { usePortfolio } from "@/hooks/usePortfolio";
 
 interface WatchlistTableProps {
   initialData: StockData[];
@@ -20,18 +23,14 @@ interface WatchlistTableProps {
 
 export function WatchlistTable({ initialData }: WatchlistTableProps) {
   const { symbolLimit, user } = useAuth();
-  const [watchlist, setWatchlist] = useLocalStorage<string[]>(
-    STORAGE_KEYS.WATCHLIST,
-    DEFAULT_SYMBOLS
-  );
+  const {
+    watchlist,
+    addSymbol,
+    removeSymbol,
+    isLoading: isWatchlistLoading,
+    error: watchlistError,
+  } = useWatchlist();
 
-  // Enforce hard cap on watchlist when it exceeds the symbol limit
-  // This handles cases like: user has 20 symbols in localStorage, then goes to free mode
-  useEffect(() => {
-    if (watchlist.length > symbolLimit) {
-      setWatchlist(watchlist.slice(0, symbolLimit));
-    }
-  }, [watchlist, symbolLimit, setWatchlist]);
   const [threshold, setThreshold] = useLocalStorage<number>(
     STORAGE_KEYS.ATH_THRESHOLD,
     DEFAULT_ATH_THRESHOLD
@@ -45,6 +44,10 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
+  const [selectedSymbol, setSelectedSymbol] = useState<string>("");
+
+  const { addTransaction } = usePortfolio();
 
   // Fetch data for current watchlist
   const fetchStocks = useCallback(async (symbols: string[], currentThreshold: number) => {
@@ -101,6 +104,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
     etf: stocks.filter(s => s.assetType === "etf").length,
     stock: stocks.filter(s => s.assetType === "stock").length,
     crypto: stocks.filter(s => s.assetType === "crypto").length,
+    materials: stocks.filter(s => s.assetType === "materials").length,
   }), [stocks]);
 
   // Sort and filter stocks
@@ -151,17 +155,18 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
     }));
   };
 
-  const handleAddSymbol = async (symbol: string) => {
-    setWatchlist((prev) => [...prev, symbol]);
-  };
-
-  const handleRemoveSymbol = (symbol: string) => {
-    setWatchlist((prev) => prev.filter((s) => s !== symbol));
+  const handleRemoveSymbol = async (symbol: string) => {
+    await removeSymbol(symbol);
     setStocks((prev) => prev.filter((s) => s.symbol !== symbol));
   };
 
   const handleRefresh = () => {
     fetchStocks(watchlist, threshold);
+  };
+
+  const handleAddToPortfolio = (symbol: string) => {
+    setSelectedSymbol(symbol);
+    setPortfolioModalOpen(true);
   };
 
   return (
@@ -183,9 +188,9 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
             </div>
             <div className="flex-1">
               <AddSymbolForm
-                onAdd={handleAddSymbol}
+                onAdd={addSymbol}
                 existingSymbols={watchlist}
-                isLoading={isLoading}
+                isLoading={isLoading || isWatchlistLoading}
                 symbolLimit={symbolLimit}
                 isLoggedIn={!!user}
               />
@@ -229,9 +234,9 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
         </div>
 
       {/* Error message */}
-      {error && (
+      {(error || watchlistError) && (
         <div className="mb-4 p-3 rounded-lg bg-red-500/20 text-red-400 text-sm">
-          {error}
+          {error || watchlistError}
         </div>
       )}
 
@@ -323,6 +328,8 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                   key={stock.symbol}
                   stock={stock}
                   onRemove={handleRemoveSymbol}
+                  onAddToPortfolio={handleAddToPortfolio}
+                  isPremium={user?.isPremium}
                 />
               ))
             )}
@@ -335,6 +342,17 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
           <span>Data from Yahoo Finance</span>
         </div>
       </div>
+
+      {/* Add to Portfolio Modal */}
+      <AddTransactionModal
+        isOpen={portfolioModalOpen}
+        onClose={() => {
+          setPortfolioModalOpen(false);
+          setSelectedSymbol("");
+        }}
+        onSubmit={addTransaction}
+        prefilledSymbol={selectedSymbol}
+      />
     </div>
   );
 }
