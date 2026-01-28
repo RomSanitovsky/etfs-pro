@@ -96,7 +96,10 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
           {isPremium && onAddToPortfolio && (
             <button
               onClick={() => onAddToPortfolio(stock.symbol)}
-              className="p-1 rounded hover:bg-cyan-500/20 transition-colors text-slate-500 hover:text-cyan-400"
+              className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30
+                         hover:bg-cyan-500/25 hover:border-cyan-400/50
+                         transition-all duration-200 text-cyan-400 hover:text-cyan-300
+                         hover:shadow-[0_0_8px_rgba(34,211,238,0.15)]"
               title="Add to portfolio"
             >
               <svg
@@ -108,7 +111,7 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   d="M12 4v16m8-8H4"
                 />
               </svg>
