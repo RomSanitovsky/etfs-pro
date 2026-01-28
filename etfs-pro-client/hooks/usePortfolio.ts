@@ -86,11 +86,17 @@ export function usePortfolio(): UsePortfolioReturn {
       });
 
     // Real-time subscription
-    const unsubscribe = subscribeToPortfolio(user.uid, (data) => {
-      setHoldings(data);
-      const symbols = data.map((h) => h.symbol);
-      fetchPrices(symbols);
-    });
+    const unsubscribe = subscribeToPortfolio(
+      user.uid,
+      (data) => {
+        setHoldings(data);
+        const symbols = data.map((h) => h.symbol);
+        fetchPrices(symbols);
+      },
+      (err) => {
+        setError(err.message);
+      }
+    );
 
     return () => unsubscribe();
   }, [user, fetchPrices]);

@@ -14,6 +14,9 @@ export const DEFAULT_SYMBOLS = [
   "CL=F",   // Crude Oil
 ];
 
+// Bump this version when adding new DEFAULT_SYMBOLS so existing users get them
+export const DEFAULTS_VERSION = 2;
+
 export const DEFAULT_ATH_THRESHOLD = 1; // 1% - stocks within this % of ATH get badge
 
 export const ATH_CACHE_DURATION_DAYS = 7;

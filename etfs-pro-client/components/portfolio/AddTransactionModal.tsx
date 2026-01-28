@@ -113,10 +113,10 @@ export function AddTransactionModal({
     >
       <div
         ref={modalRef}
-        className="w-full max-w-md rounded-2xl border border-slate-700/50 bg-slate-900/95 backdrop-blur-md shadow-2xl overflow-hidden"
+        className="w-full max-w-md max-h-[90vh] flex flex-col rounded-2xl border border-slate-700/50 bg-slate-900/95 backdrop-blur-md shadow-2xl overflow-hidden"
       >
         {/* Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-purple-900/40 to-cyan-900/40 border-b border-slate-700/50">
+        <div className="shrink-0 px-6 py-4 bg-gradient-to-r from-purple-900/40 to-cyan-900/40 border-b border-slate-700/50">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Add Transaction</h2>
             <button
@@ -131,7 +131,7 @@ export function AddTransactionModal({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
           {error && (
             <div className="p-3 rounded-lg bg-red-500/20 text-red-400 text-sm">
               {error}

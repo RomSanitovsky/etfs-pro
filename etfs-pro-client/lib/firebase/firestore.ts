@@ -17,7 +17,7 @@ import {
 import { User } from "firebase/auth";
 import { db } from "./config";
 import type { UserProfile, PortfolioHolding, PortfolioTransaction, AddTransactionInput } from "@/lib/types";
-import { DEFAULT_SYMBOLS, FREE_TIER_SYMBOL_LIMIT, PREMIUM_SYMBOL_LIMIT, STORAGE_KEYS } from "@/lib/constants";
+import { DEFAULT_SYMBOLS, DEFAULTS_VERSION, FREE_TIER_SYMBOL_LIMIT, PREMIUM_SYMBOL_LIMIT, STORAGE_KEYS } from "@/lib/constants";
 
 const USERS_COLLECTION = "users";
 
@@ -78,6 +78,7 @@ export async function createUserDocument(user: User): Promise<UserProfile> {
     isPremium: false,
     premiumExpiresAt: null,
     watchlist: initialWatchlist,
+    defaultsVersion: DEFAULTS_VERSION,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
@@ -112,13 +113,28 @@ export async function getUserDocument(uid: string): Promise<UserProfile | null> 
 
   // Migrate existing users who don't have a watchlist field
   let watchlist = data.watchlist;
+  let needsUpdate = false;
+  const updates: Record<string, unknown> = {};
+
   if (!watchlist || !Array.isArray(watchlist)) {
     watchlist = getInitialWatchlist();
-    // Save the watchlist to Firebase for this existing user
-    await updateDoc(userRef, {
-      watchlist,
-      updatedAt: serverTimestamp(),
-    });
+    updates.watchlist = watchlist;
+    updates.defaultsVersion = DEFAULTS_VERSION;
+    needsUpdate = true;
+  } else if ((data.defaultsVersion || 0) < DEFAULTS_VERSION) {
+    // Merge new default symbols that aren't already in the user's watchlist
+    const newDefaults = DEFAULT_SYMBOLS.filter((s) => !watchlist.includes(s));
+    if (newDefaults.length > 0) {
+      watchlist = [...watchlist, ...newDefaults];
+      updates.watchlist = watchlist;
+    }
+    updates.defaultsVersion = DEFAULTS_VERSION;
+    needsUpdate = true;
+  }
+
+  if (needsUpdate) {
+    updates.updatedAt = serverTimestamp();
+    await updateDoc(userRef, updates);
   }
 
   return {
@@ -311,15 +327,23 @@ export async function deletePortfolioHolding(uid: string, symbol: string): Promi
 
 export function subscribeToPortfolio(
   uid: string,
-  callback: (holdings: PortfolioHolding[]) => void
+  callback: (holdings: PortfolioHolding[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const portfolioRef = collection(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION);
   const q = query(portfolioRef);
 
-  return onSnapshot(q, (snapshot) => {
-    const holdings = snapshot.docs.map((doc) =>
-      convertHoldingFromFirestore(doc.id, doc.data())
-    );
-    callback(holdings);
-  });
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const holdings = snapshot.docs.map((doc) =>
+        convertHoldingFromFirestore(doc.id, doc.data())
+      );
+      callback(holdings);
+    },
+    (error) => {
+      console.error("Portfolio subscription error:", error);
+      onError?.(error);
+    }
+  );
 }
