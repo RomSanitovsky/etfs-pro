@@ -37,7 +37,7 @@ export default function LoginPage() {
       <div className="min-h-screen relative flex items-center justify-center">
         <StarField />
         <div className="relative z-10">
-          <div className="w-8 h-8 border-2 border-slate-600 border-t-cyan-400 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-subtle border-t-cosmic rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -65,10 +65,10 @@ export default function LoginPage() {
 
         {/* Login card */}
         <div className="glass-card p-8">
-          <h1 className="text-2xl font-bold text-center text-white mb-2">
+          <h1 className="text-2xl font-bold text-center text-foreground mb-2">
             Welcome Back
           </h1>
-          <p className="text-slate-400 text-center text-sm mb-6">
+          <p className="text-muted text-center text-sm mb-6">
             Sign in to track your investments
           </p>
 
@@ -77,9 +77,9 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-slate-700" />
-            <span className="px-4 text-sm text-slate-500">or</span>
-            <div className="flex-1 h-px bg-slate-700" />
+            <div className="flex-1 h-px bg-[var(--theme-card-border)]" />
+            <span className="px-4 text-sm text-subtle">or</span>
+            <div className="flex-1 h-px bg-[var(--theme-card-border)]" />
           </div>
 
           {/* Email/Password Form */}
@@ -87,7 +87,7 @@ export default function LoginPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-slate-500 mt-6">
+        <p className="text-center text-xs text-subtle mt-6">
           By signing in, you agree to our Terms of Service
         </p>
       </div>

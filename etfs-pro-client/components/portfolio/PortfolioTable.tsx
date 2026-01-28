@@ -36,7 +36,7 @@ function SortableHeader({
 
   return (
     <th
-      className={`px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-white transition-colors ${
+      className={`px-4 py-3 text-xs font-semibold text-muted uppercase tracking-wider cursor-pointer hover:text-foreground transition-colors ${
         align === "right" ? "text-right" : "text-left"
       }`}
       onClick={() => onSort(field)}
@@ -45,7 +45,7 @@ function SortableHeader({
         {label}
         <svg
           className={`w-3 h-3 transition-transform ${
-            isActive ? "text-cyan-400" : "text-slate-600"
+            isActive ? "text-cosmic" : "text-subtle"
           } ${isActive && currentSort.direction === "desc" ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
@@ -100,7 +100,7 @@ export function PortfolioTable({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-slate-700">
+            <tr className="border-b border-[var(--theme-card-border)]">
               <th className="w-10"></th>
               <SortableHeader
                 field="symbol"
@@ -156,7 +156,7 @@ export function PortfolioTable({
           <tbody>
             {sortedHoldings.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={9} className="px-4 py-8 text-center text-subtle">
                   {isLoading ? "Loading portfolio..." : "No holdings yet"}
                 </td>
               </tr>

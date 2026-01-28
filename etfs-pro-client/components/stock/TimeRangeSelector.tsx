@@ -24,8 +24,8 @@ export function TimeRangeSelector({
           disabled={loading}
           className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
             selected === range
-              ? "bg-cyan-500 text-white"
-              : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
+              ? "bg-cosmic text-white"
+              : "bg-surface text-muted hover:bg-surface-alt hover:text-foreground"
           } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {range}

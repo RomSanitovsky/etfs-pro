@@ -42,13 +42,13 @@ export function SubscriptionSection() {
     <section className="mt-20 mb-12">
       {/* Section header */}
       <div className="text-center mb-14">
-        <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-medium mb-4">
+        <span className="inline-block px-4 py-1.5 rounded-full bg-nebula/10 border border-nebula/20 text-nebula text-sm font-medium mb-4">
           Pricing Plans
         </span>
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
           Upgrade Your Trading Experience
         </h2>
-        <p className="text-slate-400 max-w-xl mx-auto text-lg">
+        <p className="text-muted max-w-xl mx-auto text-lg">
           Choose the plan that fits your needs. Upgrade anytime to unlock premium features.
         </p>
       </div>
@@ -88,8 +88,8 @@ export function SubscriptionSection() {
         <div
           className={`mt-8 max-w-md mx-auto p-4 rounded-xl text-center text-sm ${
             upgradeMessage.includes("Failed")
-              ? "bg-red-500/20 text-red-400 border border-red-500/30"
-              : "bg-green-500/20 text-green-400 border border-green-500/30"
+              ? "bg-loss/20 text-loss border border-loss/30"
+              : "bg-gain/20 text-gain border border-gain/30"
           }`}
         >
           {upgradeMessage}
@@ -98,7 +98,7 @@ export function SubscriptionSection() {
 
       {/* Test mode notice */}
       {!isPremiumUser && user && (
-        <p className="text-center text-xs text-slate-500 mt-8">
+        <p className="text-center text-xs text-subtle mt-8">
           Test Mode: Click &quot;Upgrade Now&quot; to simulate premium subscription
         </p>
       )}

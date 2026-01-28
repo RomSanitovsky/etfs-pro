@@ -81,16 +81,16 @@ export function WhyChooseUsSection() {
     <section className="mt-24 mb-12">
       {/* Section header */}
       <div className="text-center mb-16">
-        <span className="inline-block px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-medium mb-4">
+        <span className="inline-block px-4 py-1.5 rounded-full bg-cosmic/10 border border-cosmic/20 text-cosmic text-sm font-medium mb-4">
           Why ETFs PRO?
         </span>
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
           The Smarter Way to Track{" "}
-          <span className="bg-gradient-to-r from-purple-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-nebula via-cosmic to-nebula bg-clip-text text-transparent">
             Your Investments
           </span>
         </h2>
-        <p className="text-slate-400 max-w-2xl mx-auto text-lg">
+        <p className="text-muted max-w-2xl mx-auto text-lg">
           Stop guessing where your portfolio stands. Get crystal-clear insights into your assets&apos; performance
           relative to their all-time highs.
         </p>
@@ -98,15 +98,15 @@ export function WhyChooseUsSection() {
 
       {/* Stats bar */}
       <div className="relative mb-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-purple-500/10 rounded-2xl blur-xl" />
-        <div className="relative bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 md:p-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-nebula/10 via-cosmic/10 to-nebula/10 rounded-2xl blur-xl" />
+        <div className="relative bg-surface/50 border border-[var(--theme-card-border)] rounded-2xl p-6 md:p-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-black bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-1">
+                <div className="text-3xl md:text-4xl font-black bg-gradient-to-r from-cosmic to-nebula bg-clip-text text-transparent mb-1">
                   {stat.value}
                 </div>
-                <div className="text-sm text-slate-400 font-medium">
+                <div className="text-sm text-muted font-medium">
                   {stat.label}
                 </div>
               </div>
@@ -120,9 +120,9 @@ export function WhyChooseUsSection() {
         {features.map((feature, index) => (
           <div
             key={index}
-            className="group relative rounded-2xl p-6 bg-slate-800/40 border border-slate-700/50
-                       hover:border-slate-600 hover:bg-slate-800/60 transition-all duration-300
-                       hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-500/5"
+            className="group relative rounded-2xl p-6 bg-surface/40 border border-[var(--theme-card-border)]
+                       hover:border-muted/30 hover:bg-surface/60 transition-all duration-300
+                       hover:-translate-y-1 hover:shadow-xl hover:shadow-nebula/5"
           >
             {/* Icon */}
             <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4
@@ -134,10 +134,10 @@ export function WhyChooseUsSection() {
             </div>
 
             {/* Content */}
-            <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+            <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-cosmic transition-colors">
               {feature.title}
             </h3>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-muted text-sm leading-relaxed">
               {feature.description}
             </p>
 
@@ -152,15 +152,15 @@ export function WhyChooseUsSection() {
       <div className="mt-16 text-center">
         <div className="relative inline-block">
           {/* Glow */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-2xl blur-xl opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-nebula to-cosmic rounded-2xl blur-xl opacity-30" />
 
           {/* Card */}
-          <div className="relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/50
+          <div className="relative bg-gradient-to-br from-surface/80 to-background/80 border border-[var(--theme-card-border)]
                           rounded-2xl p-8 md:p-10 max-w-2xl">
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
               Ready to Take Control?
             </h3>
-            <p className="text-slate-400 mb-6">
+            <p className="text-muted mb-6">
               Join thousands of investors who track their portfolios smarter, not harder.
               Start free today.
             </p>
@@ -171,9 +171,9 @@ export function WhyChooseUsSection() {
                   e.preventDefault();
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="px-8 py-3.5 rounded-xl font-semibold bg-gradient-to-r from-purple-500 to-cyan-500
-                           hover:from-purple-400 hover:to-cyan-400 text-white shadow-lg
-                           hover:shadow-xl hover:shadow-purple-500/25 hover:-translate-y-0.5
+                className="px-8 py-3.5 rounded-xl font-semibold bg-gradient-to-r from-nebula to-cosmic
+                           hover:from-nebula/80 hover:to-cosmic/80 text-white shadow-lg
+                           hover:shadow-xl hover:shadow-nebula/25 hover:-translate-y-0.5
                            transition-all duration-200"
               >
                 Get Started Free
@@ -184,8 +184,8 @@ export function WhyChooseUsSection() {
                   e.preventDefault();
                   document.querySelector('section')?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="px-8 py-3.5 rounded-xl font-semibold bg-slate-700/50 hover:bg-slate-700
-                           text-white border border-slate-600 transition-all duration-200"
+                className="px-8 py-3.5 rounded-xl font-semibold bg-surface/50 hover:bg-surface
+                           text-foreground border border-[var(--theme-card-border)] transition-all duration-200"
               >
                 View Pricing
               </a>

@@ -199,11 +199,11 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
               <button
                 onClick={handleRefresh}
                 disabled={isLoading}
-                className="p-2 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
+                className="p-2 rounded-lg hover:bg-surface transition-colors disabled:opacity-50"
                 title="Refresh data"
               >
                 <svg
-                  className={`w-5 h-5 text-slate-400 ${isLoading ? "animate-spin" : ""}`}
+                  className={`w-5 h-5 text-muted ${isLoading ? "animate-spin" : ""}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -221,13 +221,13 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
           </div>
 
           {/* Filter row */}
-          <div className="flex items-center justify-between border-t border-slate-700/50 pt-4">
+          <div className="flex items-center justify-between border-t border-[var(--theme-card-border)] pt-4">
             <AssetFilter
               value={assetFilter}
               onChange={setAssetFilter}
               counts={assetCounts}
             />
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-subtle font-mono">
               {displayedStocks.length} of {stocks.length} shown
             </span>
           </div>
@@ -235,7 +235,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
 
       {/* Error message */}
       {(error || watchlistError) && (
-        <div className="mb-4 p-3 rounded-lg bg-red-500/20 text-red-400 text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-loss/20 text-loss text-sm">
           {error || watchlistError}
         </div>
       )}
@@ -244,7 +244,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-slate-700">
+            <tr className="border-b border-[var(--theme-card-border)]">
               <SortableHeader
                 field="symbol"
                 label="Symbol"
@@ -314,7 +314,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
           <tbody>
             {displayedStocks.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={9} className="px-4 py-8 text-center text-subtle">
                   {isLoading
                     ? "Loading..."
                     : searchQuery
@@ -338,7 +338,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
       </div>
 
         {/* Footer */}
-        <div className="mt-4 text-xs text-slate-500 text-right">
+        <div className="mt-4 text-xs text-subtle text-right">
           <span>Data from Yahoo Finance</span>
         </div>
       </div>

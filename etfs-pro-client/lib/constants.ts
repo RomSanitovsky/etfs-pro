@@ -39,6 +39,7 @@ export const PREMIUM_FEATURES = [
   "Custom ATH threshold alerts",
   "Priority data refresh",
   "Export watchlist data",
+  "Custom theme colors",
 ] as const;
 
 export const FREE_FEATURES = [

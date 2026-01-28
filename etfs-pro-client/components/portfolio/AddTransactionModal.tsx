@@ -114,15 +114,15 @@ export function AddTransactionModal({
     >
       <div
         ref={modalRef}
-        className="w-full max-w-md max-h-[90vh] flex flex-col rounded-2xl border border-slate-700/50 bg-slate-900/95 backdrop-blur-md shadow-2xl overflow-hidden"
+        className="w-full max-w-md max-h-[90vh] flex flex-col rounded-2xl border border-[var(--theme-card-border)] bg-surface/95 backdrop-blur-md shadow-2xl overflow-hidden"
       >
         {/* Header */}
-        <div className="shrink-0 px-6 py-4 bg-gradient-to-r from-purple-900/40 to-cyan-900/40 border-b border-slate-700/50">
+        <div className="shrink-0 px-6 py-4 bg-gradient-to-r from-nebula/40 to-cosmic/40 border-b border-[var(--theme-card-border)]">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Add Transaction</h2>
+            <h2 className="text-lg font-semibold text-foreground">Add Transaction</h2>
             <button
               onClick={onClose}
-              className="p-1 rounded hover:bg-slate-700/50 transition-colors text-slate-400 hover:text-white"
+              className="p-1 rounded hover:bg-surface/50 transition-colors text-muted hover:text-foreground"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -134,14 +134,14 @@ export function AddTransactionModal({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-loss/20 text-loss text-sm">
               {error}
             </div>
           )}
 
           {/* Symbol */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">
               Symbol
             </label>
             <input
@@ -150,9 +150,9 @@ export function AddTransactionModal({
               value={symbol}
               onChange={(e) => setSymbol(e.target.value.toUpperCase())}
               placeholder="AAPL, VOO, BTC-USD..."
-              className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50
-                         text-white placeholder-slate-500 font-mono
-                         focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50
+              className="w-full px-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
+                         text-foreground placeholder-subtle font-mono
+                         focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
                          transition-colors"
               disabled={!!prefilledSymbol}
             />
@@ -161,7 +161,7 @@ export function AddTransactionModal({
           {/* Shares and Price */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">
                 Shares
               </label>
               <input
@@ -171,18 +171,18 @@ export function AddTransactionModal({
                 placeholder="0"
                 step="any"
                 min="0"
-                className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50
-                           text-white placeholder-slate-500 font-mono
-                           focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50
+                className="w-full px-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
+                           text-foreground placeholder-subtle font-mono
+                           focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
                            transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-medium text-foreground/80 mb-1.5">
                 Price per Share
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-subtle">$</span>
                 <input
                   type="number"
                   value={pricePerShare}
@@ -190,9 +190,9 @@ export function AddTransactionModal({
                   placeholder="0.00"
                   step="any"
                   min="0"
-                  className="w-full pl-8 pr-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50
-                             text-white placeholder-slate-500 font-mono
-                             focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50
+                  className="w-full pl-8 pr-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
+                             text-foreground placeholder-subtle font-mono
+                             focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
                              transition-colors"
                 />
               </div>
@@ -201,10 +201,10 @@ export function AddTransactionModal({
 
           {/* Total */}
           {shares && pricePerShare && (
-            <div className="px-4 py-3 rounded-lg bg-slate-800/30 border border-slate-700/30">
+            <div className="px-4 py-3 rounded-lg bg-surface/30 border border-[var(--theme-card-border)]">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-slate-400">Total Cost</span>
-                <span className="font-mono font-semibold text-white">
+                <span className="text-sm text-muted">Total Cost</span>
+                <span className="font-mono font-semibold text-foreground">
                   ${(parseFloat(shares) * parseFloat(pricePerShare)).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -216,7 +216,7 @@ export function AddTransactionModal({
 
           {/* Purchase Date */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">
               Purchase Date
             </label>
             <input
@@ -224,26 +224,26 @@ export function AddTransactionModal({
               value={purchaseDate}
               onChange={(e) => setPurchaseDate(e.target.value)}
               max={new Date().toISOString().split("T")[0]}
-              className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50
-                         text-white
-                         focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50
+              className="w-full px-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
+                         text-foreground
+                         focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
                          transition-colors"
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              Notes <span className="text-slate-500">(optional)</span>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">
+              Notes <span className="text-subtle">(optional)</span>
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add notes about this purchase..."
               rows={2}
-              className="w-full px-4 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700/50
-                         text-white placeholder-slate-500 resize-none
-                         focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50
+              className="w-full px-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
+                         text-foreground placeholder-subtle resize-none
+                         focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
                          transition-colors"
             />
           </div>
@@ -253,17 +253,17 @@ export function AddTransactionModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-lg border border-slate-600 text-slate-300
-                         hover:bg-slate-800 hover:text-white transition-colors"
+              className="flex-1 px-4 py-2.5 rounded-lg border border-[var(--theme-card-border)] text-foreground/80
+                         hover:bg-surface hover:text-foreground transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-500
+              className="flex-1 px-4 py-2.5 rounded-lg bg-gradient-to-r from-cosmic to-nebula
                          text-white font-semibold
-                         hover:from-cyan-400 hover:to-purple-400
+                         hover:brightness-110
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all duration-300"
             >

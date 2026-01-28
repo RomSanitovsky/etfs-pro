@@ -54,7 +54,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <div>
           <label
             htmlFor="displayName"
-            className="block text-sm font-medium text-slate-300 mb-1"
+            className="block text-sm font-medium text-foreground mb-1"
           >
             Display Name
           </label>
@@ -110,7 +110,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       </div>
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-500/20 text-red-400 text-sm">
+        <div className="p-3 rounded-lg bg-loss/20 text-loss text-sm">
           {error}
         </div>
       )}
@@ -127,7 +127,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           : "Sign In"}
       </button>
 
-      <p className="text-center text-sm text-slate-400">
+      <p className="text-center text-sm text-muted">
         {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
         <button
           type="button"
@@ -135,7 +135,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             setIsSignUp(!isSignUp);
             setError("");
           }}
-          className="text-cyan-400 hover:text-cyan-300 transition-colors"
+          className="text-cosmic hover:text-cosmic/80 transition-colors"
         >
           {isSignUp ? "Sign In" : "Sign Up"}
         </button>

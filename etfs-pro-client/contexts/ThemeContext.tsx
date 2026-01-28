@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useAuth } from "./AuthContext";
 import { ThemeMode, themes, DEFAULT_THEME } from "@/lib/themes";
+import { updateUserDocument } from "@/lib/firebase/firestore";
 
 const THEME_STORAGE_KEY = "etfs-pro-theme";
 
@@ -59,24 +60,26 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const isPremium = user?.isPremium ?? false;
   const canChangeTheme = isPremium;
 
-  // Load theme from localStorage and enforce premium restrictions
+  // Resolve theme from user profile (Firebase) or localStorage fallback
   useEffect(() => {
     setMounted(true);
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
+
+    // Prefer user's Firebase-stored theme when logged in
+    const userTheme = user?.theme;
+    const localTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
+    const savedTheme = userTheme ?? localTheme;
     const resolvedTheme = savedTheme && themes[savedTheme] ? savedTheme : DEFAULT_THEME;
 
     // Non-premium users are forced to space theme
     if (!isPremium && resolvedTheme !== "space") {
       setThemeState("space");
       applyTheme("space");
-      if (!authLoading) {
-        localStorage.setItem(THEME_STORAGE_KEY, "space");
-      }
     } else {
       setThemeState(resolvedTheme);
       applyTheme(resolvedTheme);
+      localStorage.setItem(THEME_STORAGE_KEY, resolvedTheme);
     }
-  }, [isPremium, authLoading]);
+  }, [user, isPremium, authLoading]);
 
   const setTheme = useCallback(
     (newTheme: ThemeMode) => {
@@ -88,8 +91,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setThemeState(newTheme);
       applyTheme(newTheme);
       localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+
+      // Persist to Firebase for logged-in users
+      if (user?.uid) {
+        updateUserDocument(user.uid, { theme: newTheme }).catch((err) =>
+          console.error("Failed to save theme preference:", err)
+        );
+      }
     },
-    [canChangeTheme]
+    [canChangeTheme, user]
   );
 
   const showStars = themes[theme].showStars;

@@ -159,35 +159,35 @@ export function AddSymbolForm({
                   ? `Limit: ${existingSymbols.length}/${symbolLimit}`
                   : "Add symbol (e.g., GOOGL)"
             }
-            className={`space-input w-full pl-4 ${isDisabled ? "border-slate-600/50 opacity-60" : ""}`}
+            className={`space-input w-full pl-4 ${isDisabled ? "border-[var(--theme-card-border)] opacity-60" : ""}`}
             disabled={isLoading || isDisabled}
             autoComplete="off"
           />
           {isSearching && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-slate-600 border-t-cyan-400 rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-subtle border-t-cosmic rounded-full animate-spin" />
             </div>
           )}
-          {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+          {error && <p className="text-loss text-xs mt-1">{error}</p>}
 
           {/* Suggestions dropdown */}
           {showSuggestions && suggestions.length > 0 && (
-            <ul className="absolute z-50 w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-xl max-h-64 overflow-auto">
+            <ul className="absolute z-50 w-full mt-1 bg-background border border-[var(--theme-card-border)] rounded-lg shadow-xl max-h-64 overflow-auto">
               {suggestions.map((suggestion, index) => (
                 <li key={suggestion.symbol}>
                   <button
                     type="button"
                     onClick={() => handleSelectSuggestion(suggestion)}
-                    className={`w-full px-3 py-2 text-left flex items-center justify-between hover:bg-slate-800 transition-colors ${
-                      index === selectedIndex ? "bg-slate-800" : ""
+                    className={`w-full px-3 py-2 text-left flex items-center justify-between hover:bg-surface transition-colors ${
+                      index === selectedIndex ? "bg-surface" : ""
                     } ${existingSymbols.includes(suggestion.symbol) ? "opacity-50" : ""}`}
                     disabled={existingSymbols.includes(suggestion.symbol)}
                   >
                     <div>
-                      <span className="font-mono font-bold text-white">{suggestion.symbol}</span>
-                      <span className="text-slate-400 text-sm ml-2 truncate">{suggestion.name}</span>
+                      <span className="font-mono font-bold text-foreground">{suggestion.symbol}</span>
+                      <span className="text-muted text-sm ml-2 truncate">{suggestion.name}</span>
                     </div>
-                    <span className="text-xs text-slate-500 ml-2">{suggestion.type}</span>
+                    <span className="text-xs text-subtle ml-2">{suggestion.type}</span>
                   </button>
                 </li>
               ))}
@@ -201,14 +201,14 @@ export function AddSymbolForm({
       {/* Symbol count indicator */}
       <div className="flex items-center justify-end mt-1 gap-2">
         {!isLoggedIn ? (
-          <span className="text-xs text-slate-500">Sign in to customize your watchlist</span>
+          <span className="text-xs text-subtle">Sign in to customize your watchlist</span>
         ) : (
           <>
-            <span className={`text-xs ${isAtLimit ? "text-amber-400" : "text-slate-500"}`}>
+            <span className={`text-xs ${isAtLimit ? "text-gold" : "text-subtle"}`}>
               {existingSymbols.length}/{symbolLimit} symbols
             </span>
             {isAtLimit && (
-              <span className="text-xs text-cyan-400">Upgrade for more</span>
+              <span className="text-xs text-cosmic">Upgrade for more</span>
             )}
           </>
         )}

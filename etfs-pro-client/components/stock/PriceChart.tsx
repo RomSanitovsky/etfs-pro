@@ -73,11 +73,11 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 
   const data = payload[0];
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 shadow-lg">
-      <p className="text-white font-mono font-bold">
+    <div className="bg-surface border border-[var(--theme-card-border)] rounded-lg px-3 py-2 shadow-lg">
+      <p className="text-foreground font-mono font-bold">
         ${data.value.toFixed(2)}
       </p>
-      <p className="text-slate-400 text-xs">
+      <p className="text-muted text-xs">
         {formatTooltipDate(data.payload.timestamp)}
       </p>
     </div>
@@ -87,8 +87,8 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export function PriceChart({ data, range, loading }: PriceChartProps) {
   if (loading) {
     return (
-      <div className="h-[300px] flex items-center justify-center bg-slate-900/50 rounded-lg">
-        <div className="flex items-center gap-2 text-slate-400">
+      <div className="h-[300px] flex items-center justify-center bg-background/50 rounded-lg">
+        <div className="flex items-center gap-2 text-muted">
           <svg
             className="animate-spin h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"
@@ -117,8 +117,8 @@ export function PriceChart({ data, range, loading }: PriceChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="h-[300px] flex items-center justify-center bg-slate-900/50 rounded-lg">
-        <p className="text-slate-500">No chart data available</p>
+      <div className="h-[300px] flex items-center justify-center bg-background/50 rounded-lg">
+        <p className="text-subtle">No chart data available</p>
       </div>
     );
   }

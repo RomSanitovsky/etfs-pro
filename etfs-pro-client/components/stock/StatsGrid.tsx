@@ -79,11 +79,11 @@ function TooltipPortal({ content, triggerRect }: TooltipPortalProps) {
         transform: "translateY(-100%)",
       }}
     >
-      <div className="px-3 py-2 text-sm text-slate-200 bg-slate-800/95 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl w-64">
+      <div className="px-3 py-2 text-sm text-foreground bg-surface/95 backdrop-blur-sm border border-[var(--theme-card-border)] rounded-lg shadow-xl w-64">
         <p className="leading-relaxed">{content}</p>
       </div>
       <div
-        className="absolute w-0 h-0 border-[6px] border-t-slate-700 border-x-transparent border-b-transparent"
+        className="absolute w-0 h-0 border-[6px] border-t-[var(--theme-card-border)] border-x-transparent border-b-transparent"
         style={{
           left: `${triggerRect.left + triggerRect.width / 2 - left - 6}px`,
           top: "100%",
@@ -122,7 +122,7 @@ function InfoTooltip({ content }: InfoTooltipProps) {
     >
       <button
         ref={buttonRef}
-        className="text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
+        className="text-subtle hover:text-foreground transition-colors focus:outline-none"
         onFocus={handleMouseEnter}
         onBlur={handleMouseLeave}
         aria-label="More information"
@@ -156,16 +156,16 @@ interface StatCardProps {
 
 function StatCard({ label, value, subValue, tooltip }: StatCardProps) {
   return (
-    <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
+    <div className="bg-surface/50 rounded-lg p-4 border border-[var(--theme-card-border)]">
       <div className="flex items-center">
-        <p className="text-xs text-slate-400 uppercase tracking-wide">
+        <p className="text-xs text-muted uppercase tracking-wide">
           {label}
         </p>
         {tooltip && <InfoTooltip content={tooltip} />}
       </div>
-      <p className="text-lg font-mono font-semibold text-white mt-1">{value}</p>
+      <p className="text-lg font-mono font-semibold text-foreground mt-1">{value}</p>
       {subValue && (
-        <p className="text-xs text-slate-500 mt-0.5">{subValue}</p>
+        <p className="text-xs text-subtle mt-0.5">{subValue}</p>
       )}
     </div>
   );
@@ -265,64 +265,64 @@ export function StatsGrid({ quote, allTimeHigh, athDate }: StatsGridProps) {
       </div>
 
       {/* 52-Week Range Bar */}
-      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
+      <div className="bg-surface/50 rounded-lg p-4 border border-[var(--theme-card-border)]">
         <div className="flex items-center mb-3">
-          <p className="text-xs text-slate-400 uppercase tracking-wide">
+          <p className="text-xs text-muted uppercase tracking-wide">
             52-Week Range
           </p>
           <InfoTooltip content={DEFINITIONS.fiftyTwoWeekRange} />
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-mono text-slate-400">
+          <span className="text-sm font-mono text-muted">
             {formatCurrency(quote.fiftyTwoWeekLow, quote.currency)}
           </span>
-          <div className="flex-1 h-2 bg-slate-700 rounded-full relative">
+          <div className="flex-1 h-2 bg-surface-alt rounded-full relative">
             <div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-loss via-gold to-gain rounded-full"
               style={{ width: `${Math.min(100, Math.max(0, fiftyTwoWeekProgress))}%` }}
             />
             <div
-              className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow border-2 border-slate-900"
+              className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-foreground rounded-full shadow border-2 border-background"
               style={{ left: `calc(${Math.min(100, Math.max(0, fiftyTwoWeekProgress))}% - 6px)` }}
             />
           </div>
-          <span className="text-sm font-mono text-slate-400">
+          <span className="text-sm font-mono text-muted">
             {formatCurrency(quote.fiftyTwoWeekHigh, quote.currency)}
           </span>
         </div>
       </div>
 
       {/* ATH Analysis */}
-      <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700/50">
+      <div className="bg-surface/50 rounded-lg p-4 border border-[var(--theme-card-border)]">
         <div className="flex items-center mb-3">
-          <p className="text-xs text-slate-400 uppercase tracking-wide">
+          <p className="text-xs text-muted uppercase tracking-wide">
             All-Time High Analysis
           </p>
           <InfoTooltip content={DEFINITIONS.athAnalysis} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <p className="text-sm text-slate-500 mb-1">All-Time High</p>
-            <p className="text-lg font-mono font-semibold text-white">
+            <p className="text-sm text-subtle mb-1">All-Time High</p>
+            <p className="text-lg font-mono font-semibold text-foreground">
               {formatCurrency(allTimeHigh, quote.currency)}
             </p>
-            <p className="text-xs text-slate-500">{formattedAthDate}</p>
+            <p className="text-xs text-subtle">{formattedAthDate}</p>
           </div>
           <div>
-            <p className="text-sm text-slate-500 mb-1">Current vs ATH</p>
+            <p className="text-sm text-subtle mb-1">Current vs ATH</p>
             <p
               className={`text-lg font-mono font-semibold ${
-                percentFromATH <= 0 ? "text-green-400" : "text-red-400"
+                percentFromATH <= 0 ? "text-gain" : "text-loss"
               }`}
             >
               {percentFromATH <= 0 ? "At ATH" : `-${percentFromATH.toFixed(2)}%`}
             </p>
           </div>
           <div>
-            <p className="text-sm text-slate-500 mb-1">Needed to reach ATH</p>
+            <p className="text-sm text-subtle mb-1">Needed to reach ATH</p>
             <p
               className={`text-lg font-mono font-semibold ${
-                percentToATH <= 0 ? "text-green-400" : "text-amber-400"
+                percentToATH <= 0 ? "text-gain" : "text-gold"
               }`}
             >
               {percentToATH <= 0 ? "At ATH" : `+${percentToATH.toFixed(2)}%`}

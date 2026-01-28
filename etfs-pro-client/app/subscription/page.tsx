@@ -57,7 +57,7 @@ export default function SubscriptionPage() {
     return (
       <div className="min-h-screen relative flex items-center justify-center">
         <StarField />
-        <div className="w-8 h-8 border-2 border-slate-600 border-t-cyan-400 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-subtle border-t-cosmic rounded-full animate-spin" />
       </div>
     );
   }
@@ -72,7 +72,7 @@ export default function SubscriptionPage() {
         {/* Back link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors mb-8"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -82,10 +82,10 @@ export default function SubscriptionPage() {
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Manage Subscription
           </h1>
-          <p className="text-slate-400 text-lg">
+          <p className="text-muted text-lg">
             View and manage your ETFs Pro subscription
           </p>
         </div>
@@ -94,24 +94,24 @@ export default function SubscriptionPage() {
         <div className="glass-card p-8 mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
-              <p className="text-sm text-slate-500 uppercase tracking-wider mb-2">Current Plan</p>
+              <p className="text-sm text-subtle uppercase tracking-wider mb-2">Current Plan</p>
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-2xl font-bold text-foreground">
                   {isPremium ? "Premium" : "Free"}
                 </h2>
                 {isPremium && <PremiumBadge size="md" />}
               </div>
-              <p className="text-slate-400 mt-2">
+              <p className="text-muted mt-2">
                 {isPremium
                   ? `You have access to ${PREMIUM_SYMBOL_LIMIT} symbols and all premium features.`
                   : `You can track up to ${FREE_TIER_SYMBOL_LIMIT} symbols with basic features.`}
               </p>
             </div>
             <div className="text-left md:text-right">
-              <p className="text-sm text-slate-500 mb-1">Monthly Price</p>
-              <p className="text-3xl font-bold text-white">
+              <p className="text-sm text-subtle mb-1">Monthly Price</p>
+              <p className="text-3xl font-bold text-foreground">
                 ${isPremium ? PREMIUM_PRICE_MONTHLY : "0"}
-                <span className="text-lg text-slate-400 font-normal">/mo</span>
+                <span className="text-lg text-muted font-normal">/mo</span>
               </p>
             </div>
           </div>
@@ -122,8 +122,8 @@ export default function SubscriptionPage() {
           <div
             className={`mb-8 p-4 rounded-xl text-center ${
               message.type === "success"
-                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                : "bg-red-500/20 text-red-400 border border-red-500/30"
+                ? "bg-gain/20 text-gain border border-gain/30"
+                : "bg-loss/20 text-loss border border-loss/30"
             }`}
           >
             {message.text}
@@ -136,25 +136,25 @@ export default function SubscriptionPage() {
           <div
             className={`rounded-2xl p-6 border-2 transition-all ${
               !isPremium
-                ? "border-cyan-500/50 bg-cyan-500/5"
-                : "border-slate-700 bg-slate-800/30 opacity-75"
+                ? "border-cosmic/50 bg-cosmic/5"
+                : "border-[var(--theme-card-border)] bg-surface/30 opacity-75"
             }`}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-white">Free</h3>
+              <h3 className="text-xl font-bold text-foreground">Free</h3>
               {!isPremium && (
-                <span className="px-3 py-1 text-xs font-bold uppercase rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                <span className="px-3 py-1 text-xs font-bold uppercase rounded-full bg-cosmic/20 text-cosmic border border-cosmic/30">
                   Current
                 </span>
               )}
             </div>
-            <p className="text-3xl font-bold text-white mb-4">
-              $0<span className="text-lg text-slate-400 font-normal">/mo</span>
+            <p className="text-3xl font-bold text-foreground mb-4">
+              $0<span className="text-lg text-muted font-normal">/mo</span>
             </p>
             <ul className="space-y-3 mb-6">
               {FREE_FEATURES.map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                  <svg className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                  <svg className="w-4 h-4 text-subtle mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   {feature}
@@ -166,8 +166,8 @@ export default function SubscriptionPage() {
                 onClick={handleDowngrade}
                 disabled={isProcessing}
                 className="w-full py-3 px-4 rounded-xl font-semibold
-                           bg-slate-700 hover:bg-slate-600 text-white
-                           border border-slate-600 transition-all
+                           bg-surface hover:bg-surface-alt text-foreground
+                           border border-[var(--theme-card-border)] transition-all
                            disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? "Processing..." : "Downgrade to Free"}
@@ -179,25 +179,25 @@ export default function SubscriptionPage() {
           <div
             className={`rounded-2xl p-6 border-2 transition-all ${
               isPremium
-                ? "border-amber-500/50 bg-amber-500/5"
-                : "border-purple-500/50 bg-purple-500/5"
+                ? "border-gold/50 bg-gold/5"
+                : "border-nebula/50 bg-nebula/5"
             }`}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-white">Premium</h3>
+              <h3 className="text-xl font-bold text-foreground">Premium</h3>
               {isPremium && (
-                <span className="px-3 py-1 text-xs font-bold uppercase rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <span className="px-3 py-1 text-xs font-bold uppercase rounded-full bg-gold/20 text-gold border border-gold/30">
                   Current
                 </span>
               )}
             </div>
-            <p className="text-3xl font-bold text-white mb-4">
-              ${PREMIUM_PRICE_MONTHLY}<span className="text-lg text-slate-400 font-normal">/mo</span>
+            <p className="text-3xl font-bold text-foreground mb-4">
+              ${PREMIUM_PRICE_MONTHLY}<span className="text-lg text-muted font-normal">/mo</span>
             </p>
             <ul className="space-y-3 mb-6">
               {PREMIUM_FEATURES.map((feature, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                  <svg className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                  <svg className="w-4 h-4 text-nebula mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   {feature}
@@ -209,9 +209,9 @@ export default function SubscriptionPage() {
                 onClick={handleUpgrade}
                 disabled={isProcessing}
                 className="w-full py-3 px-4 rounded-xl font-semibold
-                           bg-gradient-to-r from-purple-500 to-cyan-500
-                           hover:from-purple-400 hover:to-cyan-400 text-white
-                           shadow-lg hover:shadow-xl hover:shadow-purple-500/25
+                           bg-gradient-to-r from-nebula to-cosmic
+                           hover:from-nebula/80 hover:to-cosmic/80 text-white
+                           shadow-lg hover:shadow-xl hover:shadow-nebula/25
                            transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? "Processing..." : "Upgrade to Premium"}
@@ -221,16 +221,16 @@ export default function SubscriptionPage() {
         </div>
 
         {/* Test Mode Notice */}
-        <div className="text-center p-4 rounded-xl bg-slate-800/50 border border-slate-700">
-          <p className="text-sm text-slate-400">
-            <span className="text-amber-400 font-semibold">Test Mode:</span> This is a demo subscription system.
+        <div className="text-center p-4 rounded-xl bg-surface/50 border border-[var(--theme-card-border)]">
+          <p className="text-sm text-muted">
+            <span className="text-gold font-semibold">Test Mode:</span> This is a demo subscription system.
             No actual payment is required. Click the buttons to simulate upgrading or downgrading.
           </p>
         </div>
 
         {/* Data Storage Info */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-subtle">
             Your subscription status is stored securely in Firebase Firestore.
           </p>
         </div>

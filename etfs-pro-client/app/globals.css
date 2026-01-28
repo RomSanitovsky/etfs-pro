@@ -22,6 +22,10 @@
 @theme inline {
   --color-background: var(--theme-background);
   --color-foreground: var(--theme-text-primary);
+  --color-surface: var(--theme-background-secondary);
+  --color-surface-alt: var(--theme-background-tertiary);
+  --color-muted: var(--theme-text-secondary);
+  --color-subtle: var(--theme-text-muted);
   --color-nebula: var(--theme-accent);
   --color-cosmic: var(--theme-accent-secondary);
   --color-gold: var(--theme-gold);

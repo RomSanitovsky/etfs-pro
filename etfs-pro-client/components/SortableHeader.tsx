@@ -45,11 +45,11 @@ function TooltipPortal({ content, triggerRect }: TooltipPortalProps) {
         transform: "translateY(-100%)",
       }}
     >
-      <div className="px-3 py-2 text-sm font-normal text-slate-200 bg-slate-800/95 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl text-left w-64">
+      <div className="px-3 py-2 text-sm font-normal text-foreground bg-surface/95 backdrop-blur-sm border border-[var(--theme-card-border)] rounded-lg shadow-xl text-left w-64">
         <p className="leading-relaxed">{content}</p>
       </div>
       <div
-        className="absolute w-0 h-0 border-[6px] border-t-slate-700 border-x-transparent border-b-transparent"
+        className="absolute w-0 h-0 border-[6px] border-t-[var(--theme-card-border)] border-x-transparent border-b-transparent"
         style={{
           left: `${triggerRect.left + triggerRect.width / 2 - left - 6}px`,
           top: "100%",
@@ -88,7 +88,7 @@ export function SortableHeader({
     <th
       className={`sort-header px-4 py-3 font-semibold text-sm relative ${
         align === "right" ? "text-right" : "text-left"
-      } ${isActive ? "text-cyan-400" : "text-slate-400"}`}
+      } ${isActive ? "text-cosmic" : "text-muted"}`}
       onClick={() => onSort(field)}
     >
       {/* Main label and sort indicator */}
@@ -111,7 +111,7 @@ export function SortableHeader({
         >
           <button
             ref={buttonRef}
-            className="p-0.5 text-slate-600 hover:text-slate-400 transition-colors focus:outline-none"
+            className="p-0.5 text-subtle hover:text-muted transition-colors focus:outline-none"
             onFocus={handleMouseEnter}
             onBlur={handleMouseLeave}
             aria-label={`Info about ${label}`}

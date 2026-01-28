@@ -37,11 +37,11 @@ function TooltipPortal({ content, triggerRect }: TooltipPortalProps) {
         maxWidth: tooltipWidth,
       }}
     >
-      <div className="px-3 py-2 text-sm text-slate-200 bg-slate-800/95 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl">
+      <div className="px-3 py-2 text-sm text-foreground bg-surface/95 backdrop-blur-sm border border-[var(--theme-card-border)] rounded-lg shadow-xl">
         <p className="leading-relaxed">{content}</p>
       </div>
       <div
-        className="absolute w-0 h-0 border-[6px] border-t-slate-700 border-x-transparent border-b-transparent"
+        className="absolute w-0 h-0 border-[6px] border-t-[var(--theme-card-border)] border-x-transparent border-b-transparent"
         style={{
           left: `${triggerRect.left + triggerRect.width / 2 - left - 6}px`,
           top: "100%",
@@ -86,7 +86,7 @@ export function Tooltip({ content, children }: TooltipProps) {
       {/* Info icon */}
       <button
         ref={buttonRef}
-        className="ml-1 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
+        className="ml-1 text-subtle hover:text-foreground transition-colors focus:outline-none"
         onFocus={handleMouseEnter}
         onBlur={handleMouseLeave}
         aria-label="More information"
@@ -140,7 +140,7 @@ export function InfoTooltip({ content }: InfoTooltipProps) {
     >
       <button
         ref={buttonRef}
-        className="text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
+        className="text-subtle hover:text-foreground transition-colors focus:outline-none"
         onFocus={handleMouseEnter}
         onBlur={handleMouseLeave}
         aria-label="More information"

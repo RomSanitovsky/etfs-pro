@@ -15,42 +15,42 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
   );
 
   return (
-    <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
-      <h4 className="text-sm font-semibold text-slate-300 mb-3">Purchase History</h4>
+    <div className="bg-background/50 rounded-lg p-4 border border-[var(--theme-card-border)]">
+      <h4 className="text-sm font-semibold text-foreground/80 mb-3">Purchase History</h4>
       <div className="space-y-2">
         {sortedTransactions.map((tx) => (
           <div
             key={tx.id}
-            className="flex items-center justify-between py-2 px-3 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition-colors"
+            className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface/50 hover:bg-surface transition-colors"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-4 text-sm">
-                <span className="text-slate-400">
+                <span className="text-muted">
                   {new Date(tx.purchaseDate).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
                     year: "numeric",
                   })}
                 </span>
-                <span className="font-mono text-white">
+                <span className="font-mono text-foreground">
                   {tx.shares.toLocaleString()} shares
                 </span>
-                <span className="text-slate-400">@</span>
-                <span className="font-mono text-cyan-400">
+                <span className="text-muted">@</span>
+                <span className="font-mono text-cosmic">
                   {formatCurrency(tx.pricePerShare)}
                 </span>
-                <span className="text-slate-500">=</span>
-                <span className="font-mono text-slate-300">
+                <span className="text-subtle">=</span>
+                <span className="font-mono text-foreground/80">
                   {formatCurrency(tx.shares * tx.pricePerShare)}
                 </span>
               </div>
               {tx.notes && (
-                <p className="text-xs text-slate-500 mt-1 truncate">{tx.notes}</p>
+                <p className="text-xs text-subtle mt-1 truncate">{tx.notes}</p>
               )}
             </div>
             <button
               onClick={() => onDelete(tx.id)}
-              className="ml-4 p-1.5 rounded hover:bg-red-500/20 transition-colors text-slate-500 hover:text-red-400"
+              className="ml-4 p-1.5 rounded hover:bg-loss/20 transition-colors text-subtle hover:text-loss"
               title="Delete transaction"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -17,33 +17,33 @@ interface StatCardProps {
 
 function StatCard({ title, value, subtitle, icon, valueColor = "default" }: StatCardProps) {
   const valueColorClass =
-    valueColor === "red" ? "text-red-400 drop-shadow-[0_0_10px_rgba(248,113,113,0.5)]" :
-    valueColor === "green" ? "text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" :
-    "text-white";
+    valueColor === "red" ? "text-loss drop-shadow-[0_0_10px_var(--theme-loss)]" :
+    valueColor === "green" ? "text-gain drop-shadow-[0_0_10px_var(--theme-gain)]" :
+    "text-foreground";
 
   return (
     <div className="group relative rounded-xl p-4 transition-all duration-300 hover:scale-[1.03] overflow-hidden">
       {/* Outer glow on hover */}
-      <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-cyan-500/40 via-purple-500/40 to-cyan-500/40 opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-500" />
+      <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-cosmic/40 via-nebula/40 to-cosmic/40 opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-500" />
 
       {/* Gradient border */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/50 via-purple-600/30 to-cyan-400/50 p-[1px]">
-        <div className="absolute inset-[1px] rounded-xl bg-[#0a0b0f]/95" />
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cosmic/50 via-nebula/30 to-cosmic/50 p-[1px]">
+        <div className="absolute inset-[1px] rounded-xl bg-background/95" />
       </div>
 
       {/* Inner gradient overlay */}
-      <div className="absolute inset-[1px] rounded-xl bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10" />
+      <div className="absolute inset-[1px] rounded-xl bg-gradient-to-br from-cosmic/10 via-transparent to-nebula/10" />
 
       {/* Animated shine effect on hover */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cosmic/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
 
       {/* Content */}
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold tracking-wide bg-gradient-to-r from-cyan-400 to-cyan-300 bg-clip-text text-transparent uppercase">
+          <span className="text-xs font-semibold tracking-wide bg-gradient-to-r from-cosmic to-cosmic bg-clip-text text-transparent uppercase">
             {title}
           </span>
-          <div className="text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300 drop-shadow-[0_0_6px_rgba(6,182,212,0.5)]">
+          <div className="text-cosmic group-hover:text-cosmic transition-colors duration-300 drop-shadow-[0_0_6px_var(--theme-accent-secondary)]">
             {icon}
           </div>
         </div>
@@ -53,7 +53,7 @@ function StatCard({ title, value, subtitle, icon, valueColor = "default" }: Stat
         </div>
 
         {subtitle && (
-          <div className="text-sm text-slate-400 truncate mt-1">
+          <div className="text-sm text-muted truncate mt-1">
             {subtitle}
           </div>
         )}
@@ -70,11 +70,11 @@ export function PortfolioSummaryCards({ summary }: PortfolioSummaryCardsProps) {
     <div className="mb-6">
       {/* Section header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-        <span className="text-xs font-semibold tracking-widest bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent uppercase">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cosmic/50 to-transparent" />
+        <span className="text-xs font-semibold tracking-widest bg-gradient-to-r from-cosmic via-nebula to-cosmic bg-clip-text text-transparent uppercase">
           Portfolio Overview
         </span>
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cosmic/50 to-transparent" />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">

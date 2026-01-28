@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import {
   PortfolioSummaryCards,
+  PortfolioPieChart,
   PortfolioTable,
   AddTransactionModal,
   EmptyPortfolioState,
@@ -45,7 +46,7 @@ export default function PortfolioPage() {
     return (
       <div className="min-h-screen relative flex items-center justify-center">
         <StarField />
-        <div className="w-8 h-8 border-2 border-slate-600 border-t-cyan-400 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[var(--theme-card-border)] border-t-cosmic rounded-full animate-spin" />
       </div>
     );
   }
@@ -59,7 +60,7 @@ export default function PortfolioPage() {
         {/* Back link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors mb-8"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -70,16 +71,16 @@ export default function PortfolioPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 mb-3">
-              <svg className="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 mb-3">
+              <svg className="w-3 h-3 text-gold" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
-              <span className="text-xs font-medium text-amber-400 tracking-wide uppercase">Premium Feature</span>
+              <span className="text-xs font-medium text-gold tracking-wide uppercase">Premium Feature</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
               My Portfolio
             </h1>
-            <p className="text-slate-400">
+            <p className="text-muted">
               Track your investments and monitor P&L performance
             </p>
           </div>
@@ -89,12 +90,12 @@ export default function PortfolioPage() {
             <button
               onClick={refreshPrices}
               disabled={isLoading}
-              className="p-2.5 rounded-lg border border-slate-700 hover:bg-slate-800 hover:border-slate-600
+              className="p-2.5 rounded-lg border border-[var(--theme-card-border)] hover:bg-surface
                          transition-colors disabled:opacity-50"
               title="Refresh prices"
             >
               <svg
-                className={`w-5 h-5 text-slate-400 ${isLoading ? "animate-spin" : ""}`}
+                className={`w-5 h-5 text-muted ${isLoading ? "animate-spin" : ""}`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -112,9 +113,9 @@ export default function PortfolioPage() {
             <button
               onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg
-                         bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-semibold
-                         hover:from-cyan-400 hover:to-purple-400
-                         shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30
+                         bg-gradient-to-r from-cosmic to-nebula text-white font-semibold
+                         hover:from-cosmic hover:to-nebula hover:brightness-110
+                         shadow-lg shadow-cosmic/20 hover:shadow-cosmic/30
                          transition-all duration-300"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -127,7 +128,7 @@ export default function PortfolioPage() {
 
         {/* Error message */}
         {error && (
-          <div className="mb-6 p-4 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
+          <div className="mb-6 p-4 rounded-lg bg-loss/20 text-loss border border-loss/30">
             {error}
           </div>
         )}
@@ -140,6 +141,9 @@ export default function PortfolioPage() {
             {/* Summary Cards */}
             {summary && <PortfolioSummaryCards summary={summary} />}
 
+            {/* Allocation Pie Chart */}
+            <PortfolioPieChart holdings={holdings} />
+
             {/* Holdings Table */}
             <PortfolioTable
               holdings={holdings}
@@ -151,7 +155,7 @@ export default function PortfolioPage() {
         )}
 
         {/* Footer */}
-        <div className="mt-8 text-xs text-slate-500 text-center">
+        <div className="mt-8 text-xs text-subtle text-center">
           <p>Portfolio data is synced in real-time with your account.</p>
         </div>
       </main>

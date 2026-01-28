@@ -62,13 +62,13 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
         onClick={handleClick}
         disabled={isLoading}
         className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg
-                   bg-slate-800 hover:bg-slate-700 border border-slate-700
-                   text-white font-medium transition-all duration-200
+                   bg-surface hover:bg-surface-alt border border-[var(--theme-card-border)]
+                   text-foreground font-medium transition-all duration-200
                    disabled:opacity-50 disabled:cursor-not-allowed
-                   hover:border-slate-600"
+                   hover:border-muted/30"
       >
         {isLoading ? (
-          <div className="w-5 h-5 border-2 border-slate-600 border-t-white rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-subtle border-t-foreground rounded-full animate-spin" />
         ) : (
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -92,7 +92,7 @@ export function GoogleSignInButton({ onSuccess }: GoogleSignInButtonProps) {
         <span>{isLoading ? "Signing in..." : "Continue with Google"}</span>
       </button>
       {error && (
-        <p className="text-red-400 text-xs text-center">{error}</p>
+        <p className="text-loss text-xs text-center">{error}</p>
       )}
     </div>
   );

@@ -29,18 +29,18 @@ function FilterButton({ active, onClick, label, count, icon }: FilterButtonProps
       className={`
         relative flex items-center gap-2 px-4 py-2 rounded-lg
         font-medium text-sm transition-all duration-200
-        ${active 
-          ? "bg-gradient-to-r from-purple-500/20 to-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-lg shadow-cyan-500/10" 
-          : "bg-slate-800/50 text-slate-400 border border-slate-700/50 hover:border-slate-600 hover:text-slate-300"
+        ${active
+          ? "bg-gradient-to-r from-nebula/20 to-cosmic/20 text-cosmic border border-cosmic/40 shadow-lg shadow-cosmic/10"
+          : "bg-surface/50 text-muted border border-[var(--theme-card-border)] hover:border-subtle hover:text-foreground"
         }
       `}
     >
       {/* Active indicator glow */}
       {active && (
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/5 to-cyan-500/5 animate-pulse" />
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-nebula/5 to-cosmic/5 animate-pulse" />
       )}
       
-      <span className={`relative ${active ? "text-cyan-400" : "text-slate-500"}`}>
+      <span className={`relative ${active ? "text-cosmic" : "text-subtle"}`}>
         {icon}
       </span>
       
@@ -49,9 +49,9 @@ function FilterButton({ active, onClick, label, count, icon }: FilterButtonProps
       {/* Count badge */}
       <span className={`
         relative ml-1 px-1.5 py-0.5 rounded text-[10px] font-mono
-        ${active 
-          ? "bg-cyan-500/20 text-cyan-300" 
-          : "bg-slate-700/50 text-slate-500"
+        ${active
+          ? "bg-cosmic/20 text-cosmic"
+          : "bg-surface-alt/50 text-subtle"
         }
       `}>
         {count}
@@ -64,7 +64,7 @@ export function AssetFilter({ value, onChange, counts }: AssetFilterProps) {
   return (
     <div className="flex items-center gap-2">
       {/* Label */}
-      <span className="text-[10px] font-mono tracking-widest text-slate-600 uppercase mr-2 hidden sm:block">
+      <span className="text-[10px] font-mono tracking-widest text-subtle uppercase mr-2 hidden sm:block">
         Filter
       </span>
       

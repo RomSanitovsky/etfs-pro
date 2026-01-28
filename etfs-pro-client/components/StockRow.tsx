@@ -20,25 +20,25 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
 
   // Format daily change with color
   const dailyChangeColor = stock.dailyChangePercent !== null
-    ? stock.dailyChangePercent >= 0 ? "text-green-400" : "text-red-400"
-    : "text-slate-500";
+    ? stock.dailyChangePercent >= 0 ? "text-gain" : "text-loss"
+    : "text-subtle";
   const dailyChangeValue = stock.dailyChangePercent !== null
     ? `${stock.dailyChangePercent >= 0 ? "+" : ""}${stock.dailyChangePercent.toFixed(2)}%`
-    : "—";
+    : "\u2014";
 
   return (
-    <tr className="stock-row border-b border-slate-800/50">
+    <tr className="stock-row border-b border-[var(--theme-card-border)]">
       <td className="px-4 py-4">
         <Link
           href={`/stock/${stock.symbol}`}
           className="group block"
         >
           <div className="flex items-center gap-2">
-            <span className="font-mono font-bold text-white group-hover:text-cyan-400 transition-colors">
+            <span className="font-mono font-bold text-foreground group-hover:text-cosmic transition-colors">
               {stock.symbol}
             </span>
           </div>
-          <span className="text-xs text-slate-500 block group-hover:text-slate-400 transition-colors">
+          <span className="text-xs text-subtle block group-hover:text-muted transition-colors">
             {stock.name}
           </span>
         </Link>
@@ -56,14 +56,14 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
         <span className="font-mono">
           {formatCurrency(stock.allTimeHigh, stock.currency)}
         </span>
-        <span className="text-xs text-slate-500 block">{formattedAthDate}</span>
+        <span className="text-xs text-subtle block">{formattedAthDate}</span>
       </td>
       <td className="px-4 py-4 text-right">
         <div className="flex items-center justify-end gap-2">
           {stock.isNearATH && <ATHBadge />}
           <span
             className={`font-mono ${
-              stock.percentDown <= 0 ? "text-green-400" : "text-red-400"
+              stock.percentDown <= 0 ? "text-gain" : "text-loss"
             }`}
           >
             -{stock.percentDown.toFixed(2)}%
@@ -73,7 +73,7 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
       <td className="px-4 py-4 text-right">
         <span
           className={`font-mono ${
-            stock.percentToATH <= 0 ? "text-green-400" : "text-amber-400"
+            stock.percentToATH <= 0 ? "text-gain" : "text-gold"
           }`}
         >
           +{stock.percentToATH.toFixed(2)}%
@@ -81,14 +81,14 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
       </td>
       {/* Expense Ratio (ETFs only) */}
       <td className="px-4 py-4 text-right">
-        <span className="font-mono text-slate-300">
-          {stock.expenseRatio !== null ? `${stock.expenseRatio.toFixed(2)}%` : "—"}
+        <span className="font-mono text-foreground/80">
+          {stock.expenseRatio !== null ? `${stock.expenseRatio.toFixed(2)}%` : "\u2014"}
         </span>
       </td>
       {/* Dividend Yield */}
       <td className="px-4 py-4 text-right">
-        <span className={`font-mono ${stock.dividendYield && stock.dividendYield > 0 ? "text-white" : "text-slate-500"}`}>
-          {stock.dividendYield !== null ? `${stock.dividendYield.toFixed(2)}%` : "—"}
+        <span className={`font-mono ${stock.dividendYield && stock.dividendYield > 0 ? "text-foreground" : "text-subtle"}`}>
+          {stock.dividendYield !== null ? `${stock.dividendYield.toFixed(2)}%` : "\u2014"}
         </span>
       </td>
       <td className="px-4 py-4 text-right">
@@ -96,10 +96,10 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
           {isPremium && onAddToPortfolio && (
             <button
               onClick={() => onAddToPortfolio(stock.symbol)}
-              className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30
-                         hover:bg-cyan-500/25 hover:border-cyan-400/50
-                         transition-all duration-200 text-cyan-400 hover:text-cyan-300
-                         hover:shadow-[0_0_8px_rgba(34,211,238,0.15)]"
+              className="p-1.5 rounded-lg bg-cosmic/10 border border-cosmic/30
+                         hover:bg-cosmic/25 hover:border-cosmic/50
+                         transition-all duration-200 text-cosmic hover:text-cosmic
+                         hover:shadow-[0_0_8px_var(--theme-glow-secondary)]"
               title="Add to portfolio"
             >
               <svg
@@ -119,7 +119,7 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
           )}
           <button
             onClick={() => onRemove(stock.symbol)}
-            className="p-1 rounded hover:bg-red-500/20 transition-colors text-slate-500 hover:text-red-400"
+            className="p-1 rounded hover:bg-loss/20 transition-colors text-subtle hover:text-loss"
             title="Remove from watchlist"
           >
             <svg

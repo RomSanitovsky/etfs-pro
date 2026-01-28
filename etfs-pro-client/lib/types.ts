@@ -1,3 +1,5 @@
+import type { ThemeMode } from "./themes";
+
 export type AssetType = "etf" | "stock" | "crypto" | "materials";
 
 export interface StockData {
@@ -63,6 +65,7 @@ export interface UserProfile {
   isPremium: boolean;
   premiumExpiresAt: Date | null;
   watchlist: string[];
+  theme: ThemeMode;
   createdAt: Date;
   updatedAt: Date;
 }

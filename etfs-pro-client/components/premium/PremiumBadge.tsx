@@ -12,8 +12,8 @@ export function PremiumBadge({ size = "sm" }: PremiumBadgeProps) {
   return (
     <span
       className={`inline-flex items-center font-bold tracking-wide rounded
-                  bg-gradient-to-r from-amber-500 to-amber-600
-                  text-slate-900 uppercase ${sizeClasses}`}
+                  bg-gradient-to-r from-gold to-gold/80
+                  text-background uppercase ${sizeClasses}`}
     >
       PRO
     </span>

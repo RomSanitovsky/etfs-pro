@@ -17,11 +17,11 @@ export function SettingsPanel({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
+        className="p-2 rounded-lg hover:bg-surface transition-colors"
         title="Settings"
       >
         <svg
-          className="w-5 h-5 text-slate-400"
+          className="w-5 h-5 text-muted"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -50,7 +50,7 @@ export function SettingsPanel({
           <div className="absolute right-0 top-full mt-2 z-20 glass-card p-4 min-w-64">
             <h3 className="font-semibold text-sm mb-3">Settings</h3>
             <div className="space-y-2">
-              <label className="block text-xs text-slate-400">
+              <label className="block text-xs text-muted">
                 ATH Badge Threshold (%)
               </label>
               <input
@@ -62,7 +62,7 @@ export function SettingsPanel({
                 step={0.5}
                 className="space-input w-full"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-subtle">
                 Show ATH badge when stock is within this % of all-time high
               </p>
             </div>

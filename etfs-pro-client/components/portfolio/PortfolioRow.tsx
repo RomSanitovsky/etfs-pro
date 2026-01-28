@@ -19,17 +19,17 @@ export function PortfolioRow({
 }: PortfolioRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const pnlColor = holding.unrealizedPnL >= 0 ? "text-green-400" : "text-red-400";
+  const pnlColor = holding.unrealizedPnL >= 0 ? "text-gain" : "text-loss";
   const pnlSign = holding.unrealizedPnL >= 0 ? "+" : "";
 
   return (
     <>
-      <tr className="stock-row border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+      <tr className="stock-row border-b border-[var(--theme-card-border)] hover:bg-surface/30 transition-colors">
         {/* Expand button */}
         <td className="px-2 py-4">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 rounded hover:bg-slate-700/50 transition-colors text-slate-400 hover:text-white"
+            className="p-1 rounded hover:bg-surface/50 transition-colors text-muted hover:text-foreground"
           >
             <svg
               className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""}`}
@@ -45,11 +45,11 @@ export function PortfolioRow({
         {/* Symbol */}
         <td className="px-4 py-4">
           <Link href={`/stock/${holding.symbol}`} className="group block">
-            <span className="font-mono font-bold text-white group-hover:text-cyan-400 transition-colors">
+            <span className="font-mono font-bold text-foreground group-hover:text-cosmic transition-colors">
               {holding.symbol}
             </span>
             {holding.name && (
-              <span className="text-xs text-slate-500 block group-hover:text-slate-400 transition-colors truncate max-w-[150px]">
+              <span className="text-xs text-subtle block group-hover:text-muted transition-colors truncate max-w-[150px]">
                 {holding.name}
               </span>
             )}
@@ -57,22 +57,22 @@ export function PortfolioRow({
         </td>
 
         {/* Shares */}
-        <td className="px-4 py-4 text-right font-mono text-white">
+        <td className="px-4 py-4 text-right font-mono text-foreground">
           {holding.totalShares.toLocaleString()}
         </td>
 
         {/* Avg Cost */}
-        <td className="px-4 py-4 text-right font-mono text-slate-300">
+        <td className="px-4 py-4 text-right font-mono text-foreground/80">
           {formatCurrency(holding.averageCost)}
         </td>
 
         {/* Current Price */}
-        <td className="px-4 py-4 text-right font-mono text-white">
+        <td className="px-4 py-4 text-right font-mono text-foreground">
           {formatCurrency(holding.currentPrice)}
         </td>
 
         {/* Current Value */}
-        <td className="px-4 py-4 text-right font-mono text-white">
+        <td className="px-4 py-4 text-right font-mono text-foreground">
           {formatCurrency(holding.currentValue)}
         </td>
 
@@ -89,13 +89,13 @@ export function PortfolioRow({
         {/* Allocation */}
         <td className="px-4 py-4 text-right">
           <div className="flex items-center justify-end gap-2">
-            <div className="w-16 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+            <div className="w-16 h-1.5 bg-surface-alt rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full"
+                className="h-full bg-gradient-to-r from-cosmic to-nebula rounded-full"
                 style={{ width: `${Math.min(holding.allocationPercent, 100)}%` }}
               />
             </div>
-            <span className="font-mono text-slate-300 text-sm w-12 text-right">
+            <span className="font-mono text-foreground/80 text-sm w-12 text-right">
               {holding.allocationPercent.toFixed(1)}%
             </span>
           </div>
@@ -105,7 +105,7 @@ export function PortfolioRow({
         <td className="px-4 py-4 text-right">
           <button
             onClick={() => onDeleteHolding(holding.symbol)}
-            className="p-1 rounded hover:bg-red-500/20 transition-colors text-slate-500 hover:text-red-400"
+            className="p-1 rounded hover:bg-loss/20 transition-colors text-subtle hover:text-loss"
             title="Delete holding"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +117,7 @@ export function PortfolioRow({
 
       {/* Expanded transaction list */}
       {isExpanded && (
-        <tr className="bg-slate-900/30">
+        <tr className="bg-background/30">
           <td colSpan={9} className="px-4 py-4">
             <TransactionList
               transactions={holding.transactions}

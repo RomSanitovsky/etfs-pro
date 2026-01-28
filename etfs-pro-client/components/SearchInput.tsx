@@ -21,7 +21,7 @@ export function SearchInput({
         className="space-input w-full pl-10"
       />
       <svg
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

@@ -18,6 +18,7 @@ import { User } from "firebase/auth";
 import { db } from "./config";
 import type { UserProfile, PortfolioHolding, PortfolioTransaction, AddTransactionInput } from "@/lib/types";
 import { DEFAULT_SYMBOLS, DEFAULTS_VERSION, FREE_TIER_SYMBOL_LIMIT, PREMIUM_SYMBOL_LIMIT, STORAGE_KEYS } from "@/lib/constants";
+import { DEFAULT_THEME, themes, type ThemeMode } from "@/lib/themes";
 
 const USERS_COLLECTION = "users";
 
@@ -78,6 +79,7 @@ export async function createUserDocument(user: User): Promise<UserProfile> {
     isPremium: false,
     premiumExpiresAt: null,
     watchlist: initialWatchlist,
+    theme: DEFAULT_THEME,
     defaultsVersion: DEFAULTS_VERSION,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -96,6 +98,7 @@ export async function createUserDocument(user: User): Promise<UserProfile> {
     isPremium: false,
     premiumExpiresAt: null,
     watchlist: initialWatchlist,
+    theme: DEFAULT_THEME,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -137,6 +140,10 @@ export async function getUserDocument(uid: string): Promise<UserProfile | null> 
     await updateDoc(userRef, updates);
   }
 
+  // Validate stored theme or fall back to default
+  const storedTheme = data.theme as ThemeMode | undefined;
+  const theme: ThemeMode = storedTheme && themes[storedTheme] ? storedTheme : DEFAULT_THEME;
+
   return {
     uid,
     email: data.email,
@@ -145,6 +152,7 @@ export async function getUserDocument(uid: string): Promise<UserProfile | null> 
     isPremium: data.isPremium || false,
     premiumExpiresAt: convertTimestamp(data.premiumExpiresAt),
     watchlist,
+    theme,
     createdAt: convertTimestamp(data.createdAt) || new Date(),
     updatedAt: convertTimestamp(data.updatedAt) || new Date(),
   };
