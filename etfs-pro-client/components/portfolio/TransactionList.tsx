@@ -43,10 +43,12 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
                 <span className="font-mono text-foreground/80">
                   {formatCurrency(tx.shares * tx.pricePerShare)}
                 </span>
+                {tx.notes && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-nebula/15 border border-nebula/30 text-xs text-cosmic truncate max-w-[200px]">
+                    {tx.notes}
+                  </span>
+                )}
               </div>
-              {tx.notes && (
-                <p className="text-xs text-subtle mt-1 truncate">{tx.notes}</p>
-              )}
             </div>
             <button
               onClick={() => onDelete(tx.id)}

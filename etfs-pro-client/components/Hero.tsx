@@ -22,11 +22,11 @@ export function Hero() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-nebula/10 border border-nebula/30 mb-8 hero-fade-in">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cosmic opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-cosmic"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-loss opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-loss"></span>
           </span>
           <span className="text-sm font-medium text-cosmic tracking-wide">
-            Live Market Data • Updated Every Second
+            Live Market Data • Real-Time Updates
           </span>
         </div>
 

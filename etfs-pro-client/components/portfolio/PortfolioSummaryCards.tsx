@@ -128,8 +128,8 @@ export function PortfolioSummaryCards({ summary }: PortfolioSummaryCardsProps) {
           }
         />
 
-        {/* Top Gainer */}
-        {summary.topGainer && (
+        {/* Top Gainer - only show if actually in profit */}
+        {summary.topGainer && summary.topGainer.pnlPercent > 0 && (
           <StatCard
             title="Top Gainer"
             value={`${summary.topGainer.pnlPercent >= 0 ? "+" : ""}${summary.topGainer.pnlPercent.toFixed(2)}%`}
@@ -143,8 +143,8 @@ export function PortfolioSummaryCards({ summary }: PortfolioSummaryCardsProps) {
           />
         )}
 
-        {/* Top Loser */}
-        {summary.topLoser && (
+        {/* Top Loser - only show if actually in loss */}
+        {summary.topLoser && summary.topLoser.pnlPercent < 0 && (
           <StatCard
             title="Top Loser"
             value={`${summary.topLoser.pnlPercent >= 0 ? "+" : ""}${summary.topLoser.pnlPercent.toFixed(2)}%`}
