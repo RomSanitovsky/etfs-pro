@@ -28,7 +28,7 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
 
   return (
     <tr className="stock-row border-b border-[var(--theme-card-border)]">
-      <td className="px-4 py-4">
+      <td className="px-4 py-4 overflow-hidden">
         <Link
           href={`/stock/${stock.symbol}`}
           className="group block"
@@ -38,28 +38,28 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
               {stock.symbol}
             </span>
           </div>
-          <span className="text-xs text-subtle block group-hover:text-muted transition-colors">
+          <span className="text-xs text-subtle block group-hover:text-muted transition-colors truncate">
             {stock.name}
           </span>
         </Link>
       </td>
-      <td className="px-4 py-4 text-right font-mono">
+      <td className="px-4 py-4 text-right overflow-hidden font-mono">
         {formatCurrency(stock.currentPrice, stock.currency)}
       </td>
       {/* Daily Change */}
-      <td className="px-4 py-4 text-right">
+      <td className="px-4 py-4 text-right overflow-hidden">
         <span className={`font-mono ${dailyChangeColor}`}>
           {dailyChangeValue}
         </span>
       </td>
-      <td className="px-4 py-4 text-right">
+      <td className="px-4 py-4 text-right overflow-hidden">
         <span className="font-mono">
           {formatCurrency(stock.allTimeHigh, stock.currency)}
         </span>
         <span className="text-xs text-subtle block">{formattedAthDate}</span>
       </td>
-      <td className="px-4 py-4 text-right">
-        <div className="flex items-center justify-end gap-2">
+      <td className="px-4 py-4 text-right overflow-hidden">
+        <div className="flex flex-col items-end gap-0.5">
           {stock.isNearATH && <ATHBadge />}
           <span
             className={`font-mono ${
@@ -70,7 +70,7 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
           </span>
         </div>
       </td>
-      <td className="px-4 py-4 text-right">
+      <td className="px-4 py-4 text-right overflow-hidden">
         <span
           className={`font-mono ${
             stock.percentToATH <= 0 ? "text-gain" : "text-gold"
@@ -80,18 +80,18 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
         </span>
       </td>
       {/* Expense Ratio (ETFs only) */}
-      <td className="px-4 py-4 text-right">
+      <td className="px-4 py-4 text-right overflow-hidden">
         <span className="font-mono text-foreground/80">
           {stock.expenseRatio !== null ? `${stock.expenseRatio.toFixed(2)}%` : "\u2014"}
         </span>
       </td>
       {/* Dividend Yield */}
-      <td className="px-4 py-4 text-right">
+      <td className="px-4 py-4 text-right overflow-hidden">
         <span className={`font-mono ${stock.dividendYield && stock.dividendYield > 0 ? "text-foreground" : "text-subtle"}`}>
           {stock.dividendYield !== null ? `${stock.dividendYield.toFixed(2)}%` : "\u2014"}
         </span>
       </td>
-      <td className="px-4 py-4 text-right">
+      <td className="px-4 py-4 text-right overflow-hidden">
         <div className="flex items-center justify-end gap-1">
           {isPremium && onAddToPortfolio && (
             <button
