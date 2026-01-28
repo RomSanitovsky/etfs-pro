@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { StarField } from "@/components/StarField";
@@ -21,10 +21,11 @@ export default function SubscriptionPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Redirect if not logged in
-  if (!loading && !user) {
-    router.push("/login");
-    return null;
-  }
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
 
   const handleUpgrade = async () => {
     setIsProcessing(true);
@@ -52,7 +53,7 @@ export default function SubscriptionPage() {
     }
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen relative flex items-center justify-center">
         <StarField />

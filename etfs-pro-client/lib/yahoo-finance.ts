@@ -54,7 +54,7 @@ export async function fetchQuotes(symbols: string[]): Promise<QuoteData[]> {
         dividendYield?: number;
         netExpenseRatio?: number;
       };
-      
+
       return {
         symbol: q.symbol,
         shortName: q.shortName || q.longName || q.symbol,
@@ -62,7 +62,8 @@ export async function fetchQuotes(symbols: string[]): Promise<QuoteData[]> {
         currency: q.currency || "USD",
         // All three new fields come from the same quote() call - no extra API calls!
         dailyChangePercent: q.regularMarketChangePercent ?? null,
-        dividendYield: q.dividendYield ?? null,
+        // dividendYield is available for ETFs; fall back to trailingAnnualDividendYield for stocks
+        dividendYield: q.dividendYield ?? q.trailingAnnualDividendYield ?? null,
         expenseRatio: q.netExpenseRatio ?? null,
       };
     });
@@ -293,7 +294,7 @@ export async function fetchDetailedQuote(symbol: string): Promise<DetailedQuoteD
       beta: q.beta ?? null,
       epsTrailingTwelveMonths: q.epsTrailingTwelveMonths ?? null,
       priceToBook: q.priceToBook ?? null,
-      dividendYield: q.dividendYield ?? null,
+      dividendYield: q.dividendYield ?? q.trailingAnnualDividendYield ?? null,
       netExpenseRatio: q.netExpenseRatio ?? null,
       currency: q.currency || "USD",
       exchange: q.fullExchangeName || q.exchange || "Unknown",

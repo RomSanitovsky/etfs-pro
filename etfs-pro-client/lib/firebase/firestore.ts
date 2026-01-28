@@ -252,7 +252,7 @@ export async function addPortfolioTransaction(
     shares: input.shares,
     pricePerShare: input.pricePerShare,
     purchaseDate: input.purchaseDate,
-    notes: input.notes,
+    ...(input.notes ? { notes: input.notes } : {}),
     createdAt: new Date().toISOString(),
   };
 

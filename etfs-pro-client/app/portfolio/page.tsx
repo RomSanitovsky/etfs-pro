@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { StarField } from "@/components/StarField";
@@ -30,26 +30,24 @@ export default function PortfolioPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Loading state
-  if (authLoading) {
+  // Redirect unauthenticated or non-premium users
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.push("/login");
+    } else if (!user.isPremium) {
+      router.push("/subscription");
+    }
+  }, [user, authLoading, router]);
+
+  // Loading state or redirecting
+  if (authLoading || !user || !user.isPremium) {
     return (
       <div className="min-h-screen relative flex items-center justify-center">
         <StarField />
         <div className="w-8 h-8 border-2 border-slate-600 border-t-cyan-400 rounded-full animate-spin" />
       </div>
     );
-  }
-
-  // Redirect if not logged in
-  if (!user) {
-    router.push("/login");
-    return null;
-  }
-
-  // Redirect non-premium users to subscription page
-  if (!user.isPremium) {
-    router.push("/subscription");
-    return null;
   }
 
   return (
