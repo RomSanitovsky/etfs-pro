@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import type { StockData, SortField, SortConfig, AssetFilter as AssetFilterType } from "@/lib/types";
+import type { StockData, SortField, SortConfig, AssetType } from "@/lib/types";
 import { DEFAULT_ATH_THRESHOLD, STORAGE_KEYS } from "@/lib/constants";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useWatchlist } from "@/hooks/useWatchlist";
@@ -37,7 +37,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
   );
   const [stocks, setStocks] = useState<StockData[]>(initialData);
   const [searchQuery, setSearchQuery] = useState("");
-  const [assetFilter, setAssetFilter] = useState<AssetFilterType>("all");
+  const [assetFilter, setAssetFilter] = useState<Set<AssetType>>(new Set());
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: "percentDown",
     direction: "asc",
@@ -109,8 +109,8 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
 
   // Stocks filtered by asset type (used for stats and display)
   const assetFilteredStocks = useMemo(() => {
-    if (assetFilter === "all") return stocks;
-    return stocks.filter(stock => stock.assetType === assetFilter);
+    if (assetFilter.size === 0) return stocks;
+    return stocks.filter(stock => assetFilter.has(stock.assetType));
   }, [stocks, assetFilter]);
 
   // Sort and filter stocks

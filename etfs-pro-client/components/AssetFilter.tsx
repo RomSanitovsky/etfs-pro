@@ -1,10 +1,10 @@
 "use client";
 
-import type { AssetFilter as AssetFilterType } from "@/lib/types";
+import type { AssetType } from "@/lib/types";
 
 interface AssetFilterProps {
-  value: AssetFilterType;
-  onChange: (value: AssetFilterType) => void;
+  value: Set<AssetType>;
+  onChange: (value: Set<AssetType>) => void;
   counts: {
     all: number;
     etf: number;
@@ -61,18 +61,30 @@ function FilterButton({ active, onClick, label, count, icon }: FilterButtonProps
 }
 
 export function AssetFilter({ value, onChange, counts }: AssetFilterProps) {
+  const isAll = value.size === 0;
+
+  const toggleType = (type: AssetType) => {
+    const next = new Set(value);
+    if (next.has(type)) {
+      next.delete(type);
+    } else {
+      next.add(type);
+    }
+    onChange(next);
+  };
+
   return (
     <div className="flex items-center gap-2">
       {/* Label */}
       <span className="text-[10px] font-mono tracking-widest text-subtle uppercase mr-2 hidden sm:block">
         Filter
       </span>
-      
+
       {/* Filter buttons */}
       <div className="flex gap-2">
         <FilterButton
-          active={value === "all"}
-          onClick={() => onChange("all")}
+          active={isAll}
+          onClick={() => onChange(new Set())}
           label="All"
           count={counts.all}
           icon={
@@ -81,10 +93,10 @@ export function AssetFilter({ value, onChange, counts }: AssetFilterProps) {
             </svg>
           }
         />
-        
+
         <FilterButton
-          active={value === "etf"}
-          onClick={() => onChange("etf")}
+          active={value.has("etf")}
+          onClick={() => toggleType("etf")}
           label="ETFs"
           count={counts.etf}
           icon={
@@ -93,10 +105,10 @@ export function AssetFilter({ value, onChange, counts }: AssetFilterProps) {
             </svg>
           }
         />
-        
+
         <FilterButton
-          active={value === "stock"}
-          onClick={() => onChange("stock")}
+          active={value.has("stock")}
+          onClick={() => toggleType("stock")}
           label="Stocks"
           count={counts.stock}
           icon={
@@ -107,8 +119,8 @@ export function AssetFilter({ value, onChange, counts }: AssetFilterProps) {
         />
 
         <FilterButton
-          active={value === "crypto"}
-          onClick={() => onChange("crypto")}
+          active={value.has("crypto")}
+          onClick={() => toggleType("crypto")}
           label="Crypto"
           count={counts.crypto}
           icon={
@@ -119,8 +131,8 @@ export function AssetFilter({ value, onChange, counts }: AssetFilterProps) {
         />
 
         <FilterButton
-          active={value === "materials"}
-          onClick={() => onChange("materials")}
+          active={value.has("materials")}
+          onClick={() => toggleType("materials")}
           label="Materials"
           count={counts.materials}
           icon={
