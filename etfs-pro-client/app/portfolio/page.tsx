@@ -94,7 +94,7 @@ export default function PortfolioPage() {
       <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-6xl">
         {/* Back link */}
         <Link
-          href="/"
+          href="/dashboard"
           className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors mb-8"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
