@@ -128,35 +128,47 @@ export function PortfolioSummaryCards({ summary }: PortfolioSummaryCardsProps) {
           }
         />
 
-        {/* Top Gainer - only show if actually in profit */}
-        {summary.topGainer && summary.topGainer.pnlPercent > 0 && (
-          <StatCard
-            title="Top Gainer"
-            value={`${summary.topGainer.pnlPercent >= 0 ? "+" : ""}${summary.topGainer.pnlPercent.toFixed(2)}%`}
-            subtitle={summary.topGainer.symbol}
-            valueColor="green"
-            icon={
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-            }
-          />
-        )}
+        {/* Top Gainer */}
+        <StatCard
+          title="Top Gainer"
+          value={
+            summary.topGainer && summary.topGainer.pnlPercent > 0
+              ? `+${summary.topGainer.pnlPercent.toFixed(2)}%`
+              : "—"
+          }
+          subtitle={
+            summary.topGainer && summary.topGainer.pnlPercent > 0
+              ? summary.topGainer.symbol
+              : "No profitable positions"
+          }
+          valueColor={summary.topGainer && summary.topGainer.pnlPercent > 0 ? "green" : "default"}
+          icon={
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          }
+        />
 
-        {/* Top Loser - only show if actually in loss */}
-        {summary.topLoser && summary.topLoser.pnlPercent < 0 && (
-          <StatCard
-            title="Top Loser"
-            value={`${summary.topLoser.pnlPercent >= 0 ? "+" : ""}${summary.topLoser.pnlPercent.toFixed(2)}%`}
-            subtitle={summary.topLoser.symbol}
-            valueColor="red"
-            icon={
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            }
-          />
-        )}
+        {/* Top Loser */}
+        <StatCard
+          title="Top Loser"
+          value={
+            summary.topLoser && summary.topLoser.pnlPercent < 0
+              ? `${summary.topLoser.pnlPercent.toFixed(2)}%`
+              : "—"
+          }
+          subtitle={
+            summary.topLoser && summary.topLoser.pnlPercent < 0
+              ? summary.topLoser.symbol
+              : "No losing positions"
+          }
+          valueColor={summary.topLoser && summary.topLoser.pnlPercent < 0 ? "red" : "default"}
+          icon={
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          }
+        />
       </div>
     </div>
   );
