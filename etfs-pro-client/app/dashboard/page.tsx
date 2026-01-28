@@ -6,6 +6,7 @@ import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
 import { SubscriptionSection } from "@/components/subscription/SubscriptionSection";
 import { WhyChooseUsSection } from "@/components/WhyChooseUsSection";
+import { PortfolioCTA } from "@/components/portfolio";
 import type { StockData } from "@/lib/types";
 
 export const revalidate = 60;
@@ -62,6 +63,9 @@ export default async function Dashboard() {
 
         {/* Main content */}
         <WatchlistTable initialData={initialData} />
+
+        {/* Portfolio CTA for premium users */}
+        <PortfolioCTA />
 
         {/* Legend */}
         <div className="mt-8 flex flex-wrap gap-6 justify-center text-sm text-slate-400">

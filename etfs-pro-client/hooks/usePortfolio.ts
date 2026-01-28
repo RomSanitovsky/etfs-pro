@@ -7,7 +7,7 @@ import type {
   PortfolioHoldingWithMetrics,
   PortfolioSummary,
   AddTransactionInput,
-  QuoteData,
+  StockData,
 } from "@/lib/types";
 import {
   getPortfolioHoldings,
@@ -31,7 +31,7 @@ interface UsePortfolioReturn {
 export function usePortfolio(): UsePortfolioReturn {
   const { user } = useAuth();
   const [holdings, setHoldings] = useState<PortfolioHolding[]>([]);
-  const [prices, setPrices] = useState<Record<string, QuoteData>>({});
+  const [prices, setPrices] = useState<Record<string, StockData>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,8 +49,8 @@ export function usePortfolio(): UsePortfolioReturn {
       }
 
       const { data } = await response.json();
-      const priceMap: Record<string, QuoteData> = {};
-      for (const quote of data as QuoteData[]) {
+      const priceMap: Record<string, StockData> = {};
+      for (const quote of data as StockData[]) {
         priceMap[quote.symbol] = quote;
       }
       setPrices(priceMap);
@@ -105,7 +105,7 @@ export function usePortfolio(): UsePortfolioReturn {
   const holdingsWithMetrics: PortfolioHoldingWithMetrics[] = useMemo(() => {
     const enriched = holdings.map((holding) => {
       const quote = prices[holding.symbol];
-      const currentPrice = quote?.regularMarketPrice ?? 0;
+      const currentPrice = quote?.currentPrice ?? 0;
       const totalCost = holding.totalShares * holding.averageCost;
       const currentValue = holding.totalShares * currentPrice;
       const unrealizedPnL = currentValue - totalCost;
@@ -123,7 +123,7 @@ export function usePortfolio(): UsePortfolioReturn {
         unrealizedPnL,
         unrealizedPnLPercent,
         allocationPercent: 0,
-        name: quote?.shortName,
+        name: quote?.name,
         dividendYield,
         expectedAnnualDividend,
       };
