@@ -8,12 +8,14 @@ import { TransactionList } from "./TransactionList";
 
 interface PortfolioRowProps {
   holding: PortfolioHoldingWithMetrics;
+  onEditTransaction: (symbol: string, transactionId: string) => void;
   onDeleteTransaction: (symbol: string, transactionId: string) => void;
   onDeleteHolding: (symbol: string) => void;
 }
 
 export function PortfolioRow({
   holding,
+  onEditTransaction,
   onDeleteTransaction,
   onDeleteHolding,
 }: PortfolioRowProps) {
@@ -121,6 +123,7 @@ export function PortfolioRow({
           <td colSpan={9} className="px-4 py-4">
             <TransactionList
               transactions={holding.transactions}
+              onEdit={(txId) => onEditTransaction(holding.symbol, txId)}
               onDelete={(txId) => onDeleteTransaction(holding.symbol, txId)}
             />
           </td>

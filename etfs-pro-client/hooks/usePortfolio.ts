@@ -7,11 +7,13 @@ import type {
   PortfolioHoldingWithMetrics,
   PortfolioSummary,
   AddTransactionInput,
+  EditTransactionInput,
   StockData,
 } from "@/lib/types";
 import {
   getPortfolioHoldings,
   addPortfolioTransaction,
+  editPortfolioTransaction,
   deletePortfolioTransaction,
   deletePortfolioHolding,
   subscribeToPortfolio,
@@ -23,6 +25,7 @@ interface UsePortfolioReturn {
   isLoading: boolean;
   error: string | null;
   addTransaction: (input: AddTransactionInput) => Promise<void>;
+  editTransaction: (input: EditTransactionInput) => Promise<void>;
   deleteTransaction: (symbol: string, transactionId: string) => Promise<void>;
   deleteHolding: (symbol: string) => Promise<void>;
   refreshPrices: () => Promise<void>;
@@ -202,6 +205,29 @@ export function usePortfolio(): UsePortfolioReturn {
     [user]
   );
 
+  const editTransaction = useCallback(
+    async (input: EditTransactionInput) => {
+      if (!user) {
+        setError("Must be logged in to edit transactions");
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        await editPortfolioTransaction(user.uid, input);
+        // Subscription will update the holdings
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to edit transaction");
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [user]
+  );
+
   const deleteTransaction = useCallback(
     async (symbol: string, transactionId: string) => {
       if (!user) {
@@ -259,6 +285,7 @@ export function usePortfolio(): UsePortfolioReturn {
     isLoading,
     error,
     addTransaction,
+    editTransaction,
     deleteTransaction,
     deleteHolding,
     refreshPrices,

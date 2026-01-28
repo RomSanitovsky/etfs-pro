@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { db } from "./config";
-import type { UserProfile, PortfolioHolding, PortfolioTransaction, AddTransactionInput } from "@/lib/types";
+import type { UserProfile, PortfolioHolding, PortfolioTransaction, AddTransactionInput, EditTransactionInput } from "@/lib/types";
 import { DEFAULT_SYMBOLS, DEFAULTS_VERSION, FREE_TIER_SYMBOL_LIMIT, PREMIUM_SYMBOL_LIMIT, STORAGE_KEYS } from "@/lib/constants";
 import { DEFAULT_THEME, themes, type ThemeMode } from "@/lib/themes";
 
@@ -326,6 +326,49 @@ export async function deletePortfolioTransaction(
       updatedAt: serverTimestamp(),
     });
   }
+}
+
+export async function editPortfolioTransaction(
+  uid: string,
+  input: EditTransactionInput
+): Promise<void> {
+  const symbol = input.symbol.toUpperCase();
+  const holdingRef = doc(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION, symbol);
+  const holdingSnap = await getDoc(holdingRef);
+
+  if (!holdingSnap.exists()) {
+    throw new Error("Holding not found");
+  }
+
+  const existingData = holdingSnap.data();
+  const existingTransactions = (existingData.transactions as PortfolioTransaction[]) || [];
+  const txIndex = existingTransactions.findIndex((t) => t.id === input.transactionId);
+
+  if (txIndex === -1) {
+    throw new Error("Transaction not found");
+  }
+
+  const updatedTransaction: PortfolioTransaction = {
+    id: existingTransactions[txIndex].id,
+    shares: input.shares,
+    pricePerShare: input.pricePerShare,
+    purchaseDate: input.purchaseDate,
+    createdAt: existingTransactions[txIndex].createdAt,
+    ...(input.notes ? { notes: input.notes } : {}),
+  };
+  const updatedTransactions = [...existingTransactions];
+  updatedTransactions[txIndex] = updatedTransaction;
+
+  const totalShares = updatedTransactions.reduce((sum, t) => sum + t.shares, 0);
+  const totalCost = updatedTransactions.reduce((sum, t) => sum + t.shares * t.pricePerShare, 0);
+  const averageCost = totalShares > 0 ? totalCost / totalShares : 0;
+
+  await updateDoc(holdingRef, {
+    transactions: updatedTransactions,
+    totalShares,
+    averageCost,
+    updatedAt: serverTimestamp(),
+  });
 }
 
 export async function deletePortfolioHolding(uid: string, symbol: string): Promise<void> {

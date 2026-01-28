@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolio } from "@/hooks/usePortfolio";
+import type { AddTransactionInput } from "@/lib/types";
 import {
   PortfolioSummaryCards,
   PortfolioPieChart,
@@ -14,6 +15,7 @@ import {
   AddTransactionModal,
   EmptyPortfolioState,
 } from "@/components/portfolio";
+import type { EditingTransaction } from "@/components/portfolio/AddTransactionModal";
 
 export default function PortfolioPage() {
   const router = useRouter();
@@ -24,12 +26,45 @@ export default function PortfolioPage() {
     isLoading,
     error,
     addTransaction,
+    editTransaction,
     deleteTransaction,
     deleteHolding,
     refreshPrices,
   } = usePortfolio();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<EditingTransaction | null>(null);
+
+  const handleEditTransaction = useCallback(
+    (symbol: string, transactionId: string) => {
+      const holding = holdings.find((h) => h.symbol === symbol);
+      const transaction = holding?.transactions.find((t) => t.id === transactionId);
+      if (transaction) {
+        setEditingTransaction({ symbol, transaction });
+        setIsModalOpen(true);
+      }
+    },
+    [holdings]
+  );
+
+  const handleModalClose = useCallback(() => {
+    setIsModalOpen(false);
+    setEditingTransaction(null);
+  }, []);
+
+  const handleModalSubmit = useCallback(
+    async (input: AddTransactionInput) => {
+      if (editingTransaction) {
+        await editTransaction({
+          ...input,
+          transactionId: editingTransaction.transaction.id,
+        });
+      } else {
+        await addTransaction(input);
+      }
+    },
+    [editingTransaction, editTransaction, addTransaction]
+  );
 
   // Redirect unauthenticated or non-premium users
   useEffect(() => {
@@ -156,6 +191,7 @@ export default function PortfolioPage() {
             {/* Holdings Table */}
             <PortfolioTable
               holdings={holdings}
+              onEditTransaction={handleEditTransaction}
               onDeleteTransaction={deleteTransaction}
               onDeleteHolding={deleteHolding}
               isLoading={isLoading}
@@ -169,11 +205,12 @@ export default function PortfolioPage() {
         </div>
       </main>
 
-      {/* Add Transaction Modal */}
+      {/* Add/Edit Transaction Modal */}
       <AddTransactionModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={addTransaction}
+        onClose={handleModalClose}
+        onSubmit={handleModalSubmit}
+        editingTransaction={editingTransaction}
       />
     </div>
   );

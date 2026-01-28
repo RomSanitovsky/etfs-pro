@@ -6,6 +6,7 @@ import { PortfolioRow } from "./PortfolioRow";
 
 interface PortfolioTableProps {
   holdings: PortfolioHoldingWithMetrics[];
+  onEditTransaction: (symbol: string, transactionId: string) => void;
   onDeleteTransaction: (symbol: string, transactionId: string) => void;
   onDeleteHolding: (symbol: string) => void;
   isLoading: boolean;
@@ -60,6 +61,7 @@ function SortableHeader({
 
 export function PortfolioTable({
   holdings,
+  onEditTransaction,
   onDeleteTransaction,
   onDeleteHolding,
   isLoading,
@@ -165,6 +167,7 @@ export function PortfolioTable({
                 <PortfolioRow
                   key={holding.symbol}
                   holding={holding}
+                  onEditTransaction={onEditTransaction}
                   onDeleteTransaction={onDeleteTransaction}
                   onDeleteHolding={onDeleteHolding}
                 />

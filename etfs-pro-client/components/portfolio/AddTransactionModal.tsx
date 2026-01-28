@@ -2,13 +2,19 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import type { AddTransactionInput } from "@/lib/types";
+import type { AddTransactionInput, PortfolioTransaction } from "@/lib/types";
+
+export interface EditingTransaction {
+  symbol: string;
+  transaction: PortfolioTransaction;
+}
 
 interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (input: AddTransactionInput) => Promise<void>;
   prefilledSymbol?: string;
+  editingTransaction?: EditingTransaction | null;
 }
 
 export function AddTransactionModal({
@@ -16,7 +22,9 @@ export function AddTransactionModal({
   onClose,
   onSubmit,
   prefilledSymbol = "",
+  editingTransaction,
 }: AddTransactionModalProps) {
+  const isEditMode = !!editingTransaction;
   const [symbol, setSymbol] = useState(prefilledSymbol);
   const [shares, setShares] = useState("");
   const [pricePerShare, setPricePerShare] = useState("");
@@ -28,21 +36,30 @@ export function AddTransactionModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const symbolInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset form when modal opens
+  // Reset form when modal opens (or pre-fill in edit mode)
   useEffect(() => {
     if (isOpen) {
-      setSymbol(prefilledSymbol);
-      setShares("");
-      setPricePerShare("");
-      setPurchaseDate(new Date().toISOString().split("T")[0]);
-      setNotes("");
+      if (editingTransaction) {
+        const tx = editingTransaction.transaction;
+        setSymbol(editingTransaction.symbol);
+        setShares(String(tx.shares));
+        setPricePerShare(String(tx.pricePerShare));
+        setPurchaseDate(tx.purchaseDate);
+        setNotes(tx.notes ?? "");
+      } else {
+        setSymbol(prefilledSymbol);
+        setShares("");
+        setPricePerShare("");
+        setPurchaseDate(new Date().toISOString().split("T")[0]);
+        setNotes("");
+      }
       setError(null);
-      // Focus symbol input if not prefilled
-      if (!prefilledSymbol) {
+      // Focus symbol input if not prefilled and not editing
+      if (!prefilledSymbol && !editingTransaction) {
         symbolInputRef.current?.focus();
       }
     }
-  }, [isOpen, prefilledSymbol]);
+  }, [isOpen, prefilledSymbol, editingTransaction]);
 
   // Close on escape key
   useEffect(() => {
@@ -99,7 +116,7 @@ export function AddTransactionModal({
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add transaction");
+      setError(err instanceof Error ? err.message : isEditMode ? "Failed to save changes" : "Failed to add transaction");
     } finally {
       setIsSubmitting(false);
     }
@@ -119,7 +136,7 @@ export function AddTransactionModal({
         {/* Header */}
         <div className="shrink-0 px-6 py-4 bg-gradient-to-r from-nebula/40 to-cosmic/40 border-b border-[var(--theme-card-border)]">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Add Transaction</h2>
+            <h2 className="text-lg font-semibold text-foreground">{isEditMode ? "Edit Transaction" : "Add Transaction"}</h2>
             <button
               onClick={onClose}
               className="p-1 rounded hover:bg-surface/50 transition-colors text-muted hover:text-foreground"
@@ -154,7 +171,7 @@ export function AddTransactionModal({
                          text-foreground placeholder-subtle font-mono
                          focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
                          transition-colors"
-              disabled={!!prefilledSymbol}
+              disabled={!!prefilledSymbol || isEditMode}
             />
           </div>
 
@@ -267,7 +284,9 @@ export function AddTransactionModal({
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all duration-300"
             >
-              {isSubmitting ? "Adding..." : "Add Transaction"}
+              {isSubmitting
+                ? (isEditMode ? "Saving..." : "Adding...")
+                : (isEditMode ? "Save Changes" : "Add Transaction")}
             </button>
           </div>
         </form>

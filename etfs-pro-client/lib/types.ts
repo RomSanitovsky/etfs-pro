@@ -177,3 +177,7 @@ export interface AddTransactionInput {
   purchaseDate: string;
   notes?: string;
 }
+
+export interface EditTransactionInput extends AddTransactionInput {
+  transactionId: string;
+}
