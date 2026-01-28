@@ -107,14 +107,15 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
     materials: stocks.filter(s => s.assetType === "materials").length,
   }), [stocks]);
 
+  // Stocks filtered by asset type (used for stats and display)
+  const assetFilteredStocks = useMemo(() => {
+    if (assetFilter === "all") return stocks;
+    return stocks.filter(stock => stock.assetType === assetFilter);
+  }, [stocks, assetFilter]);
+
   // Sort and filter stocks
   const displayedStocks = useMemo(() => {
-    let filtered = stocks;
-
-    // Filter by asset type
-    if (assetFilter !== "all") {
-      filtered = filtered.filter(stock => stock.assetType === assetFilter);
-    }
+    let filtered = assetFilteredStocks;
 
     // Filter by search query
     if (searchQuery) {
@@ -145,7 +146,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
     });
 
     return sorted;
-  }, [stocks, searchQuery, assetFilter, sortConfig]);
+  }, [assetFilteredStocks, searchQuery, sortConfig]);
 
   const handleSort = (field: SortField) => {
     setSortConfig((prev) => ({
@@ -172,7 +173,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <StatsCards stocks={stocks} />
+      <StatsCards stocks={assetFilteredStocks} />
 
       <div className="glass-card p-6">
         {/* Header with search and controls */}
