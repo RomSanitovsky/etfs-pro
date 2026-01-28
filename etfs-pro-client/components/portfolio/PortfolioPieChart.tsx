@@ -18,6 +18,7 @@ interface PortfolioPieChartProps {
 }
 
 const THRESHOLD_OPTIONS = [0, 3, 5, 10, 15, 20];
+const OTHERS_COLOR = "#64748b";
 
 const COLORS = [
   "#8b5cf6", // violet
@@ -104,19 +105,6 @@ function renderCustomLabel(props: PieLabelRenderProps) {
 
 export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
   const [breakdownThreshold, setBreakdownThreshold] = useState(5);
-  const chartData = useMemo(() => {
-    if (!holdings.length) return [];
-    return holdings
-      .filter((h) => h.currentValue > 0)
-      .sort((a, b) => b.currentValue - a.currentValue)
-      .map((h) => ({
-        symbol: h.symbol,
-        name: h.name || h.symbol,
-        value: h.currentValue,
-        allocation: h.allocationPercent,
-      }));
-  }, [holdings]);
-
   const holdingsDetails = useMemo(() => {
     return holdings
       .filter((h) => h.currentValue > 0)
@@ -148,7 +136,30 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
     };
   }, [holdingsDetails, breakdownThreshold]);
 
-  if (!chartData.length) return null;
+  // Build pie chart data: visible holdings + combined "Others" slice
+  const { pieData, pieColors } = useMemo(() => {
+    const visible = visibleHoldings.map((h, i) => ({
+      symbol: h.symbol,
+      name: h.name || h.symbol,
+      value: h.currentValue,
+      allocation: h.allocationPercent,
+    }));
+    const colors = visibleHoldings.map((_, i) => COLORS[i % COLORS.length]);
+
+    if (othersAggregate) {
+      visible.push({
+        symbol: "Others",
+        name: `${othersAggregate.count} holdings`,
+        value: othersAggregate.currentValue,
+        allocation: othersAggregate.allocationPercent,
+      });
+      colors.push(OTHERS_COLOR);
+    }
+
+    return { pieData: visible, pieColors: colors };
+  }, [visibleHoldings, othersAggregate]);
+
+  if (!pieData.length) return null;
 
   const totalValue = holdingsDetails.reduce((s, h) => s + h.currentValue, 0);
 
@@ -179,7 +190,7 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={chartData}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   innerRadius="30%"
@@ -192,10 +203,10 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
                   stroke="none"
                   activeShape={(props: React.ComponentProps<typeof Sector>) => <Sector {...props} />}
                 >
-                  {chartData.map((_, index) => (
+                  {pieData.map((_, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
+                      fill={pieColors[index]}
                       style={{ filter: "drop-shadow(0 0 6px rgba(139,92,246,0.3))" }}
                     />
                   ))}
@@ -211,17 +222,20 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
               <span className="text-xs font-semibold text-subtle uppercase tracking-wider">
                 Holdings Breakdown
               </span>
-              <select
-                value={breakdownThreshold}
-                onChange={(e) => setBreakdownThreshold(Number(e.target.value))}
-                className="text-xs bg-surface/50 border border-[var(--theme-card-border)] rounded-md px-2 py-1 text-secondary outline-none focus:border-cosmic transition-colors cursor-pointer"
-              >
-                {THRESHOLD_OPTIONS.map((t) => (
-                  <option key={t} value={t}>
-                    {t === 0 ? "Show all" : `≥ ${t}%`}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted">Min. allocation</span>
+                <select
+                  value={breakdownThreshold}
+                  onChange={(e) => setBreakdownThreshold(Number(e.target.value))}
+                  className="text-xs bg-surface/50 border border-[var(--theme-card-border)] rounded-md px-2 py-1 text-secondary outline-none focus:border-cosmic transition-colors cursor-pointer"
+                >
+                  {THRESHOLD_OPTIONS.map((t) => (
+                    <option key={t} value={t}>
+                      {t === 0 ? "Show all" : `≥ ${t}%`}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {visibleHoldings.map((h, index) => {
@@ -279,7 +293,7 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
               <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-surface/30 transition-colors">
                 <span
                   className="w-3 h-3 rounded-full shrink-0"
-                  style={{ backgroundColor: "#64748b" }}
+                  style={{ backgroundColor: OTHERS_COLOR }}
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -291,7 +305,7 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${othersAggregate.allocationPercent}%`,
-                        backgroundColor: "#64748b",
+                        backgroundColor: OTHERS_COLOR,
                         opacity: 0.7,
                       }}
                     />
