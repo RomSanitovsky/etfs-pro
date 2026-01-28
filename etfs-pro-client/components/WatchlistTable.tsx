@@ -243,7 +243,18 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full table-fixed">
+          <colgroup>
+            <col className="w-[16%]" />   {/* Symbol */}
+            <col className="w-[11%]" />   {/* Price */}
+            <col className="w-[10%]" />   {/* Day % */}
+            <col className="w-[14%]" />   {/* All-Time High */}
+            <col className="w-[11%]" />   {/* % Down */}
+            <col className="w-[11%]" />   {/* % to ATH */}
+            <col className="w-[10%]" />   {/* Expense */}
+            <col className="w-[10%]" />   {/* Yield */}
+            <col className="w-[7%]" />    {/* Actions */}
+          </colgroup>
           <thead>
             <tr className="border-b border-[var(--theme-card-border)]">
               <SortableHeader
