@@ -112,7 +112,7 @@ export default function PortfolioPage() {
           {/* Inner gradient overlay */}
           <div className="absolute inset-[1px] rounded-xl bg-gradient-to-br from-cosmic/10 via-transparent to-nebula/10" />
 
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 mb-3">
                 <svg className="w-3 h-3 text-gold" fill="currentColor" viewBox="0 0 20 20">
