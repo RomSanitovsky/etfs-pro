@@ -130,10 +130,10 @@ export function Header() {
           {isOpen && (
             <div
               className="absolute right-0 mt-2 w-80 rounded-2xl border border-[var(--theme-card-border)]
-                          bg-surface/95 backdrop-blur-md shadow-2xl overflow-hidden"
+                          bg-surface/95 backdrop-blur-md shadow-2xl"
             >
               {/* User info header */}
-              <div className="px-5 py-5 bg-gradient-to-r from-nebula/40 to-cosmic/40 border-b border-[var(--theme-card-border)]">
+              <div className="px-5 py-5 bg-gradient-to-r from-nebula/40 to-cosmic/40 border-b border-[var(--theme-card-border)] rounded-t-2xl">
                 <div className="flex items-center gap-4">
                   <SpacemanAvatar size={56} />
                   <div className="flex-1 min-w-0">

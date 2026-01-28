@@ -5,6 +5,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Sector,
   ResponsiveContainer,
   Tooltip,
   Legend,
@@ -174,6 +175,7 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
                 label={renderCustomLabel}
                 labelLine={false}
                 stroke="none"
+                activeShape={(props: React.ComponentProps<typeof Sector>) => <Sector {...props} />}
               >
                 {chartData.map((_, index) => (
                   <Cell
