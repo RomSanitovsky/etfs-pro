@@ -139,14 +139,16 @@ export function WatchlistMobileCard({
                       e.stopPropagation();
                       onAddToPortfolio(stock.symbol);
                     }}
-                    className="p-1.5 rounded-lg bg-cosmic/10 border border-cosmic/30
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
+                               bg-cosmic/10 border border-cosmic/30
                                hover:bg-cosmic/25 hover:border-cosmic/50
                                transition-all duration-200 text-cosmic"
                     title="Add to portfolio"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                     </svg>
+                    Portfolio
                   </button>
                 )}
                 <button
