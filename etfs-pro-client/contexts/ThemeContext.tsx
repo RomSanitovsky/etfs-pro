@@ -70,9 +70,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     // Only resolve from Firebase/localStorage once on initial load
     if (!resolvedRef.current) {
-      const userTheme = user?.theme;
+      // Prefer localStorage (always succeeds) over Firebase (write may have failed)
       const localTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
-      const savedTheme = userTheme ?? localTheme;
+      const userTheme = user?.theme;
+      const savedTheme = localTheme ?? userTheme;
       const resolvedTheme = savedTheme && themes[savedTheme] ? savedTheme : DEFAULT_THEME;
 
       if (!isPremium && resolvedTheme !== "space") {

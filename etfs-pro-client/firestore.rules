@@ -28,8 +28,10 @@ service cloud.firestore {
         && isValidWatchlist(request.resource.data.watchlist, false);
 
       // Users can update their own document
+      // Only re-validate watchlist when it actually changes
       allow update: if request.auth != null && request.auth.uid == userId
-        && isValidWatchlist(request.resource.data.watchlist, request.resource.data.isPremium);
+        && (request.resource.data.watchlist == resource.data.watchlist
+            || isValidWatchlist(request.resource.data.watchlist, request.resource.data.isPremium));
 
       // Portfolio subcollection - premium only for writes
       match /portfolio/{symbol} {
