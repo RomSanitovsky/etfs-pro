@@ -130,7 +130,7 @@ export function WatchlistMobileCard({
                     stock.dividendYield && stock.dividendYield > 0 ? "text-foreground" : "text-subtle"
                   }`}
                 >
-                  {stock.dividendYield !== null ? `${stock.dividendYield.toFixed(2)}%` : "\u2014"}
+                  {stock.dividendYield != null && stock.dividendYield > 0 ? `${stock.dividendYield.toFixed(2)}%` : "\u2014"}
                 </span>
               </div>
             </div>

@@ -9,7 +9,7 @@ interface SearchInputProps {
 export function SearchInput({
   value,
   onChange,
-  placeholder = "Search symbols...",
+  placeholder = "Search dashboard...",
 }: SearchInputProps) {
   return (
     <div className="relative">

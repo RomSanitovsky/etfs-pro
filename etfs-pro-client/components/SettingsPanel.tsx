@@ -11,7 +11,7 @@ export function SettingsPanel({
 }: SettingsPanelProps) {
   return (
     <div
-      className="flex items-center gap-2 px-3 py-3 rounded-lg
+      className="flex items-center gap-2 px-3 py-3.5 rounded-lg
                  bg-[var(--theme-background-tertiary)] border border-[var(--theme-card-border)]
                  transition-colors"
       title="Show ATH badge when stock is within this % of all-time high"

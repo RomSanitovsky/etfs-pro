@@ -186,7 +186,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
               <SearchInput
                 value={searchQuery}
                 onChange={setSearchQuery}
-                placeholder="Filter watchlist..."
+                placeholder="Search dashboard..."
               />
             </div>
             <div className="flex-1">
@@ -198,11 +198,11 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 isLoggedIn={!!user}
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start">
               <button
                 onClick={handleRefresh}
                 disabled={isLoading}
-                className="flex items-center justify-center px-3 py-3 rounded-lg
+                className="flex items-center justify-center px-3.5 py-3.5 rounded-lg
                            bg-[var(--theme-background-tertiary)] border border-[var(--theme-card-border)]
                            hover:border-[var(--theme-accent)] transition-colors disabled:opacity-50"
                 title="Refresh data"

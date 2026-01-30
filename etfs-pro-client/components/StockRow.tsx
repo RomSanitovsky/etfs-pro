@@ -90,7 +90,7 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
       {/* Dividend Yield */}
       <td className="px-4 py-4 text-right overflow-hidden">
         <span className={`font-mono ${stock.dividendYield && stock.dividendYield > 0 ? "text-foreground" : "text-subtle"}`}>
-          {stock.dividendYield !== null ? `${stock.dividendYield.toFixed(2)}%` : "\u2014"}
+          {stock.dividendYield != null && stock.dividendYield > 0 ? `${stock.dividendYield.toFixed(2)}%` : "\u2014"}
         </span>
       </td>
       <td className="px-4 py-4 text-right overflow-hidden">
