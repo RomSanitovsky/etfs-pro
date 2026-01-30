@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { StarField } from "@/components/StarField";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,7 +16,8 @@ import {
 
 export default function SubscriptionPage() {
   const router = useRouter();
-  const { user, loading, upgradeToPremium, downgradeFromPremium } = useAuth();
+  const searchParams = useSearchParams();
+  const { user, loading, createCheckoutSession, createPortalSession } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -27,28 +28,54 @@ export default function SubscriptionPage() {
     }
   }, [user, loading, router]);
 
+  // Handle Stripe redirect status params
+  const handleStripeRedirect = useCallback(() => {
+    const status = searchParams.get("status");
+    if (!status) return;
+
+    if (status === "success") {
+      setMessage({ type: "success", text: "Payment successful! Activating your premium subscription..." });
+    } else if (status === "cancelled") {
+      setMessage({ type: "error", text: "Checkout was cancelled. No charges were made." });
+    }
+
+    // Clean up URL params
+    router.replace("/subscription");
+  }, [searchParams, router]);
+
+  useEffect(() => {
+    handleStripeRedirect();
+  }, [handleStripeRedirect]);
+
+  // Update success message once premium is confirmed (real-time listener handles this)
+  useEffect(() => {
+    if (user?.isPremium && message?.text.includes("Activating")) {
+      setMessage({ type: "success", text: "Premium subscription activated! Enjoy unlimited symbols." });
+    }
+  }, [user?.isPremium, message?.text]);
+
   const handleUpgrade = async () => {
     setIsProcessing(true);
     setMessage(null);
     try {
-      await upgradeToPremium();
-      setMessage({ type: "success", text: "Successfully upgraded to Premium! Enjoy unlimited symbols." });
-    } catch {
-      setMessage({ type: "error", text: "Failed to upgrade. Please try again." });
-    } finally {
+      const url = await createCheckoutSession();
+      window.location.href = url;
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "Failed to start checkout. Please try again.";
+      setMessage({ type: "error", text });
       setIsProcessing(false);
     }
   };
 
-  const handleDowngrade = async () => {
+  const handleManageSubscription = async () => {
     setIsProcessing(true);
     setMessage(null);
     try {
-      await downgradeFromPremium();
-      setMessage({ type: "success", text: "Successfully downgraded to Free plan." });
-    } catch {
-      setMessage({ type: "error", text: "Failed to downgrade. Please try again." });
-    } finally {
+      const url = await createPortalSession();
+      window.location.href = url;
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "Failed to open subscription portal. Please try again.";
+      setMessage({ type: "error", text });
       setIsProcessing(false);
     }
   };
@@ -63,6 +90,7 @@ export default function SubscriptionPage() {
   }
 
   const isPremium = user?.isPremium || false;
+  const cancelAtPeriodEnd = user?.cancelAtPeriodEnd || false;
 
   return (
     <div className="min-h-screen relative">
@@ -106,6 +134,17 @@ export default function SubscriptionPage() {
                   ? `You have access to ${PREMIUM_SYMBOL_LIMIT} symbols and all premium features.`
                   : `You can track up to ${FREE_TIER_SYMBOL_LIMIT} symbols with basic features.`}
               </p>
+              {isPremium && cancelAtPeriodEnd && user.premiumExpiresAt && (
+                <p className="text-gold mt-2 text-sm font-medium">
+                  Your subscription ends on {user.premiumExpiresAt.toLocaleDateString()}.
+                  You&apos;ll retain premium access until then.
+                </p>
+              )}
+              {isPremium && user.subscriptionStatus === "past_due" && (
+                <p className="text-loss mt-2 text-sm font-medium">
+                  Payment issue detected. Please update your payment method to avoid losing access.
+                </p>
+              )}
             </div>
             <div className="text-left md:text-right">
               <p className="text-sm text-subtle mb-1">Monthly Price</p>
@@ -161,18 +200,6 @@ export default function SubscriptionPage() {
                 </li>
               ))}
             </ul>
-            {isPremium && (
-              <button
-                onClick={handleDowngrade}
-                disabled={isProcessing}
-                className="w-full py-3 px-4 rounded-xl font-semibold
-                           bg-surface hover:bg-surface-alt text-foreground
-                           border border-[var(--theme-card-border)] transition-all
-                           disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isProcessing ? "Processing..." : "Downgrade to Free"}
-              </button>
-            )}
           </div>
 
           {/* Premium Plan */}
@@ -214,24 +241,28 @@ export default function SubscriptionPage() {
                            shadow-lg hover:shadow-xl hover:shadow-nebula/25
                            transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? "Processing..." : "Upgrade to Premium"}
+                {isProcessing ? "Redirecting to checkout..." : "Upgrade to Premium"}
+              </button>
+            )}
+            {isPremium && (
+              <button
+                onClick={handleManageSubscription}
+                disabled={isProcessing}
+                className="w-full py-3 px-4 rounded-xl font-semibold
+                           bg-surface hover:bg-surface-alt text-foreground
+                           border border-[var(--theme-card-border)] transition-all
+                           disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isProcessing ? "Redirecting..." : "Manage Subscription"}
               </button>
             )}
           </div>
         </div>
 
-        {/* Test Mode Notice */}
-        <div className="text-center p-4 rounded-xl bg-surface/50 border border-[var(--theme-card-border)]">
-          <p className="text-sm text-muted">
-            <span className="text-gold font-semibold">Test Mode:</span> This is a demo subscription system.
-            No actual payment is required. Click the buttons to simulate upgrading or downgrading.
-          </p>
-        </div>
-
         {/* Data Storage Info */}
         <div className="mt-8 text-center">
           <p className="text-xs text-subtle">
-            Your subscription status is stored securely in Firebase Firestore.
+            Payments are securely processed by Stripe. Your subscription status is stored in Firebase Firestore.
           </p>
         </div>
       </main>

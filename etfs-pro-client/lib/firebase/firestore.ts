@@ -12,11 +12,14 @@ import {
   getDocs,
   onSnapshot,
   query,
+  where,
+  addDoc,
   Unsubscribe,
+  DocumentData,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { db } from "./config";
-import type { UserProfile, PortfolioHolding, PortfolioTransaction, AddTransactionInput, EditTransactionInput } from "@/lib/types";
+import type { UserProfile, PortfolioHolding, PortfolioTransaction, SubscriptionStatus, AddTransactionInput, EditTransactionInput } from "@/lib/types";
 import { DEFAULT_SYMBOLS, DEFAULTS_VERSION, FREE_TIER_SYMBOL_LIMIT, PREMIUM_SYMBOL_LIMIT, STORAGE_KEYS } from "@/lib/constants";
 import { DEFAULT_THEME, themes, type ThemeMode } from "@/lib/themes";
 
@@ -78,6 +81,8 @@ export async function createUserDocument(user: User): Promise<UserProfile> {
     photoURL: user.photoURL,
     isPremium: false,
     premiumExpiresAt: null,
+    subscriptionStatus: null,
+    cancelAtPeriodEnd: false,
     watchlist: initialWatchlist,
     theme: DEFAULT_THEME,
     defaultsVersion: DEFAULTS_VERSION,
@@ -97,6 +102,8 @@ export async function createUserDocument(user: User): Promise<UserProfile> {
     photoURL: user.photoURL,
     isPremium: false,
     premiumExpiresAt: null,
+    subscriptionStatus: null,
+    cancelAtPeriodEnd: false,
     watchlist: initialWatchlist,
     theme: DEFAULT_THEME,
     createdAt: new Date(),
@@ -151,6 +158,8 @@ export async function getUserDocument(uid: string): Promise<UserProfile | null> 
     photoURL: data.photoURL,
     isPremium: data.isPremium || false,
     premiumExpiresAt: convertTimestamp(data.premiumExpiresAt),
+    subscriptionStatus: data.subscriptionStatus || null,
+    cancelAtPeriodEnd: data.cancelAtPeriodEnd || false,
     watchlist,
     theme,
     createdAt: convertTimestamp(data.createdAt) || new Date(),
@@ -169,31 +178,6 @@ export async function updateUserDocument(
   });
 }
 
-// Test function to upgrade user to premium (for development/testing)
-export async function upgradeToPremiumTest(uid: string): Promise<void> {
-  const userRef = doc(getDb(), USERS_COLLECTION, uid);
-
-  // Set premium to expire in 30 days
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30);
-
-  await updateDoc(userRef, {
-    isPremium: true,
-    premiumExpiresAt: Timestamp.fromDate(expiresAt),
-    updatedAt: serverTimestamp(),
-  });
-}
-
-// Test function to downgrade user from premium (for development/testing)
-export async function downgradeFromPremiumTest(uid: string): Promise<void> {
-  const userRef = doc(getDb(), USERS_COLLECTION, uid);
-
-  await updateDoc(userRef, {
-    isPremium: false,
-    premiumExpiresAt: null,
-    updatedAt: serverTimestamp(),
-  });
-}
 
 export function getSymbolLimit(isPremium: boolean): number {
   return isPremium ? PREMIUM_SYMBOL_LIMIT : FREE_TIER_SYMBOL_LIMIT;
@@ -397,4 +381,130 @@ export function subscribeToPortfolio(
       onError?.(error);
     }
   );
+}
+
+// --- Stripe Extension helpers ---
+
+/**
+ * Creates a checkout session by writing to the extension's Firestore path.
+ * Returns a promise that resolves with the Stripe checkout URL once the
+ * extension populates it via onSnapshot.
+ */
+export function createCheckoutSession(
+  uid: string,
+  priceId: string,
+  successUrl: string,
+  cancelUrl: string
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const sessionsRef = collection(getDb(), "customers", uid, "checkout_sessions");
+
+    addDoc(sessionsRef, {
+      price: priceId,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+    })
+      .then((docRef) => {
+        const unsubscribe = onSnapshot(
+          docRef,
+          (snap) => {
+            const data = snap.data();
+            if (data?.error) {
+              unsubscribe();
+              reject(new Error(`Checkout error: ${data.error.message}`));
+            }
+            if (data?.url) {
+              unsubscribe();
+              resolve(data.url as string);
+            }
+          },
+          (error) => {
+            unsubscribe();
+            reject(error);
+          }
+        );
+      })
+      .catch(reject);
+  });
+}
+
+/**
+ * Subscribes to the user's Stripe subscriptions managed by the extension.
+ * Calls back whenever subscription data changes.
+ */
+export function subscribeToSubscriptions(
+  uid: string,
+  callback: (subscriptions: DocumentData[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const subsRef = collection(getDb(), "customers", uid, "subscriptions");
+  const q = query(subsRef, where("status", "in", ["trialing", "active", "past_due", "unpaid"]));
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const subs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      callback(subs);
+    },
+    (error) => {
+      console.error("Subscription listener error:", error);
+      onError?.(error);
+    }
+  );
+}
+
+export interface PremiumStatus {
+  isPremium: boolean;
+  subscriptionStatus: SubscriptionStatus | null;
+  cancelAtPeriodEnd: boolean;
+  premiumExpiresAt: Date | null;
+}
+
+/**
+ * Derives premium status fields from raw subscription documents.
+ */
+export function derivePremiumStatus(subscriptions: DocumentData[]): PremiumStatus {
+  if (subscriptions.length === 0) {
+    return {
+      isPremium: false,
+      subscriptionStatus: null,
+      cancelAtPeriodEnd: false,
+      premiumExpiresAt: null,
+    };
+  }
+
+  // Use the first active/trialing subscription
+  const sub = subscriptions[0];
+  const status = sub.status as SubscriptionStatus;
+  const isPremium = status === "active" || status === "trialing";
+  const cancelAtPeriodEnd = sub.cancel_at_period_end ?? false;
+
+  let premiumExpiresAt: Date | null = null;
+  if (sub.current_period_end) {
+    // Extension stores Stripe timestamps as Firestore Timestamps
+    premiumExpiresAt =
+      sub.current_period_end instanceof Timestamp
+        ? sub.current_period_end.toDate()
+        : new Date(sub.current_period_end.seconds * 1000);
+  }
+
+  return { isPremium, subscriptionStatus: status, cancelAtPeriodEnd, premiumExpiresAt };
+}
+
+/**
+ * Syncs derived premium fields back to the user document so Firestore rules
+ * can gate portfolio writes based on `isPremium`.
+ */
+export async function syncPremiumStatusToUserDoc(
+  uid: string,
+  premiumData: PremiumStatus
+): Promise<void> {
+  const userRef = doc(getDb(), USERS_COLLECTION, uid);
+  await updateDoc(userRef, {
+    isPremium: premiumData.isPremium,
+    subscriptionStatus: premiumData.subscriptionStatus,
+    cancelAtPeriodEnd: premiumData.cancelAtPeriodEnd,
+    premiumExpiresAt: premiumData.premiumExpiresAt,
+    updatedAt: serverTimestamp(),
+  });
 }

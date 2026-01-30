@@ -11,7 +11,7 @@ import {
 } from "@/lib/constants";
 
 export function SubscriptionSection() {
-  const { user, upgradeToPremium, loading } = useAuth();
+  const { user, createCheckoutSession, loading } = useAuth();
   const router = useRouter();
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState<string | null>(null);
@@ -26,12 +26,11 @@ export function SubscriptionSection() {
     setUpgradeMessage(null);
 
     try {
-      await upgradeToPremium();
-      setUpgradeMessage("Upgraded to Premium! Your watchlist limit is now 100 symbols.");
+      const url = await createCheckoutSession();
+      window.location.href = url;
     } catch (error) {
-      console.error("Upgrade failed:", error);
-      setUpgradeMessage("Failed to upgrade. Please try again.");
-    } finally {
+      console.error("Checkout failed:", error);
+      setUpgradeMessage("Failed to start checkout. Please try again.");
       setIsUpgrading(false);
     }
   };
@@ -74,7 +73,7 @@ export function SubscriptionSection() {
             loading
               ? "Loading..."
               : isUpgrading
-              ? "Upgrading..."
+              ? "Redirecting..."
               : !user
               ? "Sign In to Upgrade"
               : "Upgrade Now"
@@ -94,13 +93,6 @@ export function SubscriptionSection() {
         >
           {upgradeMessage}
         </div>
-      )}
-
-      {/* Test mode notice */}
-      {!isPremiumUser && user && (
-        <p className="text-center text-xs text-subtle mt-8">
-          Test Mode: Click &quot;Upgrade Now&quot; to simulate premium subscription
-        </p>
       )}
     </section>
   );

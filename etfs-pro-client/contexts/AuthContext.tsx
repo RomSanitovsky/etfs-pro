@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import type { AuthState } from "@/lib/types";
@@ -17,15 +18,23 @@ import {
   signOut as firebaseSignOut,
   onAuthChange,
 } from "@/lib/firebase/auth";
-import { getUserDocument, upgradeToPremiumTest, downgradeFromPremiumTest } from "@/lib/firebase/firestore";
+import {
+  getUserDocument,
+  createCheckoutSession as firestoreCreateCheckout,
+  subscribeToSubscriptions,
+  derivePremiumStatus,
+  syncPremiumStatusToUserDoc,
+} from "@/lib/firebase/firestore";
+import { functions } from "@/lib/firebase/config";
+import { httpsCallable } from "firebase/functions";
 
 interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName?: string) => Promise<void>;
   signInGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
-  upgradeToPremium: () => Promise<void>;
-  downgradeFromPremium: () => Promise<void>;
+  createCheckoutSession: () => Promise<string>;
+  createPortalSession: () => Promise<string>;
   symbolLimit: number;
   refreshUser: () => Promise<void>;
 }
@@ -38,6 +47,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading: true,
     error: null,
   });
+
+  // Track the current uid for subscription cleanup
+  const subscriptionUnsubRef = useRef<(() => void) | null>(null);
 
   const symbolLimit = state.user?.isPremium
     ? PREMIUM_SYMBOL_LIMIT
@@ -60,6 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthChange(async (firebaseUser) => {
+      // Clean up previous subscription listener
+      if (subscriptionUnsubRef.current) {
+        subscriptionUnsubRef.current();
+        subscriptionUnsubRef.current = null;
+      }
+
       if (firebaseUser) {
         try {
           const userProfile = await getUserDocument(firebaseUser.uid);
@@ -68,6 +86,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             loading: false,
             error: null,
           });
+
+          // Subscribe to Stripe extension subscriptions
+          if (userProfile) {
+            subscriptionUnsubRef.current = subscribeToSubscriptions(
+              firebaseUser.uid,
+              async (subscriptions) => {
+                const premiumData = derivePremiumStatus(subscriptions);
+                // Update React state
+                setState((prev) => {
+                  if (!prev.user) return prev;
+                  return {
+                    ...prev,
+                    user: {
+                      ...prev.user,
+                      isPremium: premiumData.isPremium,
+                      subscriptionStatus: premiumData.subscriptionStatus,
+                      cancelAtPeriodEnd: premiumData.cancelAtPeriodEnd,
+                      premiumExpiresAt: premiumData.premiumExpiresAt,
+                    },
+                  };
+                });
+                // Sync to user doc for Firestore rules
+                try {
+                  await syncPremiumStatusToUserDoc(firebaseUser.uid, premiumData);
+                } catch (err) {
+                  console.error("Failed to sync premium status:", err);
+                }
+              }
+            );
+          }
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
           setState({
@@ -85,11 +133,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (subscriptionUnsubRef.current) {
+        subscriptionUnsubRef.current();
+        subscriptionUnsubRef.current = null;
+      }
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    // Don't set global loading - let form components handle their own loading state
     setState((prev) => ({ ...prev, error: null }));
     try {
       const userProfile = await signInWithEmail(email, password);
@@ -107,7 +160,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     displayName?: string
   ) => {
-    // Don't set global loading - let form components handle their own loading state
     setState((prev) => ({ ...prev, error: null }));
     try {
       const userProfile = await signUpWithEmail(email, password, displayName);
@@ -121,8 +173,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signInGoogle = async () => {
-    // Don't set global loading - let the button component handle its own loading state
-    // This prevents the login page from unmounting during the sign-in popup
     setState((prev) => ({ ...prev, error: null }));
     try {
       const userProfile = await signInWithGoogle();
@@ -147,42 +197,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const upgradeToPremium = async () => {
-    if (!state.user) {
-      throw new Error("Must be signed in to upgrade");
+  const createCheckoutSession = async (): Promise<string> => {
+    const uid = state.user?.uid;
+    if (!uid) {
+      throw new Error("Must be signed in to subscribe");
     }
 
-    try {
-      await upgradeToPremiumTest(state.user.uid);
-      setState((prev) => ({
-        ...prev,
-        user: prev.user ? { ...prev.user, isPremium: true } : null,
-      }));
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to upgrade";
-      setState((prev) => ({ ...prev, error: message }));
-      throw error;
+    const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID;
+    if (!priceId) {
+      throw new Error("Stripe price ID is not configured");
     }
+
+    const url = await firestoreCreateCheckout(
+      uid,
+      priceId,
+      `${window.location.origin}/subscription?status=success`,
+      `${window.location.origin}/subscription?status=cancelled`
+    );
+
+    return url;
   };
 
-  const downgradeFromPremium = async () => {
-    if (!state.user) {
-      throw new Error("Must be signed in to downgrade");
+  const createPortalSession = async (): Promise<string> => {
+    if (!state.user?.uid) {
+      throw new Error("Must be signed in to manage subscription");
     }
 
-    try {
-      await downgradeFromPremiumTest(state.user.uid);
-      setState((prev) => ({
-        ...prev,
-        user: prev.user ? { ...prev.user, isPremium: false, premiumExpiresAt: null } : null,
-      }));
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to downgrade";
-      setState((prev) => ({ ...prev, error: message }));
-      throw error;
+    if (!functions) {
+      throw new Error("Firebase Functions is not configured");
     }
+
+    const createPortalLink = httpsCallable<
+      { returnUrl: string },
+      { url: string }
+    >(functions, "ext-firestore-stripe-payments-createPortalLink");
+
+    const { data } = await createPortalLink({
+      returnUrl: `${window.location.origin}/subscription`,
+    });
+
+    return data.url;
   };
 
   return (
@@ -193,8 +247,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         signInGoogle,
         signOut,
-        upgradeToPremium,
-        downgradeFromPremium,
+        createCheckoutSession,
+        createPortalSession,
         symbolLimit,
         refreshUser,
       }}

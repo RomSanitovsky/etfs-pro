@@ -64,6 +64,8 @@ export interface UserProfile {
   photoURL: string | null;
   isPremium: boolean;
   premiumExpiresAt: Date | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  cancelAtPeriodEnd: boolean;
   watchlist: string[];
   theme: ThemeMode;
   createdAt: Date;
@@ -77,6 +79,16 @@ export interface AuthState {
 }
 
 export type SubscriptionTier = "free" | "premium";
+
+export type SubscriptionStatus =
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "unpaid"
+  | "incomplete"
+  | "incomplete_expired"
+  | "paused";
 
 // Chart and Stock Detail types
 export type TimeRange = "1D" | "1W" | "1M" | "1Y" | "5Y";

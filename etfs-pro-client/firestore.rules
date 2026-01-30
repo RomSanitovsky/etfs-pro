@@ -28,8 +28,6 @@ service cloud.firestore {
         && isValidWatchlist(request.resource.data.watchlist, false);
 
       // Users can update their own document
-      // Note: In production, isPremium should be modified via server/payment webhooks
-      // For testing, we allow client-side updates
       allow update: if request.auth != null && request.auth.uid == userId
         && isValidWatchlist(request.resource.data.watchlist, request.resource.data.isPremium);
 
@@ -39,6 +37,34 @@ service cloud.firestore {
         allow create, update, delete: if request.auth != null
           && request.auth.uid == userId
           && get(/databases/$(database)/documents/users/$(userId)).data.isPremium == true;
+      }
+    }
+
+    // Stripe extension: customer data
+    match /customers/{uid} {
+      allow read: if request.auth.uid == uid;
+
+      match /checkout_sessions/{id} {
+        allow read, write: if request.auth.uid == uid;
+      }
+      match /subscriptions/{id} {
+        allow read: if request.auth.uid == uid;
+      }
+      match /payments/{id} {
+        allow read: if request.auth.uid == uid;
+      }
+    }
+
+    // Stripe extension: products and prices (public read)
+    match /products/{id} {
+      allow read: if true;
+
+      match /prices/{id} {
+        allow read: if true;
+      }
+
+      match /tax_rates/{id} {
+        allow read: if true;
       }
     }
 
