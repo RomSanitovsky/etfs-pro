@@ -59,6 +59,14 @@ export default async function Dashboard() {
           <p className="text-muted max-w-lg mx-auto">
             Real-time tracking with all-time high analytics and price alerts
           </p>
+
+          {/* Mobile hint — desktop recommended */}
+          <div className="md:hidden mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface/60 border border-[var(--theme-card-border)] text-subtle text-xs">
+            <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Tip: Switch to desktop to unlock the full dashboard experience
+          </div>
         </div>
 
         {/* Portfolio CTA for premium users */}
