@@ -96,7 +96,7 @@ export function WatchlistMobileCard({
                   } ${stock.isNearATH ? "ath-glow" : ""}`}
                 >
                   {stock.isNearATH && (
-                    <span className="absolute -top-3.5 -right-6 z-10">
+                    <span className="absolute -top-4.5 -right-9 z-10">
                       <ATHBadge compact />
                     </span>
                   )}
