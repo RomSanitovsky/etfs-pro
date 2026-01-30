@@ -65,7 +65,7 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
           } ${stock.isNearATH ? "ath-glow" : ""}`}
         >
           {stock.isNearATH && (
-            <span className="absolute -top-3 -right-4 z-10">
+            <span className="absolute -top-4 -right-8 z-10">
               <ATHBadge compact />
             </span>
           )}
