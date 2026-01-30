@@ -423,7 +423,7 @@ export default function DocsPage() {
                 </li>
               </ul>
 
-              <h3 className="text-lg font-semibold text-foreground mb-3">Premium Tier &mdash; $4/month</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-3">Premium Tier &mdash; $9.99/month</h3>
               <p className="text-sm text-muted leading-relaxed mb-2">
                 Unlock the full ETFs Pro experience:
               </p>
