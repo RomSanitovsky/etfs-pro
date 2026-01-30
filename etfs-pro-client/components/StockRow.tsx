@@ -59,16 +59,18 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
         <span className="text-xs text-subtle block">{formattedAthDate}</span>
       </td>
       <td className="px-4 py-4 text-right">
-        <div className="flex items-center justify-end gap-1">
-          {stock.isNearATH && <ATHBadge compact />}
-          <span
-            className={`font-mono ${
-              stock.isNearATH ? "text-gold" : stock.percentDown <= 0 ? "text-gain" : "text-loss"
-            }`}
-          >
-            -{stock.percentDown.toFixed(2)}%
-          </span>
-        </div>
+        <span
+          className={`relative inline-block font-mono ${
+            stock.percentDown <= 0 ? "text-gain" : "text-loss"
+          } ${stock.isNearATH ? "ath-glow" : ""}`}
+        >
+          {stock.isNearATH && (
+            <span className="absolute -top-3 -right-4 z-10">
+              <ATHBadge compact />
+            </span>
+          )}
+          -{stock.percentDown.toFixed(2)}%
+        </span>
       </td>
       <td className="px-4 py-4 text-right overflow-hidden">
         <span

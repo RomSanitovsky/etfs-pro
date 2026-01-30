@@ -98,6 +98,10 @@ main {
   will-change: box-shadow;
 }
 
+.ath-glow {
+  text-shadow: 0 0 8px var(--theme-gold), 0 0 16px rgba(251, 191, 36, 0.25);
+}
+
 /* Table row hover effect - GPU accelerated */
 .stock-row {
   transition: background-color 0.15s ease;

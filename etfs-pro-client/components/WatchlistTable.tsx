@@ -250,8 +250,8 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
             <col className="w-[14%]" />   {/* Symbol */}
             <col className="w-[10%]" />   {/* Price */}
             <col className="w-[9%]" />    {/* Day % */}
-            <col className="w-[11%]" />   {/* All-Time High */}
-            <col className="w-[12%]" />   {/* % Down */}
+            <col className="w-[13%]" />   {/* All-Time High */}
+            <col className="w-[10%]" />   {/* % Down */}
             <col className="w-[10%]" />   {/* % to ATH */}
             <col className="w-[9%]" />    {/* Expense */}
             <col className="w-[9%]" />    {/* Yield */}
