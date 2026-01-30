@@ -6,6 +6,7 @@ import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
 import { PortfolioCTA } from "@/components/portfolio";
 import { DashboardMarketingSections } from "@/components/DashboardMarketingSections";
+import Link from "next/link";
 import type { StockData } from "@/lib/types";
 
 export const revalidate = 60;
@@ -92,6 +93,14 @@ export default async function Dashboard() {
         <div className="mt-16 pt-8 border-t border-[var(--theme-card-border)]">
           <p className="text-xs text-subtle text-center max-w-3xl mx-auto leading-relaxed">
             <span className="font-semibold text-muted">Disclaimer:</span> The information provided on this website is for informational purposes only and does not constitute financial, investment, or trading advice. Price data, all-time high calculations, and other market information may be delayed, inaccurate, or incomplete. We make no representations or warranties regarding the accuracy, completeness, or timeliness of any data displayed. You are solely responsible for verifying all information before making any investment decisions. Past performance is not indicative of future results. Use of this service is at your own risk.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-subtle mt-4">
+            <Link href="/about" className="hover:text-cosmic transition-colors">About Us</Link>
+            <span aria-hidden="true">&middot;</span>
+            <Link href="/contact" className="hover:text-cosmic transition-colors">Contact Us</Link>
+          </div>
+          <p className="text-xs text-subtle text-center mt-2">
+            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
           </p>
         </div>
       </main>

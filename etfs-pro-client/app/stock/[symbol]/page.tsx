@@ -3,6 +3,7 @@ import { fetchDetailedQuote, fetchChartData, fetchAllTimeHigh } from "@/lib/yaho
 import { StockDetailView } from "@/components/stock/StockDetailView";
 import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
+import Link from "next/link";
 import type { StockDetailData } from "@/lib/types";
 import type { Metadata } from "next";
 
@@ -69,6 +70,14 @@ export default async function StockPage({ params }: PageProps) {
             advice. Price data, all-time high calculations, and other market
             information may be delayed, inaccurate, or incomplete. Use of this
             service is at your own risk.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-subtle mt-4">
+            <Link href="/about" className="hover:text-cosmic transition-colors">About Us</Link>
+            <span aria-hidden="true">&middot;</span>
+            <Link href="/contact" className="hover:text-cosmic transition-colors">Contact Us</Link>
+          </div>
+          <p className="text-xs text-subtle text-center mt-2">
+            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
           </p>
         </div>
       </main>

@@ -202,6 +202,14 @@ export default function PortfolioPage() {
         {/* Footer */}
         <div className="mt-8 text-xs text-subtle text-center">
           <p>Portfolio data is synced in real-time with your account.</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 mt-4">
+            <Link href="/about" className="hover:text-cosmic transition-colors">About Us</Link>
+            <span aria-hidden="true">&middot;</span>
+            <Link href="/contact" className="hover:text-cosmic transition-colors">Contact Us</Link>
+          </div>
+          <p className="mt-2">
+            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
+          </p>
         </div>
       </main>
 
