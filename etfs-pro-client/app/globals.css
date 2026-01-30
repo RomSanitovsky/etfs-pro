@@ -445,3 +445,16 @@ html {
   transform: translateZ(0);
   backface-visibility: hidden;
 }
+
+/* ===== EXPANDABLE CARD ANIMATION ===== */
+.expandable-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms ease-out;
+}
+.expandable-panel[data-expanded="true"] {
+  grid-template-rows: 1fr;
+}
+.expandable-panel > div {
+  overflow: hidden;
+}

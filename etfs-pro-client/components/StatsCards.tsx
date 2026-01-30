@@ -185,7 +185,8 @@ export function StatsCards({ stocks }: StatsCardsProps) {
           />
         )}
 
-        {/* Avg Distance from ATH */}
+        {/* Avg Distance from ATH - hidden on mobile for clean 2×2 grid */}
+        <div className="hidden md:block">
         <StatCard
           title="Avg from Peak"
           value={`-${stats.avgPercentDown.toFixed(1)}%`}
@@ -197,6 +198,7 @@ export function StatsCards({ stocks }: StatsCardsProps) {
             </svg>
           }
         />
+        </div>
       </div>
     </div>
   );

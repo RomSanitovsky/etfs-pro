@@ -86,13 +86,16 @@ export function Header() {
       <Link
         href="/docs"
         className="absolute top-4 left-4 md:top-6 md:left-6 z-20
-                   inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors"
+                   inline-flex items-center gap-2 px-4 py-2 rounded-full
+                   bg-surface/80 backdrop-blur-sm border border-[var(--theme-card-border)]
+                   text-muted hover:text-foreground hover:border-cosmic/50
+                   transition-all duration-300 hover:shadow-lg hover:shadow-cosmic/10"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
-        <span className="text-sm font-medium">Docs</span>
+        <span className="text-sm font-semibold">Docs</span>
       </Link>
 
       {/* User menu — top-right */}

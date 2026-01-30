@@ -186,7 +186,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
               <SearchInput
                 value={searchQuery}
                 onChange={setSearchQuery}
-                placeholder="Search symbols or names..."
+                placeholder="Filter watchlist..."
               />
             </div>
             <div className="flex-1">

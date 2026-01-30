@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { StarField } from "@/components/StarField";
@@ -10,12 +10,15 @@ import { usePortfolio } from "@/hooks/usePortfolio";
 import type { AddTransactionInput } from "@/lib/types";
 import {
   PortfolioSummaryCards,
-  PortfolioPieChart,
   PortfolioTable,
   AddTransactionModal,
   EmptyPortfolioState,
 } from "@/components/portfolio";
 import type { EditingTransaction } from "@/components/portfolio/AddTransactionModal";
+
+const PortfolioPieChart = lazy(() =>
+  import("@/components/portfolio/PortfolioPieChart").then((m) => ({ default: m.PortfolioPieChart }))
+);
 
 export default function PortfolioPage() {
   const router = useRouter();
@@ -185,8 +188,21 @@ export default function PortfolioPage() {
             {/* Summary Cards */}
             {summary && <PortfolioSummaryCards summary={summary} />}
 
-            {/* Allocation Pie Chart */}
-            <PortfolioPieChart holdings={holdings} />
+            {/* Allocation Pie Chart — lazy loaded */}
+            <Suspense fallback={
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cosmic/50 to-transparent" />
+                  <span className="text-xs font-semibold tracking-widest bg-gradient-to-r from-cosmic via-nebula to-cosmic bg-clip-text text-transparent uppercase">Allocation</span>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cosmic/50 to-transparent" />
+                </div>
+                <div className="rounded-xl border border-[var(--theme-card-border)] bg-surface/30 h-[350px] flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-cosmic/30 border-t-cosmic rounded-full animate-spin" />
+                </div>
+              </div>
+            }>
+              <PortfolioPieChart holdings={holdings} />
+            </Suspense>
 
             {/* Holdings Table */}
             <PortfolioTable
