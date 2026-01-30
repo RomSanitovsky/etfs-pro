@@ -45,7 +45,7 @@ export default async function Dashboard() {
       <StarField />
       <Header />
 
-      <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-6xl">
+      <main className="relative z-10 container mx-auto px-4 py-8 pt-20 md:pt-8 max-w-6xl">
         {/* Section header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cosmic/10 border border-cosmic/20 mb-4">
