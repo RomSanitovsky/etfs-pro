@@ -16,6 +16,8 @@ import { AssetFilter } from "./AssetFilter";
 import { DEFINITIONS } from "@/lib/definitions";
 import { AddTransactionModal } from "./portfolio/AddTransactionModal";
 import { usePortfolio } from "@/hooks/usePortfolio";
+import { WatchlistMobileCard } from "./WatchlistMobileCard";
+import { MobileSortSelect } from "./MobileSortSelect";
 
 interface WatchlistTableProps {
   initialData: StockData[];
@@ -241,8 +243,8 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
         </div>
       )}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
+      {/* Desktop Table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full table-fixed">
           <colgroup>
             <col className="w-[16%]" />   {/* Symbol */}
@@ -347,6 +349,50 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-3">
+        <MobileSortSelect
+          options={[
+            { field: "symbol", label: "Symbol" },
+            { field: "currentPrice", label: "Price" },
+            { field: "dailyChangePercent", label: "Day %" },
+            { field: "allTimeHigh", label: "All-Time High" },
+            { field: "percentDown", label: "% Down" },
+            { field: "percentToATH", label: "% to ATH" },
+            { field: "expenseRatio", label: "Expense" },
+            { field: "dividendYield", label: "Yield" },
+          ]}
+          currentField={sortConfig.field}
+          currentDirection={sortConfig.direction}
+          onSort={(field) => handleSort(field as SortField)}
+          onToggleDirection={() =>
+            setSortConfig((prev) => ({
+              ...prev,
+              direction: prev.direction === "asc" ? "desc" : "asc",
+            }))
+          }
+        />
+        {displayedStocks.length === 0 ? (
+          <div className="py-8 text-center text-subtle">
+            {isLoading
+              ? "Loading..."
+              : searchQuery
+              ? "No matching stocks found"
+              : "No stocks in watchlist"}
+          </div>
+        ) : (
+          displayedStocks.map((stock) => (
+            <WatchlistMobileCard
+              key={stock.symbol}
+              stock={stock}
+              onRemove={handleRemoveSymbol}
+              onAddToPortfolio={handleAddToPortfolio}
+              isPremium={user?.isPremium}
+            />
+          ))
+        )}
       </div>
 
         {/* Footer */}

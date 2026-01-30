@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import type { PortfolioHoldingWithMetrics } from "@/lib/types";
 import { PortfolioRow } from "./PortfolioRow";
+import { PortfolioMobileCard } from "./PortfolioMobileCard";
+import { MobileSortSelect } from "../MobileSortSelect";
 
 interface PortfolioTableProps {
   holdings: PortfolioHoldingWithMetrics[];
@@ -99,7 +101,8 @@ export function PortfolioTable({
 
   return (
     <div className="glass-card p-6">
-      <div className="overflow-x-auto">
+      {/* Desktop Table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b border-[var(--theme-card-border)]">
@@ -175,6 +178,45 @@ export function PortfolioTable({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-3">
+        <MobileSortSelect
+          options={[
+            { field: "symbol", label: "Symbol" },
+            { field: "totalShares", label: "Shares" },
+            { field: "averageCost", label: "Avg Cost" },
+            { field: "currentPrice", label: "Price" },
+            { field: "currentValue", label: "Value" },
+            { field: "unrealizedPnL", label: "P&L" },
+            { field: "allocationPercent", label: "Allocation" },
+          ]}
+          currentField={sortConfig.field}
+          currentDirection={sortConfig.direction}
+          onSort={(field) => handleSort(field as SortField)}
+          onToggleDirection={() =>
+            setSortConfig((prev) => ({
+              ...prev,
+              direction: prev.direction === "asc" ? "desc" : "asc",
+            }))
+          }
+        />
+        {sortedHoldings.length === 0 ? (
+          <div className="py-8 text-center text-subtle">
+            {isLoading ? "Loading portfolio..." : "No holdings yet"}
+          </div>
+        ) : (
+          sortedHoldings.map((holding) => (
+            <PortfolioMobileCard
+              key={holding.symbol}
+              holding={holding}
+              onEditTransaction={onEditTransaction}
+              onDeleteTransaction={onDeleteTransaction}
+              onDeleteHolding={onDeleteHolding}
+            />
+          ))
+        )}
       </div>
     </div>
   );
