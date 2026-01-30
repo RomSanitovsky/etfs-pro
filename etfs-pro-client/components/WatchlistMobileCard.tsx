@@ -90,13 +90,16 @@ export function WatchlistMobileCard({
               </div>
               <div className="text-center">
                 <span className="text-[10px] text-muted uppercase block">% Down</span>
-                <span
-                  className={`text-sm font-mono ${
-                    stock.percentDown <= 0 ? "text-gain" : "text-loss"
-                  }`}
-                >
-                  -{stock.percentDown.toFixed(2)}%
-                </span>
+                <div className="flex items-center justify-center gap-1">
+                  {stock.isNearATH && <ATHBadge compact />}
+                  <span
+                    className={`text-sm font-mono ${
+                      stock.isNearATH ? "text-gold" : stock.percentDown <= 0 ? "text-gain" : "text-loss"
+                    }`}
+                  >
+                    -{stock.percentDown.toFixed(2)}%
+                  </span>
+                </div>
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-muted uppercase block">% to ATH</span>

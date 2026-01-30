@@ -58,12 +58,12 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
         </span>
         <span className="text-xs text-subtle block">{formattedAthDate}</span>
       </td>
-      <td className="px-4 py-4 text-right overflow-hidden">
-        <div className="flex flex-col items-end gap-0.5">
-          {stock.isNearATH && <ATHBadge />}
+      <td className="px-4 py-4 text-right">
+        <div className="flex items-center justify-end gap-1">
+          {stock.isNearATH && <ATHBadge compact />}
           <span
             className={`font-mono ${
-              stock.percentDown <= 0 ? "text-gain" : "text-loss"
+              stock.isNearATH ? "text-gold" : stock.percentDown <= 0 ? "text-gain" : "text-loss"
             }`}
           >
             -{stock.percentDown.toFixed(2)}%
