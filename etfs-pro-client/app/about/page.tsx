@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About Us | ETFs Pro",
   description:
-    "Learn about ETFs Pro — a free informational platform for tracking ETF prices, all-time highs, and portfolio performance.",
+    "Learn about ETFs Pro — our vision, values, and commitment to transparent financial information.",
 };
 
 export default function AboutPage() {
@@ -16,6 +16,17 @@ export default function AboutPage() {
       <Header />
 
       <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-4xl">
+        {/* Back link */}
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors mb-8"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Dashboard
+        </Link>
+
         {/* Page header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cosmic/10 border border-cosmic/20 mb-4">
@@ -27,79 +38,56 @@ export default function AboutPage() {
             About ETFs Pro
           </h1>
           <p className="text-muted max-w-lg mx-auto">
-            Your free companion for ETF tracking and all-time high analytics
+            Clarity, transparency, and responsibility in financial information
           </p>
         </div>
 
         {/* Content sections */}
         <div className="space-y-8">
-          {/* Who We Are */}
+          {/* Our Vision */}
           <section className="glass-card p-6 md:p-8">
             <h2 className="text-lg font-semibold text-foreground mb-3">
-              Who We Are
+              Our Vision
             </h2>
             <p className="text-sm text-muted leading-relaxed">
-              ETFs Pro is an informational platform built for investors who want
-              a clear, real-time view of the ETF market. We provide price
-              tracking, all-time high analytics, and portfolio monitoring tools
-              so you can stay informed about the funds that matter to you.
+              We believe every investor deserves access to clear, honest market
+              data without noise or hidden agendas. ETFs Pro exists to put
+              straightforward information in your hands — what an ETF costs
+              today, where it stands relative to its all-time high, and how your
+              portfolio is performing. No spin, no hype, just the numbers.
             </p>
           </section>
 
-          {/* What We Do */}
+          {/* Our Responsibility */}
           <section className="glass-card p-6 md:p-8">
             <h2 className="text-lg font-semibold text-foreground mb-3">
-              What We Do
+              Our Responsibility
             </h2>
-            <ul className="space-y-3 text-sm text-muted leading-relaxed">
-              <li className="flex items-start gap-2">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-cosmic shrink-0" />
-                <span>
-                  <span className="font-medium text-foreground">
-                    Live Watchlist
-                  </span>{" "}
-                  — Track ETF prices, daily changes, and distance from all-time
-                  highs in one dashboard.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-cosmic shrink-0" />
-                <span>
-                  <span className="font-medium text-foreground">
-                    ATH Analytics
-                  </span>{" "}
-                  — See exactly how far each fund is from its record price and
-                  what return is needed to get back.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-cosmic shrink-0" />
-                <span>
-                  <span className="font-medium text-foreground">
-                    Portfolio Tracking
-                  </span>{" "}
-                  — Log your transactions and monitor profit & loss across all
-                  your holdings.
-                </span>
-              </li>
-            </ul>
+            <p className="text-sm text-muted leading-relaxed">
+              Financial data carries weight. People make real decisions based on
+              the numbers they see, and we take that seriously. We are committed
+              to presenting information as accurately as we can, being upfront
+              about the limitations of our data, and never positioning ourselves
+              as a substitute for professional financial advice. We are an
+              information tool — not an advisor.
+            </p>
           </section>
 
-          {/* Our Data */}
+          {/* Transparency */}
           <section className="glass-card p-6 md:p-8">
             <h2 className="text-lg font-semibold text-foreground mb-3">
-              Our Data
+              Transparency
             </h2>
             <p className="text-sm text-muted leading-relaxed">
               Market data is sourced from third-party financial data providers.
               Prices may be delayed and are not guaranteed to be real-time.
               All-time high values are calculated from available historical data
-              and may not reflect intraday peaks. We strive for accuracy but
-              cannot guarantee that every data point is complete or current.
+              and may not reflect intraday peaks. We will always be honest about
+              what our data can and cannot tell you.
             </p>
           </section>
 
-          {/* Legal / No Advice */}
+          {/* Legal Notice */}
           <section className="glass-card p-6 md:p-8">
             <h2 className="text-lg font-semibold text-foreground mb-3">
               Legal Notice
@@ -129,6 +117,10 @@ export default function AboutPage() {
               className="hover:text-cosmic transition-colors"
             >
               Contact Us
+            </Link>
+            <span aria-hidden="true">&middot;</span>
+            <Link href="/docs" className="hover:text-cosmic transition-colors">
+              Docs
             </Link>
           </div>
           <p className="text-xs text-subtle text-center mt-2">

@@ -16,6 +16,17 @@ export default function ContactPage() {
       <Header />
 
       <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-4xl">
+        {/* Back link */}
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors mb-8"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Dashboard
+        </Link>
+
         {/* Page header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cosmic/10 border border-cosmic/20 mb-4">
@@ -75,6 +86,10 @@ export default function ContactPage() {
               className="hover:text-cosmic transition-colors"
             >
               Contact Us
+            </Link>
+            <span aria-hidden="true">&middot;</span>
+            <Link href="/docs" className="hover:text-cosmic transition-colors">
+              Docs
             </Link>
           </div>
           <p className="text-xs text-subtle text-center mt-2">

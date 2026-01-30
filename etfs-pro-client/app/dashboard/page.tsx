@@ -98,6 +98,8 @@ export default async function Dashboard() {
             <Link href="/about" className="hover:text-cosmic transition-colors">About Us</Link>
             <span aria-hidden="true">&middot;</span>
             <Link href="/contact" className="hover:text-cosmic transition-colors">Contact Us</Link>
+            <span aria-hidden="true">&middot;</span>
+            <Link href="/docs" className="hover:text-cosmic transition-colors">Docs</Link>
           </div>
           <p className="text-xs text-subtle text-center mt-2">
             &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
