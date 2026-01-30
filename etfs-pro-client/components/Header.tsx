@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { PremiumBadge } from "@/components/premium/PremiumBadge";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -61,6 +62,7 @@ function SpacemanAvatar({ size = 36 }: { size?: number }) {
 
 export function Header() {
   const { user, loading, signOut } = useAuth();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -82,8 +84,8 @@ export function Header() {
 
   return (
     <>
-      {/* Docs link — top-left */}
-      <Link
+      {/* Docs link — top-left (hidden on docs page) */}
+      {pathname !== "/docs" && <Link
         href="/docs"
         className="absolute top-4 left-4 md:top-6 md:left-6 z-20
                    inline-flex items-center gap-2 px-5 py-2.5 rounded-full
@@ -96,7 +98,7 @@ export function Header() {
                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
         <span className="text-base font-semibold">Docs</span>
-      </Link>
+      </Link>}
 
       {/* User menu — top-right */}
       <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
