@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import { useAuth } from "./AuthContext";
@@ -59,25 +60,38 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const isPremium = user?.isPremium ?? false;
   const canChangeTheme = isPremium;
+  const resolvedRef = useRef(false);
 
   // Resolve theme from user profile (Firebase) or localStorage fallback
   useEffect(() => {
     setMounted(true);
 
-    // Prefer user's Firebase-stored theme when logged in
-    const userTheme = user?.theme;
-    const localTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
-    const savedTheme = userTheme ?? localTheme;
-    const resolvedTheme = savedTheme && themes[savedTheme] ? savedTheme : DEFAULT_THEME;
+    if (authLoading) return;
 
-    // Non-premium users are forced to space theme
-    if (!isPremium && resolvedTheme !== "space") {
+    // Only resolve from Firebase/localStorage once on initial load
+    if (!resolvedRef.current) {
+      const userTheme = user?.theme;
+      const localTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
+      const savedTheme = userTheme ?? localTheme;
+      const resolvedTheme = savedTheme && themes[savedTheme] ? savedTheme : DEFAULT_THEME;
+
+      if (!isPremium && resolvedTheme !== "space") {
+        setThemeState("space");
+        applyTheme("space");
+      } else {
+        setThemeState(resolvedTheme);
+        applyTheme(resolvedTheme);
+        localStorage.setItem(THEME_STORAGE_KEY, resolvedTheme);
+      }
+
+      resolvedRef.current = true;
+      return;
+    }
+
+    // After initial resolution, only enforce premium restriction
+    if (!isPremium) {
       setThemeState("space");
       applyTheme("space");
-    } else {
-      setThemeState(resolvedTheme);
-      applyTheme(resolvedTheme);
-      localStorage.setItem(THEME_STORAGE_KEY, resolvedTheme);
     }
   }, [user, isPremium, authLoading]);
 

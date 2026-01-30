@@ -142,6 +142,12 @@ export async function getUserDocument(uid: string): Promise<UserProfile | null> 
     needsUpdate = true;
   }
 
+  // Migrate existing users who don't have a theme field
+  if (!data.theme || !themes[data.theme as ThemeMode]) {
+    updates.theme = DEFAULT_THEME;
+    needsUpdate = true;
+  }
+
   if (needsUpdate) {
     updates.updatedAt = serverTimestamp();
     await updateDoc(userRef, updates);
