@@ -198,11 +198,13 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
                 isLoggedIn={!!user}
               />
             </div>
-            <div className="flex items-start gap-2">
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleRefresh}
                 disabled={isLoading}
-                className="p-2 rounded-lg hover:bg-surface transition-colors disabled:opacity-50"
+                className="flex items-center justify-center px-3 py-3 rounded-lg
+                           bg-[var(--theme-background-tertiary)] border border-[var(--theme-card-border)]
+                           hover:border-[var(--theme-accent)] transition-colors disabled:opacity-50"
                 title="Refresh data"
               >
                 <svg

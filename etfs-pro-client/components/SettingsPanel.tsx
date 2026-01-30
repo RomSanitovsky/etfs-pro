@@ -11,12 +11,13 @@ export function SettingsPanel({
 }: SettingsPanelProps) {
   return (
     <div
-      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg
-                 bg-gold/8 border border-gold/20"
+      className="flex items-center gap-2 px-3 py-3 rounded-lg
+                 bg-[var(--theme-background-tertiary)] border border-[var(--theme-card-border)]
+                 transition-colors"
       title="Show ATH badge when stock is within this % of all-time high"
     >
-      <span className="text-gold text-xs leading-none">★</span>
-      <span className="text-[11px] text-muted font-medium tracking-wide">ATH</span>
+      <span className="text-gold text-sm leading-none">★</span>
+      <span className="text-xs text-muted font-medium whitespace-nowrap">ATH</span>
       <input
         type="number"
         value={threshold}
@@ -24,12 +25,12 @@ export function SettingsPanel({
         min={0}
         max={10}
         step={0.5}
-        className="w-10 text-center text-xs font-mono bg-transparent
-                   border-b border-gold/30 text-gold outline-none
-                   focus:border-gold/60 transition-colors
+        className="w-8 text-center text-sm font-mono bg-transparent
+                   border-b border-[var(--theme-card-border)] text-foreground outline-none
+                   focus:border-[var(--theme-accent)] transition-colors
                    [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
-      <span className="text-[11px] text-gold/50">%</span>
+      <span className="text-xs text-subtle">%</span>
     </div>
   );
 }
