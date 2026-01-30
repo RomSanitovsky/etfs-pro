@@ -52,10 +52,7 @@ export function calculatePercentToATH(
 }
 
 export function isNearATH(percentDown: number, threshold: number): boolean {
-  // Only show "near ATH" when price is below ATH but within threshold
-  // percentDown > 0 means price is below ATH
-  // percentDown <= 0 means price is at or above ATH (not "near", it's AT)
-  return percentDown > 0 && percentDown <= threshold;
+  return percentDown >= 0 && percentDown <= threshold;
 }
 
 export function buildStockData(

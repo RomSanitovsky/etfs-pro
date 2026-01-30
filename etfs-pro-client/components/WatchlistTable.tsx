@@ -95,7 +95,7 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
     setStocks((prevStocks) =>
       prevStocks.map((stock) => ({
         ...stock,
-        isNearATH: stock.percentDown > 0 && stock.percentDown <= threshold,
+        isNearATH: stock.percentDown >= 0 && stock.percentDown <= threshold,
       }))
     );
   }, [threshold]);
