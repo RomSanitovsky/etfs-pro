@@ -33,10 +33,10 @@ export function Hero() {
         {/* Main headline */}
         <h1 className="hero-fade-in hero-fade-in-delay-1">
           <span className="block text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4">
-            <span className="hero-title">Track Your</span>
+            <span className="hero-title">Unlock Your</span>
           </span>
           <span className="block text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4">
-            <span className="hero-title-accent">ETF Performance</span>
+            <span className="hero-title-accent">Portfolio Potential</span>
           </span>
           <span className="block text-5xl md:text-7xl lg:text-8xl font-black tracking-tight">
             <span className="hero-title">Like a Pro</span>

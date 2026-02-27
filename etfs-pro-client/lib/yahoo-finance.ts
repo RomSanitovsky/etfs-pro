@@ -101,57 +101,59 @@ export async function fetchAllTimeHigh(
     }
 
     // Goal: Find absolute intraday high, split-adjusted but NOT dividend-adjusted
-    // 
-    // Problem: Yahoo's 'high' field can have unadjusted pre-split prices mixed in
-    // Solution: Apply split adjustment factor (adjclose/close) to normalize high prices
-    // This captures split adjustments while keeping dividend effects minimal
     //
-    // The key insight: For split-adjusted prices that ignore dividends, we can use:
-    // adjustedHigh = high * (quote.adjclose / quote.close)
-    // This applies the same split+dividend adjustment ratio to high as was applied to close
-    // Dividend effects are typically <1% per year, so this is close to split-only adjustment
-    
+    // PROBLEM: Yahoo Finance has a data quality issue where:
+    // - 'close' is correctly split-adjusted
+    // - 'high' is SOMETIMES not split-adjusted (especially for older data)
+    // - This causes false ATH values from pre-split unadjusted highs
+    //
+    // SOLUTION: Detect when 'high' is inconsistent with 'close' and fix it
+    // Normal high/close ratio is ~1.01-1.05 (intraday volatility)
+    // If ratio is much higher (>1.5), the high is likely unadjusted
+
     const quotes = result.quotes;
-    let maxHigh = 0;
-    let maxHighDate = new Date();
-    
-    // Calculate average high/close ratio from recent quotes (post-split data)
-    // This helps detect when historical data has pre-split prices mixed in
+
+    // Calculate the typical high/close ratio from recent data (last 20 quotes)
+    // Recent data is reliably consistent
     let recentRatioSum = 0;
     let recentRatioCount = 0;
-    const recentQuotesCount = Math.min(10, quotes.length);
-    for (let i = quotes.length - recentQuotesCount; i < quotes.length; i++) {
+    const recentCount = Math.min(20, quotes.length);
+    for (let i = quotes.length - recentCount; i < quotes.length; i++) {
       const q = quotes[i];
       if (q.high && q.close && q.close > 0) {
-        recentRatioSum += q.high / q.close;
-        recentRatioCount++;
+        const ratio = q.high / q.close;
+        // Only include normal ratios (exclude any anomalies in recent data too)
+        if (ratio > 0.95 && ratio < 1.15) {
+          recentRatioSum += ratio;
+          recentRatioCount++;
+        }
       }
     }
-    const avgRecentRatio = recentRatioCount > 0 ? recentRatioSum / recentRatioCount : 1.02;
-    
+    // Default to 1.03 if we couldn't calculate (typical weekly high/close ratio)
+    const normalRatio = recentRatioCount > 0 ? recentRatioSum / recentRatioCount : 1.03;
+
+    let maxHigh = 0;
+    let maxHighDate = new Date();
+
     for (const quote of quotes) {
-      if (!quote.high || !quote.close || !quote.adjclose) continue;
-      
-      // Detect data inconsistency: if high/close ratio is abnormally high (>2x normal),
-      // it likely means high is pre-split while close is post-split
-      // This happens when Yahoo Finance's data is inconsistent around split dates
+      if (!quote.high || !quote.close || quote.close <= 0) continue;
+
       const highCloseRatio = quote.high / quote.close;
-      const isLikelySplitInconsistency = highCloseRatio > avgRecentRatio * 2;
-      
       let adjustedHigh: number;
-      
-      if (isLikelySplitInconsistency) {
-        // Data inconsistency detected: high is pre-split, close is post-split
-        // Calculate the split ratio from the ratio difference and apply it
-        const inferredSplitRatio = highCloseRatio / avgRecentRatio;
-        adjustedHigh = quote.high / inferredSplitRatio;
+
+      // If high/close ratio is above normal (>1.15x the typical ratio),
+      // the 'high' field is likely unadjusted for a split while 'close' is adjusted
+      // Using 1.15x catches smaller splits (3:2, 4:3) not just 2:1
+      if (highCloseRatio > normalRatio * 1.15) {
+        // Estimate the split factor from the ratio discrepancy
+        // The 'close' is correct, so we derive what 'high' should be
+        const estimatedSplitFactor = highCloseRatio / normalRatio;
+        adjustedHigh = quote.high / estimatedSplitFactor;
       } else {
-        // Normal case: apply split adjustment using adjclose/close ratio
-        // This gives split-adjusted high (with minimal dividend effect)
-        // For most stocks, dividend adjustments are <1% per year, so this is effectively split-only
-        adjustedHigh = quote.high * (quote.adjclose / quote.close);
+        // Data is consistent, use the high as-is
+        adjustedHigh = quote.high;
       }
-      
+
       if (adjustedHigh > maxHigh) {
         maxHigh = adjustedHigh;
         maxHighDate = quote.date;
@@ -243,6 +245,8 @@ export async function fetchChartData(
       return [];
     }
 
+    // Yahoo Finance 'close' field is reliably split-adjusted, so we use it directly
+    // No additional adjustment needed for chart data
     return result.quotes
       .filter((q) => q.close !== null && q.close !== undefined)
       .map((q) => ({
