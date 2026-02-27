@@ -4,9 +4,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact Us | ETFs Pro",
+  title: "Contact Us | Portfolift",
   description:
-    "Get in touch with the ETFs Pro team for questions, feedback, or support.",
+    "Get in touch with the Portfolift team for questions, feedback, or support.",
 };
 
 export default function ContactPage() {
@@ -51,7 +51,7 @@ export default function ContactPage() {
             For questions, bug reports, or general feedback, reach out to us at:
           </p>
           <a
-            href="mailto:support@etfspro.com"
+            href="mailto:support@portfolift.com"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cosmic/10 border border-cosmic/20 text-cosmic font-medium hover:bg-cosmic/20 transition-colors"
           >
             <svg
@@ -67,7 +67,7 @@ export default function ContactPage() {
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-            support@etfspro.com
+            support@portfolift.com
           </a>
           <p className="text-xs text-subtle mt-6 leading-relaxed">
             We aim to respond to all inquiries within a few business days.
@@ -93,7 +93,7 @@ export default function ContactPage() {
             </Link>
           </div>
           <p className="text-xs text-subtle text-center mt-2">
-            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
+            &copy; {new Date().getFullYear()} Portfolift. All rights reserved.
           </p>
         </div>
       </main>

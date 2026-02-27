@@ -114,7 +114,7 @@ export default function SubscriptionPage() {
             Manage Subscription
           </h1>
           <p className="text-muted text-lg">
-            View and manage your ETFs Pro subscription
+            View and manage your Portfolift subscription
           </p>
         </div>
 

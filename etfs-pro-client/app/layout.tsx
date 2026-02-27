@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ETFs Pro Tracker",
-  description: "Track your ETFs and stocks vs all-time highs",
+  title: "Portfolift | Lift Your Portfolio to New Heights",
+  description: "Track your investments against all-time highs. Real-time analytics, smart insights, and powerful portfolio management tools.",
 };
 
 export default function RootLayout({

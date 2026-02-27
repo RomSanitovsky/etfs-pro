@@ -224,7 +224,7 @@ export default function PortfolioPage() {
             <Link href="/contact" className="hover:text-cosmic transition-colors">Contact Us</Link>
           </div>
           <p className="mt-2">
-            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
+            &copy; {new Date().getFullYear()} Portfolift. All rights reserved.
           </p>
         </div>
       </main>

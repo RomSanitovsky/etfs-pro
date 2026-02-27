@@ -16,7 +16,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { symbol } = await params;
   return {
-    title: `${symbol.toUpperCase()} - Stock Details | ETFs Pro`,
+    title: `${symbol.toUpperCase()} - Stock Details | Portfolift`,
     description: `View detailed price chart, statistics, and ATH analysis for ${symbol.toUpperCase()}`,
   };
 }
@@ -77,7 +77,7 @@ export default async function StockPage({ params }: PageProps) {
             <Link href="/contact" className="hover:text-cosmic transition-colors">Contact Us</Link>
           </div>
           <p className="text-xs text-subtle text-center mt-2">
-            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
+            &copy; {new Date().getFullYear()} Portfolift. All rights reserved.
           </p>
         </div>
       </main>

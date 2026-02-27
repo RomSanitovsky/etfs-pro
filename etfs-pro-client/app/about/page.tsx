@@ -4,9 +4,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us | ETFs Pro",
+  title: "About Us | Portfolift",
   description:
-    "Learn about ETFs Pro — our vision, values, and commitment to transparent financial information.",
+    "Learn about Portfolift — our vision, values, and commitment to transparent financial information.",
 };
 
 export default function AboutPage() {
@@ -35,7 +35,7 @@ export default function AboutPage() {
             </span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-            About ETFs Pro
+            About Portfolift
           </h1>
           <p className="text-muted max-w-lg mx-auto">
             Clarity, transparency, and responsibility in financial information
@@ -51,7 +51,7 @@ export default function AboutPage() {
             </h2>
             <p className="text-sm text-muted leading-relaxed">
               We believe every investor deserves access to clear, honest market
-              data without noise or hidden agendas. ETFs Pro exists to put
+              data without noise or hidden agendas. Portfolift exists to put
               straightforward information in your hands — what an ETF costs
               today, where it stands relative to its all-time high, and how your
               portfolio is performing. No spin, no hype, just the numbers.
@@ -93,7 +93,7 @@ export default function AboutPage() {
               Legal Notice
             </h2>
             <p className="text-sm text-muted leading-relaxed">
-              ETFs Pro is not a registered investment adviser, broker-dealer, or
+              Portfolift is not a registered investment adviser, broker-dealer, or
               financial institution. Nothing on this website constitutes
               financial, investment, or trading advice. The information provided
               is for informational and educational purposes only. You are solely
@@ -124,7 +124,7 @@ export default function AboutPage() {
             </Link>
           </div>
           <p className="text-xs text-subtle text-center mt-2">
-            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
+            &copy; {new Date().getFullYear()} Portfolift. All rights reserved.
           </p>
         </div>
       </main>

@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Home Page", () => {
-  test("should display the ETFs Pro Tracker header", async ({ page }) => {
+  test("should display the Portfolift header", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/ETFs Pro Tracker/);
+    await expect(page).toHaveTitle(/Portfolift/);
 
-    const header = page.getByRole("heading", { name: /ETFs Pro Tracker/i });
+    const header = page.getByRole("heading", { name: /Portfolift/i });
     await expect(header).toBeVisible();
   });
 

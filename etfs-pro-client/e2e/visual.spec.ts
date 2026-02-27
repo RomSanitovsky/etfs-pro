@@ -28,7 +28,7 @@ test.describe("Visual Theme", () => {
   test("should have gradient header text", async ({ page }) => {
     await page.goto("/");
 
-    const header = page.getByRole("heading", { name: /ETFs Pro Tracker/i });
+    const header = page.getByRole("heading", { name: /Portfolift/i });
     await expect(header).toBeVisible();
 
     // Check for gradient classes

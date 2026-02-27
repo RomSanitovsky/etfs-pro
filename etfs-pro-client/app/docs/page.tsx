@@ -20,7 +20,7 @@ const SECTIONS = [
 
 // Glossary terms organized alphabetically
 const GLOSSARY_TERMS: { term: string; definition: string }[] = [
-  { term: "All-Time High (ATH)", definition: "The highest price a security has ever reached. ETFs Pro tracks split-adjusted ATH values from available historical data." },
+  { term: "All-Time High (ATH)", definition: "The highest price a security has ever reached. Portfolift tracks split-adjusted ATH values from available historical data." },
   { term: "Allocation", definition: "The percentage of your total portfolio value that a particular holding represents. Helps assess diversification." },
   { term: "Average Volume", definition: DEFINITIONS.avgVolume },
   { term: "Beta", definition: DEFINITIONS.beta },
@@ -109,10 +109,10 @@ export default function DocsPage() {
             </span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-            ETFs Pro Documentation
+            Portfolift Documentation
           </h1>
           <p className="text-muted max-w-lg mx-auto">
-            Everything you need to know about using ETFs Pro
+            Everything you need to know about using Portfolift
           </p>
         </div>
 
@@ -188,10 +188,10 @@ export default function DocsPage() {
             <section id="overview" ref={setRef("overview")} className="glass-card p-6 md:p-8">
               <h2 className="text-xl font-semibold text-foreground mb-4">Overview</h2>
               <p className="text-sm text-muted leading-relaxed mb-4">
-                ETFs Pro is a real-time financial tracking platform designed to give investors clear, actionable insight into their watchlist and portfolio. The app focuses on all-time high (ATH) analytics, helping you understand where your investments stand relative to their historical peaks.
+                Portfolift is a real-time financial tracking platform designed to give investors clear, actionable insight into their watchlist and portfolio. The app focuses on all-time high (ATH) analytics, helping you understand where your investments stand relative to their historical peaks.
               </p>
               <p className="text-sm text-muted leading-relaxed mb-4">
-                Whether you&apos;re monitoring ETFs, stocks, or crypto, ETFs Pro provides the data you need to make informed decisions &mdash; without the noise.
+                Whether you&apos;re monitoring ETFs, stocks, or crypto, Portfolift provides the data you need to make informed decisions &mdash; without the noise.
               </p>
               <h3 className="text-lg font-semibold text-foreground mb-3">Key Features</h3>
               <ul className="space-y-2 text-sm text-muted">
@@ -257,7 +257,7 @@ export default function DocsPage() {
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Your Watchlist</h3>
               <p className="text-sm text-muted leading-relaxed mb-4">
-                The watchlist is the centerpiece of ETFs Pro. It displays a table of symbols you&apos;re tracking with columns for price, day change, all-time high, percent down from ATH, percent needed to reach ATH, expense ratio, and dividend yield.
+                The watchlist is the centerpiece of Portfolift. It displays a table of symbols you&apos;re tracking with columns for price, day change, all-time high, percent down from ATH, percent needed to reach ATH, expense ratio, and dividend yield.
               </p>
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Adding &amp; Removing Symbols</h3>
@@ -425,7 +425,7 @@ export default function DocsPage() {
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Premium Tier &mdash; $9.99/month</h3>
               <p className="text-sm text-muted leading-relaxed mb-2">
-                Unlock the full ETFs Pro experience:
+                Unlock the full Portfolift experience:
               </p>
               <ul className="space-y-2 text-sm text-muted mb-4">
                 <li className="flex items-start gap-2">
@@ -456,7 +456,7 @@ export default function DocsPage() {
             <section id="glossary" ref={setRef("glossary")} className="glass-card p-6 md:p-8">
               <h2 className="text-xl font-semibold text-foreground mb-4">Financial Glossary</h2>
               <p className="text-sm text-muted leading-relaxed mb-6">
-                Definitions for financial terms and metrics used throughout ETFs Pro. Hover or tap any metric label in the app for an inline tooltip.
+                Definitions for financial terms and metrics used throughout Portfolift. Hover or tap any metric label in the app for an inline tooltip.
               </p>
               <dl className="space-y-4">
                 {GLOSSARY_TERMS.map((item) => (
@@ -474,7 +474,7 @@ export default function DocsPage() {
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Third-Party Data</h3>
               <p className="text-sm text-muted leading-relaxed mb-4">
-                All market data displayed in ETFs Pro is sourced from third-party financial data providers. We aggregate and present this data in a user-friendly format but do not generate or independently verify raw market data.
+                All market data displayed in Portfolift is sourced from third-party financial data providers. We aggregate and present this data in a user-friendly format but do not generate or independently verify raw market data.
               </p>
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Pricing Delays</h3>
@@ -499,13 +499,13 @@ export default function DocsPage() {
 
               <div className="border border-loss/20 bg-loss/5 rounded-xl p-5 mb-4">
                 <p className="text-sm text-muted leading-relaxed">
-                  <strong className="text-foreground">Not Financial Advice.</strong> The information provided on ETFs Pro is for informational and educational purposes only. Nothing on this platform constitutes financial, investment, or trading advice. Always conduct your own research and consult with a qualified financial advisor before making investment decisions.
+                  <strong className="text-foreground">Not Financial Advice.</strong> The information provided on Portfolift is for informational and educational purposes only. Nothing on this platform constitutes financial, investment, or trading advice. Always conduct your own research and consult with a qualified financial advisor before making investment decisions.
                 </p>
               </div>
 
               <div className="border border-[var(--theme-card-border)] bg-surface/30 rounded-xl p-5 mb-4">
                 <p className="text-sm text-muted leading-relaxed">
-                  <strong className="text-foreground">Not a Registered Adviser.</strong> ETFs Pro is not a registered investment adviser, broker-dealer, or financial institution. We do not provide personalized investment recommendations or manage assets on behalf of users.
+                  <strong className="text-foreground">Not a Registered Adviser.</strong> Portfolift is not a registered investment adviser, broker-dealer, or financial institution. We do not provide personalized investment recommendations or manage assets on behalf of users.
                 </p>
               </div>
 
@@ -540,7 +540,7 @@ export default function DocsPage() {
             </Link>
           </div>
           <p className="text-xs text-subtle text-center mt-2">
-            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
+            &copy; {new Date().getFullYear()} Portfolift. All rights reserved.
           </p>
         </div>
       </main>

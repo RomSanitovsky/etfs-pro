@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { Logo } from "@/components/Logo";
 
 export function Hero() {
   const { user, loading } = useAuth();
@@ -19,11 +20,16 @@ export function Hero() {
 
       {/* Content */}
       <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+        {/* Logo */}
+        <div className="flex justify-center mb-6 hero-fade-in">
+          <Logo size="xl" />
+        </div>
+
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-nebula/10 border border-nebula/30 mb-8 hero-fade-in">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-loss opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-loss"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gain opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-gain"></span>
           </span>
           <span className="text-sm font-medium text-cosmic tracking-wide">
             Live Market Data • Real-Time Updates
@@ -33,22 +39,19 @@ export function Hero() {
         {/* Main headline */}
         <h1 className="hero-fade-in hero-fade-in-delay-1">
           <span className="block text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4">
-            <span className="hero-title">Unlock Your</span>
+            <span className="hero-title">Lift Your Portfolio</span>
           </span>
           <span className="block text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4">
-            <span className="hero-title-accent">Portfolio Potential</span>
-          </span>
-          <span className="block text-5xl md:text-7xl lg:text-8xl font-black tracking-tight">
-            <span className="hero-title">Like a Pro</span>
+            <span className="hero-title-accent">To New Heights</span>
           </span>
         </h1>
 
         {/* Subheadline */}
         <p className="mt-8 text-lg md:text-xl lg:text-2xl text-muted max-w-2xl mx-auto leading-relaxed hero-fade-in hero-fade-in-delay-2">
-          Monitor your investments against{" "}
+          Track your investments against{" "}
           <span className="text-gold font-semibold">all-time highs</span>,
           spot opportunities in real-time, and make{" "}
-          <span className="text-cosmic font-semibold">data-driven decisions</span> with precision analytics.
+          <span className="text-cosmic font-semibold">smarter decisions</span> with precision analytics.
         </p>
 
         {/* Stats row */}

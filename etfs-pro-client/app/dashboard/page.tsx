@@ -53,7 +53,7 @@ export default async function Dashboard() {
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
             <span className="hero-title">Your</span>
-            <span className="hero-title-accent mx-2">ETF</span>
+            <span className="hero-title-accent mx-2">Portfolio</span>
             <span className="hero-title">Watchlist</span>
           </h1>
           <p className="text-muted max-w-lg mx-auto">
@@ -110,7 +110,7 @@ export default async function Dashboard() {
             <Link href="/docs" className="hover:text-cosmic transition-colors">Docs</Link>
           </div>
           <p className="text-xs text-subtle text-center mt-2">
-            &copy; {new Date().getFullYear()} ETFs Pro. All rights reserved.
+            &copy; {new Date().getFullYear()} Portfolift. All rights reserved.
           </p>
         </div>
       </main>

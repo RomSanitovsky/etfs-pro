@@ -82,7 +82,7 @@ export function WhyChooseUsSection() {
       {/* Section header */}
       <div className="text-center mb-16">
         <span className="inline-block px-4 py-1.5 rounded-full bg-cosmic/10 border border-cosmic/20 text-cosmic text-sm font-medium mb-4">
-          Why ETFs PRO?
+          Why Portfolift?
         </span>
         <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
           The Smarter Way to Track{" "}
