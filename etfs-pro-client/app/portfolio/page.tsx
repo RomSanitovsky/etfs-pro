@@ -155,20 +155,6 @@ export default function PortfolioPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Dividend Calendar */}
-              <Link
-                href="/portfolio/dividends"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg
-                           bg-gain/10 border border-gain/30 text-gain font-medium
-                           hover:bg-gain/20 hover:border-gain/50
-                           transition-all duration-200"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="hidden sm:inline">Dividends</span>
-              </Link>
-
               {/* Export button */}
               <ExportButton
                 options={exportOptions}

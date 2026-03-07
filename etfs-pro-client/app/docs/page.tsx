@@ -396,25 +396,6 @@ export default function DocsPage() {
                 Based on the dividend yields of your holdings and the number of shares you own, the portfolio calculates your expected annual dividend income. This is an estimate based on trailing dividend data and may vary.
               </p>
 
-              <h3 className="text-lg font-semibold text-foreground mb-3">Dividend Calendar</h3>
-              <p className="text-sm text-muted leading-relaxed mb-4">
-                Access the Dividend Calendar from your Portfolio page to see upcoming dividend payments. The calendar view displays:
-              </p>
-              <ul className="space-y-2 text-sm text-muted mb-4">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
-                  <strong className="text-foreground">Ex-Dividend Dates</strong> &mdash; Highlighted on the calendar so you know when you need to own shares
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
-                  <strong className="text-foreground">Expected Payouts</strong> &mdash; Calculated based on your shares and dividend rates
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
-                  <strong className="text-foreground">Upcoming List</strong> &mdash; A sorted list of your next dividend payments
-                </li>
-              </ul>
-
               <h3 className="text-lg font-semibold text-foreground mb-3">Export to CSV</h3>
               <p className="text-sm text-muted leading-relaxed">
                 Export your data to CSV format for use in spreadsheets, tax preparation, or record keeping. Premium users can export:
@@ -482,10 +463,6 @@ export default function DocsPage() {
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
                   P&amp;L analytics and allocation charts
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
-                  Dividend calendar with upcoming payment tracking
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
