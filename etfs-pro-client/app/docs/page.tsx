@@ -256,7 +256,20 @@ export default function DocsPage() {
 
             {/* Dashboard & Watchlist */}
             <section id="dashboard-watchlist" ref={setRef("dashboard-watchlist")} className="glass-card p-6 md:p-8">
-              <h2 className="text-xl font-semibold text-foreground mb-4">Dashboard &amp; Watchlist</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-foreground">Dashboard &amp; Watchlist</h2>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg
+                             bg-cosmic/10 text-cosmic border border-cosmic/20
+                             hover:bg-cosmic/20 hover:border-cosmic/40 transition-colors"
+                >
+                  Go to Dashboard
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Your Watchlist</h3>
               <p className="text-sm text-muted leading-relaxed mb-4">
@@ -358,12 +371,25 @@ export default function DocsPage() {
 
             {/* Portfolio */}
             <section id="portfolio" ref={setRef("portfolio")} className="glass-card p-6 md:p-8">
-              <h2 className="text-xl font-semibold text-foreground mb-4">
-                Portfolio
-                <span className="ml-2 inline-flex px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-gold/20 text-gold border border-gold/30 align-middle">
-                  Premium
-                </span>
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Portfolio
+                  <span className="ml-2 inline-flex px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-gold/20 text-gold border border-gold/30 align-middle">
+                    Premium
+                  </span>
+                </h2>
+                <Link
+                  href="/portfolio"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg
+                             bg-gold/10 text-gold border border-gold/20
+                             hover:bg-gold/20 hover:border-gold/40 transition-colors"
+                >
+                  Go to Portfolio
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
               <p className="text-sm text-muted leading-relaxed mb-4">
                 The Portfolio feature is available to Premium subscribers. It lets you track your actual holdings, including purchase history, profit/loss, and allocation.
               </p>
