@@ -180,7 +180,7 @@ export default function PortfolioPage() {
       <Header />
       <DocsSidebar />
 
-      <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-6xl">
+      <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-6xl xl:ml-52">
         {/* Back link */}
         <Link
           href="/dashboard"

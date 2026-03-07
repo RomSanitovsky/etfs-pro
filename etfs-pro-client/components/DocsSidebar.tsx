@@ -30,8 +30,8 @@ export function DocsSidebar() {
   const currentSection = getCurrentSection();
 
   return (
-    <aside className="fixed left-4 top-20 z-40 hidden xl:block">
-      <nav className="w-48 glass-card p-3 space-y-1">
+    <aside className="fixed left-4 top-24 z-40 hidden xl:block">
+      <nav className="w-44 glass-card p-3 space-y-0.5">
         {DOCS_SECTIONS.map((section) => {
           const isActive = section.id === currentSection;
 
