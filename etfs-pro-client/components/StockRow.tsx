@@ -12,6 +12,15 @@ interface StockRowProps {
   isPremium?: boolean;
 }
 
+// Auto-scale font size based on value length
+function getScaledFontClass(value: string): string {
+  const len = value.length;
+  if (len > 14) return "text-[10px]";
+  if (len > 12) return "text-[11px]";
+  if (len > 10) return "text-xs";
+  return "text-sm";
+}
+
 export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: StockRowProps) {
   const formattedAthDate = new Date(stock.athDate).toLocaleDateString("en-US", {
     month: "short",
@@ -43,8 +52,10 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
           </span>
         </Link>
       </td>
-      <td className="px-4 py-4 text-right overflow-hidden font-mono">
-        {formatCurrency(stock.currentPrice, stock.currency)}
+      <td className="px-4 py-4 text-right font-mono">
+        <span className={getScaledFontClass(formatCurrency(stock.currentPrice, stock.currency))}>
+          {formatCurrency(stock.currentPrice, stock.currency)}
+        </span>
       </td>
       {/* Daily Change */}
       <td className="px-4 py-4 text-right overflow-hidden">
@@ -52,8 +63,8 @@ export function StockRow({ stock, onRemove, onAddToPortfolio, isPremium }: Stock
           {dailyChangeValue}
         </span>
       </td>
-      <td className="px-4 py-4 text-right overflow-hidden">
-        <span className="font-mono">
+      <td className="px-4 py-4 text-right">
+        <span className={`font-mono ${getScaledFontClass(formatCurrency(stock.allTimeHigh, stock.currency))}`}>
           {formatCurrency(stock.allTimeHigh, stock.currency)}
         </span>
         <span className="text-xs text-subtle block">{formattedAthDate}</span>
