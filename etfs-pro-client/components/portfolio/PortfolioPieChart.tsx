@@ -133,32 +133,55 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
       .sort((a, b) => b.valueInUSD - a.valueInUSD);
   }, [cashHoldings]);
 
-  // Split holdings into visible (above threshold) and others (below threshold)
-  const { visibleHoldings, othersAggregate } = useMemo(() => {
-    if (breakdownThreshold <= 0) return { visibleHoldings: holdingsDetails, othersAggregate: null };
+  // Split holdings AND cash into visible (above threshold) and others (below threshold)
+  const { visibleHoldings, visibleCash, othersAggregate } = useMemo(() => {
+    if (breakdownThreshold <= 0) {
+      return { visibleHoldings: holdingsDetails, visibleCash: cashDetails, othersAggregate: null };
+    }
 
-    const visible = holdingsDetails.filter((h) => h.allocationPercent >= breakdownThreshold);
-    const others = holdingsDetails.filter((h) => h.allocationPercent < breakdownThreshold);
+    // Filter holdings
+    const visibleH = holdingsDetails.filter((h) => h.allocationPercent >= breakdownThreshold);
+    const othersH = holdingsDetails.filter((h) => h.allocationPercent < breakdownThreshold);
 
-    if (!others.length) return { visibleHoldings: visible, othersAggregate: null };
+    // Filter cash holdings by the same threshold
+    const visibleC = cashDetails.filter((c) => c.allocationPercent >= breakdownThreshold);
+    const othersC = cashDetails.filter((c) => c.allocationPercent < breakdownThreshold);
 
-    const othersValue = others.reduce((s, h) => s + h.currentValue, 0);
-    const othersAllocation = others.reduce((s, h) => s + h.allocationPercent, 0);
-    const othersCost = others.reduce((s, h) => s + h.totalCost, 0);
-    const othersPnLPercent = othersCost > 0 ? ((othersValue - othersCost) / othersCost) * 100 : 0;
+    const totalOthersCount = othersH.length + othersC.length;
+
+    if (totalOthersCount === 0) {
+      return { visibleHoldings: visibleH, visibleCash: visibleC, othersAggregate: null };
+    }
+
+    // Combine holdings and cash into "Others"
+    const othersHoldingsValue = othersH.reduce((s, h) => s + h.currentValue, 0);
+    const othersCashValue = othersC.reduce((s, c) => s + c.valueInUSD, 0);
+    const othersValue = othersHoldingsValue + othersCashValue;
+
+    const othersHoldingsAlloc = othersH.reduce((s, h) => s + h.allocationPercent, 0);
+    const othersCashAlloc = othersC.reduce((s, c) => s + c.allocationPercent, 0);
+    const othersAllocation = othersHoldingsAlloc + othersCashAlloc;
+
+    // P&L only applies to holdings, not cash
+    const othersCost = othersH.reduce((s, h) => s + h.totalCost, 0);
+    const othersPnLPercent = othersCost > 0 ? ((othersHoldingsValue - othersCost) / othersCost) * 100 : 0;
 
     return {
-      visibleHoldings: visible,
+      visibleHoldings: visibleH,
+      visibleCash: visibleC,
       othersAggregate: {
-        count: others.length,
+        holdingsCount: othersH.length,
+        cashCount: othersC.length,
+        totalCount: totalOthersCount,
         currentValue: othersValue,
         allocationPercent: othersAllocation,
         unrealizedPnLPercent: othersPnLPercent,
+        hasCashOnly: othersH.length === 0 && othersC.length > 0,
       },
     };
-  }, [holdingsDetails, breakdownThreshold]);
+  }, [holdingsDetails, cashDetails, breakdownThreshold]);
 
-  // Build pie chart data: visible holdings + combined "Others" slice + cash holdings
+  // Build pie chart data: visible holdings + combined "Others" slice + visible cash holdings
   const { pieData, pieColors } = useMemo(() => {
     const visible = visibleHoldings.map((h) => ({
       symbol: h.symbol,
@@ -172,7 +195,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
     if (othersAggregate) {
       visible.push({
         symbol: "Others",
-        name: `${othersAggregate.count} holdings`,
+        name: `${othersAggregate.totalCount} items`,
         value: othersAggregate.currentValue,
         allocation: othersAggregate.allocationPercent,
         isCash: false,
@@ -180,8 +203,8 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
       colors.push(OTHERS_COLOR);
     }
 
-    // Add cash holdings
-    cashDetails.forEach((cash, i) => {
+    // Add visible cash holdings (those above threshold)
+    visibleCash.forEach((cash, i) => {
       visible.push({
         symbol: cash.currency,
         name: getCurrencyName(cash.currency),
@@ -193,7 +216,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
     });
 
     return { pieData: visible, pieColors: colors };
-  }, [visibleHoldings, othersAggregate, cashDetails]);
+  }, [visibleHoldings, visibleCash, othersAggregate]);
 
   if (!pieData.length) return null;
 
@@ -326,7 +349,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
               );
             })}
 
-            {/* Others row (combined below-threshold holdings) */}
+            {/* Others row (combined below-threshold holdings and cash) */}
             {othersAggregate && (
               <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-surface/30 transition-colors">
                 <span
@@ -336,7 +359,11 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-foreground">Others</span>
-                    <span className="text-xs text-muted">{othersAggregate.count} holding{othersAggregate.count !== 1 ? "s" : ""}</span>
+                    <span className="text-xs text-muted">
+                      {othersAggregate.holdingsCount > 0 && `${othersAggregate.holdingsCount} holding${othersAggregate.holdingsCount !== 1 ? "s" : ""}`}
+                      {othersAggregate.holdingsCount > 0 && othersAggregate.cashCount > 0 && " + "}
+                      {othersAggregate.cashCount > 0 && `${othersAggregate.cashCount} cash`}
+                    </span>
                   </div>
                   <div className="mt-1 h-1 rounded-full bg-surface/50 overflow-hidden">
                     <div
@@ -353,20 +380,24 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
                   <div className="text-sm font-mono font-semibold text-foreground">
                     {formatCurrency(othersAggregate.currentValue)}
                   </div>
-                  <div
-                    className={`text-xs font-mono ${
-                      othersAggregate.unrealizedPnLPercent >= 0 ? "text-gain" : "text-loss"
-                    }`}
-                  >
-                    {othersAggregate.unrealizedPnLPercent >= 0 ? "+" : ""}
-                    {othersAggregate.unrealizedPnLPercent.toFixed(2)}%
-                  </div>
+                  {othersAggregate.hasCashOnly ? (
+                    <div className="text-xs text-muted">Cash</div>
+                  ) : (
+                    <div
+                      className={`text-xs font-mono ${
+                        othersAggregate.unrealizedPnLPercent >= 0 ? "text-gain" : "text-loss"
+                      }`}
+                    >
+                      {othersAggregate.unrealizedPnLPercent >= 0 ? "+" : ""}
+                      {othersAggregate.unrealizedPnLPercent.toFixed(2)}%
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Cash holdings rows */}
-            {cashDetails.map((cash, index) => (
+            {/* Cash holdings rows (only those above threshold) */}
+            {visibleCash.map((cash, index) => (
               <div
                 key={cash.currency}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-surface/30 transition-colors"
