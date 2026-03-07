@@ -130,7 +130,7 @@ export default function PortfolioPage() {
         </Link>
 
         {/* Header */}
-        <div className="relative rounded-xl p-6 mb-8 overflow-hidden">
+        <div className="relative rounded-xl p-6 mb-8">
           {/* Gradient border */}
           <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cosmic/50 via-nebula/30 to-cosmic/50 p-[1px]">
             <div className="absolute inset-[1px] rounded-xl bg-background/95" />

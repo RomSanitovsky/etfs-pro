@@ -109,7 +109,7 @@ export default function DividendCalendarPage() {
     }
   }, [holdings, user?.isPremium]);
 
-  // Filter dividends with valid ex-dividend dates
+  // Filter dividends with valid ex-dividend dates (upcoming)
   const upcomingDividends = useMemo(() => {
     const now = new Date();
     return dividends
@@ -117,6 +117,13 @@ export default function DividendCalendarPage() {
       .sort((a, b) =>
         new Date(a.exDividendDate!).getTime() - new Date(b.exDividendDate!).getTime()
       );
+  }, [dividends]);
+
+  // All dividend-paying stocks (even without announced dates)
+  const allDividendStocks = useMemo(() => {
+    return dividends
+      .filter((d) => d.dividendYield && d.dividendYield > 0)
+      .sort((a, b) => (b.dividendYield || 0) - (a.dividendYield || 0));
   }, [dividends]);
 
   // Get dividends for the selected month
@@ -141,13 +148,19 @@ export default function DividendCalendarPage() {
 
   // Calculate summary stats
   const summary = useMemo(() => {
-    const totalExpected = upcomingDividends.reduce((sum, d) => sum + d.expectedPayout, 0);
+    // Calculate expected quarterly income from all dividend stocks
+    const quarterlyIncome = allDividendStocks.reduce((sum, d) => {
+      if (d.dividendRate && d.shares) {
+        return sum + (d.dividendRate * d.shares) / 4; // Quarterly estimate
+      }
+      return sum;
+    }, 0);
     const payingStocks = dividends.filter((d) => d.dividendRate && d.dividendRate > 0).length;
-    const avgYield = dividends.length > 0
-      ? dividends.reduce((sum, d) => sum + (d.dividendYield || 0), 0) / dividends.length
+    const avgYield = allDividendStocks.length > 0
+      ? allDividendStocks.reduce((sum, d) => sum + (d.dividendYield || 0), 0) / allDividendStocks.length
       : 0;
-    return { totalExpected, payingStocks, avgYield };
-  }, [dividends, upcomingDividends]);
+    return { totalExpected: quarterlyIncome, payingStocks, avgYield };
+  }, [dividends, allDividendStocks]);
 
   // Calendar grid
   const calendarDays = useMemo(() => {
@@ -261,7 +274,7 @@ export default function DividendCalendarPage() {
               <p className="text-2xl font-bold text-gain">
                 {isLoading ? "..." : formatCurrency(summary.totalExpected)}
               </p>
-              <p className="text-xs text-muted mt-1">Next dividend payments</p>
+              <p className="text-xs text-muted mt-1">Est. quarterly income</p>
             </div>
           </div>
 
@@ -442,12 +455,14 @@ export default function DividendCalendarPage() {
             </div>
           </div>
 
-          {/* Upcoming Dividends List */}
+          {/* Dividend Holdings List */}
           <div className="lg:col-span-1">
             <div className="glass-card p-6">
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gain/50 to-transparent" />
-                <span className="text-xs font-semibold tracking-widest text-gain uppercase">Upcoming</span>
+                <span className="text-xs font-semibold tracking-widest text-gain uppercase">
+                  {upcomingDividends.length > 0 ? "Upcoming" : "Your Holdings"}
+                </span>
                 <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gain/50 to-transparent" />
               </div>
 
@@ -455,64 +470,103 @@ export default function DividendCalendarPage() {
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-[var(--theme-card-border)] border-t-cosmic rounded-full animate-spin" />
                 </div>
-              ) : upcomingDividends.length === 0 ? (
+              ) : allDividendStocks.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-surface flex items-center justify-center">
                     <svg className="w-6 h-6 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <p className="text-sm text-muted">No upcoming dividends</p>
+                  <p className="text-sm text-muted">No dividend stocks</p>
                   <p className="text-xs text-subtle mt-1">
                     Add dividend-paying stocks to your portfolio
                   </p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-                  {upcomingDividends.map((dividend) => (
-                    <div
-                      key={dividend.symbol}
-                      className="p-3 rounded-lg bg-surface/50 border border-[var(--theme-card-border)] hover:border-gain/30 transition-colors"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <p className="font-semibold text-foreground">{dividend.symbol}</p>
-                          <p className="text-xs text-muted truncate max-w-[140px]">{dividend.name}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-gain">
-                            {formatCurrency(dividend.expectedPayout)}
-                          </p>
-                          <p className="text-[10px] text-subtle">expected</p>
-                        </div>
-                      </div>
+                  {/* Show upcoming dividends first if any */}
+                  {upcomingDividends.length > 0 && (
+                    <>
+                      {upcomingDividends.map((dividend) => (
+                        <div
+                          key={dividend.symbol}
+                          className="p-3 rounded-lg bg-gain/10 border border-gain/30 hover:border-gain/50 transition-colors"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="font-semibold text-foreground">{dividend.symbol}</p>
+                              <p className="text-xs text-muted truncate max-w-[140px]">{dividend.name}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-bold text-gain">
+                                {formatCurrency(dividend.expectedPayout)}
+                              </p>
+                              <p className="text-[10px] text-subtle">expected</p>
+                            </div>
+                          </div>
 
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1 text-muted">
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          <span>Ex: {formatDate(dividend.exDividendDate!)}</span>
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1 text-gain">
+                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <span>Ex: {formatDate(dividend.exDividendDate!)}</span>
+                            </div>
+                            {dividend.dividendYield && (
+                              <span className="text-nebula font-medium">
+                                {dividend.dividendYield.toFixed(2)}%
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        {dividend.dividendYield && (
-                          <span className="text-nebula font-medium">
-                            {dividend.dividendYield.toFixed(2)}% yield
-                          </span>
-                        )}
-                      </div>
+                      ))}
 
-                      <div className="mt-2 pt-2 border-t border-[var(--theme-card-border)]">
-                        <div className="flex justify-between text-[10px] text-subtle">
+                      {/* Divider if there are more stocks */}
+                      {allDividendStocks.filter(d => !upcomingDividends.find(u => u.symbol === d.symbol)).length > 0 && (
+                        <div className="flex items-center gap-2 py-2">
+                          <div className="h-px flex-1 bg-[var(--theme-card-border)]" />
+                          <span className="text-[10px] text-subtle uppercase">Other Holdings</span>
+                          <div className="h-px flex-1 bg-[var(--theme-card-border)]" />
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Show all other dividend stocks */}
+                  {allDividendStocks
+                    .filter(d => !upcomingDividends.find(u => u.symbol === d.symbol))
+                    .map((dividend) => (
+                      <div
+                        key={dividend.symbol}
+                        className="p-3 rounded-lg bg-surface/50 border border-[var(--theme-card-border)] hover:border-cosmic/30 transition-colors"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <p className="font-semibold text-foreground">{dividend.symbol}</p>
+                            <p className="text-xs text-muted truncate max-w-[140px]">{dividend.name}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-bold text-cosmic">
+                              {dividend.dividendYield?.toFixed(2)}%
+                            </p>
+                            <p className="text-[10px] text-subtle">yield</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-muted">
                           <span>{dividend.shares.toFixed(2)} shares</span>
-                          <span>
-                            {dividend.lastDividendValue
-                              ? `${formatCurrency(dividend.lastDividendValue)}/share`
-                              : "—"}
-                          </span>
+                          {dividend.dividendRate && (
+                            <span>{formatCurrency(dividend.dividendRate)}/yr</span>
+                          )}
+                        </div>
+
+                        <div className="mt-2 pt-2 border-t border-[var(--theme-card-border)]">
+                          <p className="text-[10px] text-subtle italic">
+                            Ex-dividend date not yet announced
+                          </p>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               )}
             </div>
