@@ -167,20 +167,39 @@ export function ExportButton({
         <span className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-cosmic/5 to-nebula/5 pointer-events-none" />
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Using pure inline styles to avoid CSS conflicts */}
       {hasOptions && isOpen && (
         <div
-          className="absolute right-0 mt-2 w-64 rounded-xl overflow-hidden z-50
-                     border border-[var(--theme-card-border)]
-                     shadow-2xl shadow-black/60"
-          style={{ backgroundColor: '#0a0c10' }}
+          style={{
+            position: 'absolute',
+            right: 0,
+            marginTop: '8px',
+            width: '256px',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            zIndex: 9999,
+            backgroundColor: '#0a0c10',
+            border: '1px solid rgba(124, 58, 237, 0.3)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
+            isolation: 'isolate',
+          }}
         >
           {/* Header */}
           <div
-            className="px-4 py-3 border-b border-[var(--theme-card-border)]"
-            style={{ backgroundColor: '#161b22' }}
+            style={{
+              padding: '12px 16px',
+              borderBottom: '1px solid rgba(124, 58, 237, 0.3)',
+              backgroundColor: '#161b22',
+            }}
           >
-            <p className="text-xs font-semibold text-muted uppercase tracking-wider">Export Options</p>
+            <p style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: '#94a3b8',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              margin: 0,
+            }}>Export Options</p>
           </div>
 
           {/* Options */}
@@ -189,35 +208,63 @@ export function ExportButton({
               <button
                 key={option.id}
                 onClick={() => handleExport(option.onClick)}
-                className="w-full px-4 py-3 flex items-start gap-3 text-left
-                           transition-colors duration-150 group/option"
-                style={{ backgroundColor: '#0a0c10' }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  textAlign: 'left',
+                  backgroundColor: '#0a0c10',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 150ms',
+                }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1c2128'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0a0c10'}
               >
                 {/* Icon */}
                 <span
-                  className="flex-shrink-0 p-2 rounded-lg border border-[var(--theme-card-border)]
-                             group-hover/option:border-cosmic/30
-                             transition-colors duration-150"
-                  style={{ backgroundColor: '#1c2128' }}
+                  style={{
+                    flexShrink: 0,
+                    padding: '8px',
+                    borderRadius: '8px',
+                    backgroundColor: '#1c2128',
+                    border: '1px solid rgba(124, 58, 237, 0.2)',
+                  }}
                 >
                   {option.icon}
                 </span>
 
                 {/* Text */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground group-hover/option:text-cosmic transition-colors">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#e2e8f0',
+                    margin: 0,
+                  }}>
                     {option.label}
                   </p>
-                  <p className="text-xs text-subtle mt-0.5 leading-relaxed">
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#64748b',
+                    marginTop: '2px',
+                    lineHeight: 1.4,
+                  }}>
                     {option.description}
                   </p>
                 </div>
 
                 {/* Arrow */}
                 <svg
-                  className="w-4 h-4 text-subtle group-hover/option:text-cosmic group-hover/option:translate-x-0.5 transition-all flex-shrink-0 mt-1"
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    color: '#64748b',
+                    flexShrink: 0,
+                    marginTop: '4px',
+                  }}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -230,10 +277,18 @@ export function ExportButton({
 
           {/* Footer */}
           <div
-            className="px-4 py-2 border-t border-[var(--theme-card-border)]"
-            style={{ backgroundColor: '#161b22' }}
+            style={{
+              padding: '8px 16px',
+              borderTop: '1px solid rgba(124, 58, 237, 0.3)',
+              backgroundColor: '#161b22',
+            }}
           >
-            <p className="text-[10px] text-subtle text-center">
+            <p style={{
+              fontSize: '10px',
+              color: '#64748b',
+              textAlign: 'center',
+              margin: 0,
+            }}>
               Files open in Excel, Google Sheets, or Numbers
             </p>
           </div>
