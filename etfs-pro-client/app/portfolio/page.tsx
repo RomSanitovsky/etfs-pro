@@ -19,6 +19,7 @@ import type { EditingTransaction } from "@/components/portfolio/AddTransactionMo
 import type { EditingCash } from "@/components/portfolio/AddCashModal";
 import { ExportButton, ExportIcons } from "@/components/ExportButton";
 import { exportPortfolioToCSV, exportPortfolioDetailedToCSV, exportPortfolioCashToCSV } from "@/lib/export-csv";
+import { DocsSidebar } from "@/components/DocsSidebar";
 
 const PortfolioPieChart = lazy(() =>
   import("@/components/portfolio/PortfolioPieChart").then((m) => ({ default: m.PortfolioPieChart }))
@@ -177,6 +178,7 @@ export default function PortfolioPage() {
     <div className="min-h-screen relative">
       <StarField />
       <Header />
+      <DocsSidebar />
 
       <main className="relative z-10 container mx-auto px-4 py-8 pt-16 md:pt-8 max-w-6xl">
         {/* Back link */}

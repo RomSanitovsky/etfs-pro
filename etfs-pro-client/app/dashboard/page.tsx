@@ -6,6 +6,7 @@ import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
 import { PortfolioCTA } from "@/components/portfolio";
 import { DashboardMarketingSections } from "@/components/DashboardMarketingSections";
+import { DocsSidebar } from "@/components/DocsSidebar";
 import Link from "next/link";
 import type { StockData } from "@/lib/types";
 
@@ -44,6 +45,7 @@ export default async function Dashboard() {
     <div className="min-h-screen relative">
       <StarField />
       <Header />
+      <DocsSidebar />
 
       <main className="relative z-10 container mx-auto px-4 py-8 pt-20 md:pt-8 max-w-6xl">
         {/* Section header */}
