@@ -29,6 +29,7 @@ const GLOSSARY_TERMS: { term: string; definition: string }[] = [
   { term: "Day Change", definition: DEFINITIONS.dayChange },
   { term: "Day Range", definition: DEFINITIONS.dayRange },
   { term: "Dividend Yield", definition: DEFINITIONS.dividendYield },
+  { term: "Ex-Dividend Date", definition: "The date by which you must own a stock to receive its upcoming dividend. If you buy on or after this date, you will not receive the next dividend payment." },
   { term: "ETF (Exchange-Traded Fund)", definition: DEFINITIONS.etf },
   { term: "Expense Ratio", definition: DEFINITIONS.expenseRatio },
   { term: "50-Day Moving Average", definition: DEFINITIONS.fiftyDayMA },
@@ -391,9 +392,47 @@ export default function DocsPage() {
               </p>
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Expected Annual Dividends</h3>
-              <p className="text-sm text-muted leading-relaxed">
+              <p className="text-sm text-muted leading-relaxed mb-4">
                 Based on the dividend yields of your holdings and the number of shares you own, the portfolio calculates your expected annual dividend income. This is an estimate based on trailing dividend data and may vary.
               </p>
+
+              <h3 className="text-lg font-semibold text-foreground mb-3">Dividend Calendar</h3>
+              <p className="text-sm text-muted leading-relaxed mb-4">
+                Access the Dividend Calendar from your Portfolio page to see upcoming dividend payments. The calendar view displays:
+              </p>
+              <ul className="space-y-2 text-sm text-muted mb-4">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Ex-Dividend Dates</strong> &mdash; Highlighted on the calendar so you know when you need to own shares
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Expected Payouts</strong> &mdash; Calculated based on your shares and dividend rates
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Upcoming List</strong> &mdash; A sorted list of your next dividend payments
+                </li>
+              </ul>
+
+              <h3 className="text-lg font-semibold text-foreground mb-3">Export to CSV</h3>
+              <p className="text-sm text-muted leading-relaxed">
+                Export your data to CSV format for use in spreadsheets, tax preparation, or record keeping. Premium users can export:
+              </p>
+              <ul className="space-y-2 text-sm text-muted mt-2">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Watchlist Export</strong> &mdash; All tracked symbols with prices, ATH data, and metrics
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Portfolio Summary</strong> &mdash; Holdings with current values, cost basis, and P&amp;L
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Transaction History</strong> &mdash; Complete list of all buy transactions with dates
+                </li>
+              </ul>
             </section>
 
             {/* Subscription Plans */}
@@ -434,11 +473,23 @@ export default function DocsPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
+                  Up to 150 symbols in your watchlist
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
                   Full portfolio tracking with transaction management
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
                   P&amp;L analytics and allocation charts
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
+                  Dividend calendar with upcoming payment tracking
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
+                  Export to CSV (watchlist, portfolio &amp; transactions)
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />

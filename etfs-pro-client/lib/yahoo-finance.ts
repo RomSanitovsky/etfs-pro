@@ -1,5 +1,5 @@
 import YahooFinance from "yahoo-finance2";
-import type { QuoteData, TimeRange, ChartDataPoint, DetailedQuoteData } from "./types";
+import type { QuoteData, TimeRange, ChartDataPoint, DetailedQuoteData, DividendInfo } from "./types";
 
 // Create instance for v3.x API
 const yahooFinance = new YahooFinance({ suppressNotices: ["yahooSurvey"] });
@@ -309,5 +309,43 @@ export async function fetchDetailedQuote(symbol: string): Promise<DetailedQuoteD
   } catch (error) {
     console.error(`Error fetching detailed quote for ${symbol}:`, error);
     return null;
+  }
+}
+
+export async function fetchDividendInfo(symbols: string[]): Promise<DividendInfo[]> {
+  if (symbols.length === 0) return [];
+
+  try {
+    const results = await withRetry(() => yahooFinance.quote(symbols));
+    const quotes = Array.isArray(results) ? results : [results];
+
+    return quotes.map((quote) => {
+      // Type assertion for dividend fields
+      const q = quote as typeof quote & {
+        dividendYield?: number;
+        dividendRate?: number;
+        dividendDate?: Date;
+        exDividendDate?: Date;
+        trailingAnnualDividendRate?: number;
+        trailingAnnualDividendYield?: number;
+      };
+
+      // Estimate per-payment dividend (assume quarterly for most US stocks)
+      const annualRate = q.dividendRate ?? q.trailingAnnualDividendRate ?? null;
+      const lastDividendValue = annualRate ? annualRate / 4 : null;
+
+      return {
+        symbol: q.symbol,
+        name: q.shortName || q.longName || q.symbol,
+        exDividendDate: q.exDividendDate ? q.exDividendDate.toISOString() : null,
+        paymentDate: q.dividendDate ? q.dividendDate.toISOString() : null,
+        dividendRate: annualRate,
+        dividendYield: q.dividendYield ?? q.trailingAnnualDividendYield ?? null,
+        lastDividendValue,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching dividend info:", error);
+    return [];
   }
 }

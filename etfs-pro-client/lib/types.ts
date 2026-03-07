@@ -193,3 +193,19 @@ export interface AddTransactionInput {
 export interface EditTransactionInput extends AddTransactionInput {
   transactionId: string;
 }
+
+// Dividend types
+export interface DividendInfo {
+  symbol: string;
+  name: string;
+  exDividendDate: string | null; // ISO date string
+  paymentDate: string | null; // ISO date string
+  dividendRate: number | null; // Annual dividend per share
+  dividendYield: number | null; // Yield percentage
+  lastDividendValue: number | null; // Most recent dividend payment per share
+}
+
+export interface PortfolioDividend extends DividendInfo {
+  shares: number;
+  expectedPayout: number; // shares * lastDividendValue (or estimated)
+}

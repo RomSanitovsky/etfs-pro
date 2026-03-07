@@ -29,16 +29,16 @@ export const STORAGE_KEYS = {
 
 // Subscription tier limits
 export const FREE_TIER_SYMBOL_LIMIT = 15;
-export const PREMIUM_SYMBOL_LIMIT = 1000;
+export const PREMIUM_SYMBOL_LIMIT = 150;
 export const PREMIUM_PRICE_MONTHLY = 9.99;
 
 export const PREMIUM_FEATURES = [
-  "Unlimited symbols in watchlist",
+  "Up to 150 symbols in watchlist",
   "Portfolio tracking with P&L analytics",
+  "Dividend calendar & income tracking",
+  "Export to CSV (watchlist & portfolio)",
   "Advanced statistics & analytics",
   "Custom ATH threshold alerts",
-  "Priority data refresh",
-  "Export watchlist data",
   "Custom theme colors",
 ] as const;
 

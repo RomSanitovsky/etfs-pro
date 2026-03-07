@@ -18,6 +18,8 @@ import { AddTransactionModal } from "./portfolio/AddTransactionModal";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { WatchlistMobileCard } from "./WatchlistMobileCard";
 import { MobileSortSelect } from "./MobileSortSelect";
+import { ExportButton } from "./ExportButton";
+import { exportWatchlistToCSV } from "@/lib/export-csv";
 
 interface WatchlistTableProps {
   initialData: StockData[];
@@ -199,6 +201,14 @@ export function WatchlistTable({ initialData }: WatchlistTableProps) {
               />
             </div>
             <div className="flex items-center gap-2 self-start">
+              <ExportButton
+                onExport={() => exportWatchlistToCSV(displayedStocks)}
+                label="Export CSV"
+                disabled={displayedStocks.length === 0}
+                compact
+                locked={!user?.isPremium}
+                onLockedClick={() => window.location.href = "/subscription"}
+              />
               <button
                 onClick={handleRefresh}
                 disabled={isLoading}
