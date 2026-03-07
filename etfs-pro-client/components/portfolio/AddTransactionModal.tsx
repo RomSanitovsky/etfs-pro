@@ -47,6 +47,10 @@ export function AddTransactionModal({
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
+  // Current price state
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null);
+  const [isFetchingPrice, setIsFetchingPrice] = useState(false);
+
   const modalRef = useRef<HTMLDivElement>(null);
   const symbolInputRef = useRef<HTMLInputElement>(null);
 
@@ -97,6 +101,7 @@ export function AddTransactionModal({
       setSuggestions([]);
       setShowSuggestions(false);
       setSelectedIndex(-1);
+      setCurrentPrice(null);
       // Focus symbol input if not prefilled and not editing
       if (!prefilledSymbol && !editingTransaction) {
         setTimeout(() => symbolInputRef.current?.focus(), 0);
@@ -123,11 +128,65 @@ export function AddTransactionModal({
     }
   }, [isOpen, onClose, showSuggestions]);
 
+  // Fetch current price when symbol is set (after selection or when modal opens in edit mode)
+  useEffect(() => {
+    const trimmedSymbol = symbol.trim().toUpperCase();
+    if (!trimmedSymbol || trimmedSymbol.length < 1) {
+      setCurrentPrice(null);
+      return;
+    }
+
+    // Only fetch if we have a valid symbol (selected from suggestions or locked)
+    if (!isSymbolLocked && suggestions.length > 0) {
+      // Still typing/searching, don't fetch yet
+      return;
+    }
+
+    const fetchCurrentPrice = async () => {
+      setIsFetchingPrice(true);
+      try {
+        const response = await fetch(`/api/quotes?symbols=${encodeURIComponent(trimmedSymbol)}`);
+        if (response.ok) {
+          const { data } = await response.json();
+          if (data && data.length > 0 && data[0].currentPrice) {
+            setCurrentPrice(data[0].currentPrice);
+          } else {
+            setCurrentPrice(null);
+          }
+        }
+      } catch {
+        setCurrentPrice(null);
+      } finally {
+        setIsFetchingPrice(false);
+      }
+    };
+
+    fetchCurrentPrice();
+  }, [symbol, isSymbolLocked, suggestions.length]);
+
   const handleSelectSuggestion = (suggestion: SearchResult) => {
     setSymbol(suggestion.symbol);
     setShowSuggestions(false);
     setSuggestions([]);
     setSelectedIndex(-1);
+    // Fetch current price for the selected symbol
+    setCurrentPrice(null);
+    setIsFetchingPrice(true);
+    fetch(`/api/quotes?symbols=${encodeURIComponent(suggestion.symbol)}`)
+      .then((res) => res.json())
+      .then(({ data }) => {
+        if (data && data.length > 0 && data[0].currentPrice) {
+          setCurrentPrice(data[0].currentPrice);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsFetchingPrice(false));
+  };
+
+  const handleSetCurrentPrice = () => {
+    if (currentPrice !== null) {
+      setPricePerShare(String(currentPrice));
+    }
   };
 
   const handleSymbolKeyDown = (e: React.KeyboardEvent) => {
@@ -312,20 +371,38 @@ export function AddTransactionModal({
               <label className="block text-sm font-medium text-foreground/80 mb-1.5">
                 Price per Share
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-subtle">$</span>
-                <input
-                  type="number"
-                  value={pricePerShare}
-                  onChange={(e) => setPricePerShare(e.target.value)}
-                  placeholder="0.00"
-                  step="any"
-                  min="0"
-                  className="w-full pl-8 pr-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
-                             text-foreground placeholder-subtle font-mono
-                             focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
-                             transition-colors"
-                />
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-subtle">$</span>
+                  <input
+                    type="number"
+                    value={pricePerShare}
+                    onChange={(e) => setPricePerShare(e.target.value)}
+                    placeholder="0.00"
+                    step="any"
+                    min="0"
+                    className="w-full pl-8 pr-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
+                               text-foreground placeholder-subtle font-mono
+                               focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
+                               transition-colors"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSetCurrentPrice}
+                  disabled={currentPrice === null || isFetchingPrice}
+                  title={currentPrice !== null ? `Current: $${currentPrice.toFixed(2)}` : "Enter symbol first"}
+                  className="px-3 py-2.5 rounded-lg border border-[var(--theme-card-border)] text-xs font-medium
+                             text-muted hover:text-foreground hover:bg-surface/50
+                             disabled:opacity-40 disabled:cursor-not-allowed
+                             transition-colors whitespace-nowrap"
+                >
+                  {isFetchingPrice ? (
+                    <div className="w-4 h-4 border-2 border-subtle border-t-cosmic rounded-full animate-spin" />
+                  ) : (
+                    "Current"
+                  )}
+                </button>
               </div>
             </div>
           </div>

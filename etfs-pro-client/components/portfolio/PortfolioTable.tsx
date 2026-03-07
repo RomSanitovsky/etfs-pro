@@ -320,8 +320,14 @@ export function PortfolioTable({
                             <div>
                               <span className="font-mono font-semibold text-foreground">{group.currency}</span>
                               <p className="text-xs text-muted">
-                                {getCurrencyName(group.currency)}
-                                {hasMultiple && <span className="ml-1 text-cosmic">({group.entries.length} entries)</span>}
+                                {!hasMultiple && firstEntry.notes ? (
+                                  <span>{firstEntry.notes}</span>
+                                ) : (
+                                  <>
+                                    {getCurrencyName(group.currency)}
+                                    {hasMultiple && <span className="ml-1 text-cosmic">({group.entries.length} entries)</span>}
+                                  </>
+                                )}
                               </p>
                             </div>
                           </div>
@@ -451,8 +457,14 @@ export function PortfolioTable({
                         <div>
                           <span className="font-mono font-semibold text-foreground">{group.currency}</span>
                           <p className="text-xs text-muted">
-                            {getCurrencyName(group.currency)}
-                            {hasMultiple && <span className="ml-1 text-cosmic">({group.entries.length})</span>}
+                            {!hasMultiple && firstEntry.notes ? (
+                              <span>{firstEntry.notes}</span>
+                            ) : (
+                              <>
+                                {getCurrencyName(group.currency)}
+                                {hasMultiple && <span className="ml-1 text-cosmic">({group.entries.length})</span>}
+                              </>
+                            )}
                           </p>
                         </div>
                       </div>
