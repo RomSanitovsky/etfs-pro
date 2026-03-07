@@ -21,9 +21,10 @@ const SECTIONS = [
 // Glossary terms organized alphabetically
 const GLOSSARY_TERMS: { term: string; definition: string }[] = [
   { term: "All-Time High (ATH)", definition: "The highest price a security has ever reached. Portfolift tracks split-adjusted ATH values from available historical data." },
-  { term: "Allocation", definition: "The percentage of your total portfolio value that a particular holding represents. Helps assess diversification." },
+  { term: "Allocation", definition: "The percentage of your total portfolio value that a particular holding represents. Includes both securities and cash holdings." },
   { term: "Average Volume", definition: DEFINITIONS.avgVolume },
   { term: "Beta", definition: DEFINITIONS.beta },
+  { term: "Cash Holdings", definition: "Liquid cash tracked in your portfolio across multiple currencies. Automatically converted to USD for portfolio totals using real-time exchange rates." },
   { term: "Cost Basis", definition: "The total amount paid for an investment, including the purchase price and any fees. Used to calculate profit or loss when selling." },
   { term: "Cryptocurrency", definition: DEFINITIONS.crypto },
   { term: "Day Change", definition: DEFINITIONS.dayChange },
@@ -31,6 +32,7 @@ const GLOSSARY_TERMS: { term: string; definition: string }[] = [
   { term: "Dividend Yield", definition: DEFINITIONS.dividendYield },
   { term: "Ex-Dividend Date", definition: "The date by which you must own a stock to receive its upcoming dividend. If you buy on or after this date, you will not receive the next dividend payment." },
   { term: "ETF (Exchange-Traded Fund)", definition: DEFINITIONS.etf },
+  { term: "Exchange Rate", definition: "The rate at which one currency can be exchanged for another. Portfolift uses real-time exchange rates to convert foreign currency cash holdings to USD." },
   { term: "Expense Ratio", definition: DEFINITIONS.expenseRatio },
   { term: "50-Day Moving Average", definition: DEFINITIONS.fiftyDayMA },
   { term: "52-Week High", definition: DEFINITIONS.fiftyTwoWeekHigh },
@@ -210,7 +212,7 @@ export default function DocsPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
-                  Portfolio tracking with P&amp;L, allocation, and dividends (Premium)
+                  Portfolio tracking with P&amp;L, allocation, dividends, and multi-currency cash (Premium)
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
@@ -373,7 +375,7 @@ export default function DocsPage() {
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Adding Transactions</h3>
               <p className="text-sm text-muted leading-relaxed mb-4">
-                Add buy transactions by entering the symbol, number of shares, price per share, and date. Each transaction is saved to your account.
+                Add buy transactions by entering the symbol, number of shares, price per share, and date. Each transaction is saved to your account. Use the <strong className="text-foreground">Current</strong> button next to the price field to automatically fill in the current market price.
               </p>
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Editing &amp; Deleting</h3>
@@ -388,8 +390,31 @@ export default function DocsPage() {
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Allocation Chart</h3>
               <p className="text-sm text-muted leading-relaxed mb-4">
-                A pie chart visualizes your portfolio allocation, making it easy to see how concentrated or diversified your holdings are at a glance.
+                A pie chart visualizes your portfolio allocation, making it easy to see how concentrated or diversified your holdings are at a glance. Both securities and cash holdings are displayed in the chart.
               </p>
+
+              <h3 className="text-lg font-semibold text-foreground mb-3">Cash Holdings</h3>
+              <p className="text-sm text-muted leading-relaxed mb-4">
+                Track cash across multiple currencies alongside your securities. Supported currencies include USD, EUR, GBP, JPY, ILS, CHF, CAD, and AUD.
+              </p>
+              <ul className="space-y-2 text-sm text-muted mb-4">
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Multiple Entries</strong> &mdash; Add multiple cash entries per currency (e.g., separate savings and brokerage accounts)
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Notes</strong> &mdash; Add optional notes to identify each cash entry
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Auto-Conversion</strong> &mdash; All currencies are automatically converted to USD for total portfolio value
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gain mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Grouped Display</strong> &mdash; Cash entries are grouped by currency with expandable rows to view individual entries
+                </li>
+              </ul>
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Expected Annual Dividends</h3>
               <p className="text-sm text-muted leading-relaxed mb-4">
@@ -398,13 +423,9 @@ export default function DocsPage() {
 
               <h3 className="text-lg font-semibold text-foreground mb-3">Export to CSV</h3>
               <p className="text-sm text-muted leading-relaxed">
-                Export your data to CSV format for use in spreadsheets, tax preparation, or record keeping. Premium users can export:
+                Export your data to CSV format for use in spreadsheets, tax preparation, or record keeping. Use the Export dropdown button to choose from multiple export options:
               </p>
               <ul className="space-y-2 text-sm text-muted mt-2">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
-                  <strong className="text-foreground">Watchlist Export</strong> &mdash; All tracked symbols with prices, ATH data, and metrics
-                </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
                   <strong className="text-foreground">Portfolio Summary</strong> &mdash; Holdings with current values, cost basis, and P&amp;L
@@ -412,6 +433,10 @@ export default function DocsPage() {
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
                   <strong className="text-foreground">Transaction History</strong> &mdash; Complete list of all buy transactions with dates
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cosmic mt-1.5 shrink-0" />
+                  <strong className="text-foreground">Cash Holdings</strong> &mdash; All cash entries with balances, USD values, and exchange rates
                 </li>
               </ul>
             </section>
@@ -462,11 +487,15 @@ export default function DocsPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
+                  Multi-currency cash holdings (USD, EUR, GBP, JPY, ILS, CHF, CAD, AUD)
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
                   P&amp;L analytics and allocation charts
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
-                  Export to CSV (watchlist, portfolio &amp; transactions)
+                  Export to CSV (portfolio, transactions &amp; cash)
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-gold mt-1.5 shrink-0" />
