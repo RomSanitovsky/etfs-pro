@@ -15,7 +15,7 @@ function generateStars(count: number, seed: number = 1): string {
   for (let i = 0; i < count; i++) {
     const x = random(i) * 100;
     const y = random(i + 1000) * 100;
-    const opacity = 0.3 + random(i + 2000) * 0.7;
+    const opacity = 0.5 + random(i + 2000) * 0.5; // Brighter: 0.5-1.0 instead of 0.3-1.0
     const size = 0.5 + random(i + 3000) * 0.5;
     stars.push(`radial-gradient(${size}px ${size}px at ${x.toFixed(2)}% ${y.toFixed(2)}%, rgba(255,255,255,${opacity.toFixed(2)}), transparent)`);
   }
@@ -28,9 +28,9 @@ export const StarField = memo(function StarField() {
   const { showStars } = useTheme();
 
   // Generate dense starfield layers (memoized)
-  const distantStars = useMemo(() => generateStars(150, 1), []);
-  const midStars = useMemo(() => generateStars(80, 2), []);
-  const nearStars = useMemo(() => generateStars(40, 3), []);
+  const distantStars = useMemo(() => generateStars(300, 1), []);
+  const midStars = useMemo(() => generateStars(150, 2), []);
+  const nearStars = useMemo(() => generateStars(80, 3), []);
 
   // Don't render stars for non-space themes
   if (!showStars) {
@@ -42,16 +42,16 @@ export const StarField = memo(function StarField() {
       {/* CSS for twinkling animation */}
       <style jsx global>{`
         @keyframes twinkle {
-          0%, 100% { opacity: 0.3; }
+          0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
         }
         @keyframes twinkle-slow {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.9; }
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
         }
         @keyframes twinkle-fast {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.8; }
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 1; }
         }
         @keyframes subtle-drift {
           0%, 100% { transform: translateY(0); }
@@ -89,7 +89,7 @@ export const StarField = memo(function StarField() {
           className="absolute inset-0"
           style={{
             contain: 'strict',
-            opacity: 0.6,
+            opacity: 0.85,
             background: distantStars,
           }}
         />
@@ -99,7 +99,7 @@ export const StarField = memo(function StarField() {
           className="absolute inset-0"
           style={{
             contain: 'strict',
-            opacity: 0.5,
+            opacity: 0.75,
             background: midStars,
           }}
         />
@@ -109,7 +109,7 @@ export const StarField = memo(function StarField() {
           className="absolute inset-0"
           style={{
             contain: 'strict',
-            opacity: 0.7,
+            opacity: 0.9,
             background: nearStars,
             animation: 'twinkle-slow 8s ease-in-out infinite',
           }}
