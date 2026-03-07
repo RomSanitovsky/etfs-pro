@@ -171,8 +171,8 @@ export function ExportButton({
       {hasOptions && isOpen && (
         <div
           className="absolute right-0 mt-2 w-64 rounded-xl overflow-hidden z-50
-                     bg-[var(--theme-background-secondary)] border border-[var(--theme-card-border)]
-                     shadow-xl shadow-black/20 backdrop-blur-xl
+                     bg-[#0d1117] border border-[var(--theme-card-border)]
+                     shadow-xl shadow-black/40
                      animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {/* Header */}
@@ -191,8 +191,8 @@ export function ExportButton({
                            group/option"
               >
                 {/* Icon */}
-                <span className="flex-shrink-0 p-2 rounded-lg bg-surface/50 border border-[var(--theme-card-border)]
-                                 group-hover/option:border-cosmic/30 group-hover/option:bg-cosmic/10
+                <span className="flex-shrink-0 p-2 rounded-lg bg-[#1c2128] border border-[var(--theme-card-border)]
+                                 group-hover/option:border-cosmic/30 group-hover/option:bg-cosmic/20
                                  transition-colors duration-150">
                   {option.icon}
                 </span>
@@ -221,7 +221,7 @@ export function ExportButton({
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2 border-t border-[var(--theme-card-border)] bg-surface/30">
+          <div className="px-4 py-2 border-t border-[var(--theme-card-border)] bg-[#161b22]">
             <p className="text-[10px] text-subtle text-center">
               Files open in Excel, Google Sheets, or Numbers
             </p>

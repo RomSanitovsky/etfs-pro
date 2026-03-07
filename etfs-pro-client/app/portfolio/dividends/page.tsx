@@ -9,6 +9,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import type { DividendInfo, PortfolioDividend } from "@/lib/types";
 
+// Extended type with estimated flag
+type ExtendedDividend = PortfolioDividend & { isEstimated: boolean };
+
 // Calendar helpers
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
@@ -109,11 +112,30 @@ export default function DividendCalendarPage() {
     }
   }, [holdings, user?.isPremium]);
 
-  // Filter dividends with valid ex-dividend dates (upcoming)
-  const upcomingDividends = useMemo(() => {
+  // Filter dividends with valid ex-dividend dates (upcoming or recent past)
+  // Yahoo Finance returns the LAST ex-dividend date, so we also estimate the next one
+  const upcomingDividends = useMemo((): ExtendedDividend[] => {
     const now = new Date();
+
     return dividends
-      .filter((d) => d.exDividendDate && new Date(d.exDividendDate) >= now)
+      .filter((d) => d.exDividendDate)
+      .map((d): ExtendedDividend => {
+        const exDate = new Date(d.exDividendDate!);
+        // If the ex-dividend date is in the past, estimate the next one (assume quarterly)
+        if (exDate < now) {
+          const nextExDate = new Date(exDate);
+          // Add quarters until we get a future date
+          while (nextExDate < now) {
+            nextExDate.setMonth(nextExDate.getMonth() + 3);
+          }
+          return {
+            ...d,
+            exDividendDate: nextExDate.toISOString(),
+            isEstimated: true,
+          };
+        }
+        return { ...d, isEstimated: false };
+      })
       .sort((a, b) =>
         new Date(a.exDividendDate!).getTime() - new Date(b.exDividendDate!).getTime()
       );
@@ -126,18 +148,18 @@ export default function DividendCalendarPage() {
       .sort((a, b) => (b.dividendYield || 0) - (a.dividendYield || 0));
   }, [dividends]);
 
-  // Get dividends for the selected month
+  // Get dividends for the selected month (using estimated dates)
   const monthDividends = useMemo(() => {
-    return dividends.filter((d) => {
+    return upcomingDividends.filter((d) => {
       if (!d.exDividendDate) return false;
       const date = new Date(d.exDividendDate);
       return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
     });
-  }, [dividends, selectedMonth, selectedYear]);
+  }, [upcomingDividends, selectedMonth, selectedYear]);
 
   // Map dividends by day for calendar rendering
   const dividendsByDay = useMemo(() => {
-    const map = new Map<number, PortfolioDividend[]>();
+    const map = new Map<number, ExtendedDividend[]>();
     monthDividends.forEach((d) => {
       const day = new Date(d.exDividendDate!).getDate();
       const existing = map.get(day) || [];
@@ -408,9 +430,13 @@ export default function DividendCalendarPage() {
                             {dayDividends.slice(0, 2).map((d) => (
                               <div
                                 key={d.symbol}
-                                className="text-[10px] font-medium text-gain truncate bg-gain/20 rounded px-1"
+                                className={`text-[10px] font-medium truncate rounded px-1 ${
+                                  d.isEstimated
+                                    ? "text-nebula bg-nebula/20"
+                                    : "text-gain bg-gain/20"
+                                }`}
                               >
-                                {d.symbol}
+                                {d.symbol}{d.isEstimated ? "~" : ""}
                               </div>
                             ))}
                             {dayDividends.length > 2 && (
@@ -425,12 +451,16 @@ export default function DividendCalendarPage() {
                       {/* Tooltip on hover */}
                       {hasDividends && (
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
-                          <div className="bg-surface border border-[var(--theme-card-border)] rounded-lg p-3 shadow-xl min-w-[180px]">
-                            <p className="text-xs font-semibold text-foreground mb-2">Ex-Dividend Date</p>
+                          <div className="bg-[#0d1117] border border-[var(--theme-card-border)] rounded-lg p-3 shadow-xl min-w-[180px]">
+                            <p className="text-xs font-semibold text-foreground mb-2">
+                              Ex-Dividend Date {dayDividends.some(d => d.isEstimated) && <span className="text-nebula">(Est.)</span>}
+                            </p>
                             {dayDividends.map((d) => (
                               <div key={d.symbol} className="flex justify-between text-xs mb-1">
-                                <span className="text-muted">{d.symbol}</span>
-                                <span className="text-gain font-medium">{formatCurrency(d.expectedPayout)}</span>
+                                <span className="text-muted">{d.symbol}{d.isEstimated ? " ~" : ""}</span>
+                                <span className={`font-medium ${d.isEstimated ? "text-nebula" : "text-gain"}`}>
+                                  {formatCurrency(d.expectedPayout)}
+                                </span>
                               </div>
                             ))}
                           </div>
@@ -442,14 +472,18 @@ export default function DividendCalendarPage() {
               </div>
 
               {/* Legend */}
-              <div className="flex items-center gap-6 mt-6 pt-4 border-t border-[var(--theme-card-border)]">
+              <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-6 pt-4 border-t border-[var(--theme-card-border)]">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded bg-cosmic/30 border border-cosmic" />
                   <span className="text-xs text-muted">Today</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded bg-gain/30 border border-gain/50" />
-                  <span className="text-xs text-muted">Ex-Dividend Date</span>
+                  <span className="text-xs text-muted">Ex-Dividend</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-nebula/30 border border-nebula/50" />
+                  <span className="text-xs text-muted">Estimated ~</span>
                 </div>
               </div>
             </div>
@@ -490,7 +524,11 @@ export default function DividendCalendarPage() {
                       {upcomingDividends.map((dividend) => (
                         <div
                           key={dividend.symbol}
-                          className="p-3 rounded-lg bg-gain/10 border border-gain/30 hover:border-gain/50 transition-colors"
+                          className={`p-3 rounded-lg transition-colors ${
+                            dividend.isEstimated
+                              ? "bg-nebula/10 border border-nebula/30 hover:border-nebula/50"
+                              : "bg-gain/10 border border-gain/30 hover:border-gain/50"
+                          }`}
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div>
@@ -498,7 +536,7 @@ export default function DividendCalendarPage() {
                               <p className="text-xs text-muted truncate max-w-[140px]">{dividend.name}</p>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm font-bold text-gain">
+                              <p className={`text-sm font-bold ${dividend.isEstimated ? "text-nebula" : "text-gain"}`}>
                                 {formatCurrency(dividend.expectedPayout)}
                               </p>
                               <p className="text-[10px] text-subtle">expected</p>
@@ -506,18 +544,23 @@ export default function DividendCalendarPage() {
                           </div>
 
                           <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center gap-1 text-gain">
+                            <div className={`flex items-center gap-1 ${dividend.isEstimated ? "text-nebula" : "text-gain"}`}>
                               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
-                              <span>Ex: {formatDate(dividend.exDividendDate!)}</span>
+                              <span>Ex: {formatDate(dividend.exDividendDate!)}{dividend.isEstimated ? " ~" : ""}</span>
                             </div>
                             {dividend.dividendYield && (
-                              <span className="text-nebula font-medium">
+                              <span className="text-muted font-medium">
                                 {dividend.dividendYield.toFixed(2)}%
                               </span>
                             )}
                           </div>
+                          {dividend.isEstimated && (
+                            <p className="text-[10px] text-nebula/70 mt-1 italic">
+                              Estimated based on quarterly schedule
+                            </p>
+                          )}
                         </div>
                       ))}
 
@@ -576,7 +619,7 @@ export default function DividendCalendarPage() {
         {/* Info Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-subtle max-w-2xl mx-auto">
-            Ex-dividend dates shown are approximate and based on historical patterns.
+            Dates marked with ~ are estimated based on quarterly dividend schedules.
             To receive a dividend, you must own the stock before the ex-dividend date.
             Actual payment dates may vary.
           </p>
