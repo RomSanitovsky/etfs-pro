@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import type { CashCurrency, CashHoldingWithMetrics } from "@/lib/types";
 import { CASH_CURRENCIES, getCurrencySymbol } from "@/lib/constants";
@@ -33,12 +33,19 @@ export function AddCashModal({
 
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Get currencies that haven't been added yet (for add mode)
-  const availableCurrencies = isEditMode
-    ? CASH_CURRENCIES
-    : CASH_CURRENCIES.filter(
-        (c) => !existingCash.some((ec) => ec.currency === c.code)
-      );
+  // Get currencies that haven't been added yet (for add mode) - memoized to prevent infinite loops
+  const existingCurrencies = useMemo(
+    () => existingCash.map((ec) => ec.currency),
+    [existingCash]
+  );
+
+  const availableCurrencies = useMemo(
+    () =>
+      isEditMode
+        ? CASH_CURRENCIES
+        : CASH_CURRENCIES.filter((c) => !existingCurrencies.includes(c.code)),
+    [isEditMode, existingCurrencies]
+  );
 
   // Reset form when modal opens
   useEffect(() => {
@@ -48,12 +55,16 @@ export function AddCashModal({
         setBalance(String(editingCash.balance));
       } else {
         // Default to first available currency
-        setCurrency(availableCurrencies[0]?.code ?? "USD");
+        const firstAvailable = CASH_CURRENCIES.find(
+          (c) => !existingCurrencies.includes(c.code)
+        );
+        setCurrency(firstAvailable?.code ?? "USD");
         setBalance("");
       }
       setError(null);
     }
-  }, [isOpen, editingCash, availableCurrencies]);
+    // Only depend on isOpen and editingCash - not on computed arrays
+  }, [isOpen, editingCash, existingCurrencies]);
 
   // Close on escape key
   useEffect(() => {
