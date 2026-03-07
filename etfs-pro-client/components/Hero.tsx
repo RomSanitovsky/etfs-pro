@@ -7,7 +7,7 @@ import { Logo } from "@/components/Logo";
 export function Hero() {
   const { user, loading } = useAuth();
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex flex-col items-center justify-center">
       {/* Animated gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="hero-orb hero-orb-1" />
