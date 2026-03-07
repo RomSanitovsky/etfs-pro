@@ -19,7 +19,8 @@ import {
   deletePortfolioTransaction,
   deletePortfolioHolding,
   subscribeToPortfolioWithCash,
-  addOrUpdateCashHolding,
+  addCashHolding,
+  updateCashHolding,
   deleteCashHolding as deleteCashHoldingFirestore,
   getCashHoldings,
 } from "@/lib/firebase/firestore";
@@ -34,9 +35,9 @@ interface UsePortfolioReturn {
   editTransaction: (input: EditTransactionInput) => Promise<void>;
   deleteTransaction: (symbol: string, transactionId: string) => Promise<void>;
   deleteHolding: (symbol: string) => Promise<void>;
-  addCash: (currency: CashCurrency, balance: number) => Promise<void>;
-  updateCash: (currency: CashCurrency, balance: number) => Promise<void>;
-  deleteCash: (currency: CashCurrency) => Promise<void>;
+  addCash: (currency: CashCurrency, balance: number, notes?: string) => Promise<void>;
+  updateCash: (id: string, balance: number, notes?: string) => Promise<void>;
+  deleteCash: (id: string) => Promise<void>;
   refreshPrices: () => Promise<void>;
 }
 
@@ -344,7 +345,7 @@ export function usePortfolio(): UsePortfolioReturn {
 
   // Cash CRUD operations
   const addCash = useCallback(
-    async (currency: CashCurrency, balance: number) => {
+    async (currency: CashCurrency, balance: number, notes?: string) => {
       if (!user) {
         setError("Must be logged in to add cash");
         return;
@@ -358,7 +359,7 @@ export function usePortfolio(): UsePortfolioReturn {
       setError(null);
 
       try {
-        await addOrUpdateCashHolding(user.uid, currency, balance);
+        await addCashHolding(user.uid, currency, balance, notes);
         // Subscription will update the cash holdings
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to add cash");
@@ -369,7 +370,7 @@ export function usePortfolio(): UsePortfolioReturn {
   );
 
   const updateCash = useCallback(
-    async (currency: CashCurrency, balance: number) => {
+    async (id: string, balance: number, notes?: string) => {
       if (!user) {
         setError("Must be logged in to update cash");
         return;
@@ -378,7 +379,7 @@ export function usePortfolio(): UsePortfolioReturn {
       setError(null);
 
       try {
-        await addOrUpdateCashHolding(user.uid, currency, balance);
+        await updateCashHolding(user.uid, id, balance, notes);
         // Subscription will update the cash holdings
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to update cash");
@@ -389,7 +390,7 @@ export function usePortfolio(): UsePortfolioReturn {
   );
 
   const deleteCash = useCallback(
-    async (currency: CashCurrency) => {
+    async (id: string) => {
       if (!user) {
         setError("Must be logged in to delete cash");
         return;
@@ -398,7 +399,7 @@ export function usePortfolio(): UsePortfolioReturn {
       setError(null);
 
       try {
-        await deleteCashHoldingFirestore(user.uid, currency);
+        await deleteCashHoldingFirestore(user.uid, id);
         // Subscription will update the cash holdings
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to delete cash");

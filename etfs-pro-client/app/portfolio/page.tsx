@@ -7,7 +7,7 @@ import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolio } from "@/hooks/usePortfolio";
-import type { AddTransactionInput, CashCurrency } from "@/lib/types";
+import type { AddTransactionInput, CashCurrency, CashHoldingWithMetrics } from "@/lib/types";
 import {
   PortfolioSummaryCards,
   PortfolioTable,
@@ -85,28 +85,40 @@ export default function PortfolioPage() {
   }, []);
 
   const handleCashModalSubmit = useCallback(
-    async (currency: CashCurrency, balance: number) => {
-      if (editingCash) {
-        await updateCash(currency, balance);
-      } else {
-        await addCash(currency, balance);
-      }
+    async (currency: CashCurrency, balance: number, notes?: string) => {
+      await addCash(currency, balance, notes);
     },
-    [editingCash, updateCash, addCash]
+    [addCash]
   );
 
-  const handleEditCash = useCallback((currency: CashCurrency, balance: number) => {
-    setEditingCash({ currency, balance });
+  const handleCashModalUpdate = useCallback(
+    async (id: string, balance: number, notes?: string) => {
+      await updateCash(id, balance, notes);
+    },
+    [updateCash]
+  );
+
+  const handleEditCash = useCallback((cash: CashHoldingWithMetrics) => {
+    setEditingCash({
+      id: cash.id,
+      currency: cash.currency,
+      balance: cash.balance,
+      notes: cash.notes,
+    });
     setIsCashModalOpen(true);
   }, []);
 
   const handleDeleteCash = useCallback(
-    async (currency: CashCurrency) => {
-      if (window.confirm(`Are you sure you want to delete your ${currency} cash holding?`)) {
-        await deleteCash(currency);
+    async (id: string) => {
+      const cash = cashHoldings.find((c) => c.id === id);
+      const description = cash?.notes
+        ? `${cash.currency} (${cash.notes})`
+        : cash?.currency || "this cash holding";
+      if (window.confirm(`Are you sure you want to delete ${description}?`)) {
+        await deleteCash(id);
       }
     },
-    [deleteCash]
+    [deleteCash, cashHoldings]
   );
 
   // Export options for the dropdown
@@ -338,7 +350,7 @@ export default function PortfolioPage() {
         isOpen={isCashModalOpen}
         onClose={handleCashModalClose}
         onSubmit={handleCashModalSubmit}
-        existingCash={cashHoldings}
+        onUpdate={handleCashModalUpdate}
         editingCash={editingCash}
       />
     </div>

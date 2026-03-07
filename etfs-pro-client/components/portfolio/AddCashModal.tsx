@@ -1,20 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import type { CashCurrency, CashHoldingWithMetrics } from "@/lib/types";
+import type { CashCurrency } from "@/lib/types";
 import { CASH_CURRENCIES, getCurrencySymbol } from "@/lib/constants";
 
 export interface EditingCash {
+  id: string;
   currency: CashCurrency;
   balance: number;
+  notes?: string;
 }
 
 interface AddCashModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (currency: CashCurrency, balance: number) => Promise<void>;
-  existingCash?: CashHoldingWithMetrics[];
+  onSubmit: (currency: CashCurrency, balance: number, notes?: string) => Promise<void>;
+  onUpdate?: (id: string, balance: number, notes?: string) => Promise<void>;
   editingCash?: EditingCash | null;
 }
 
@@ -22,30 +24,17 @@ export function AddCashModal({
   isOpen,
   onClose,
   onSubmit,
-  existingCash = [],
+  onUpdate,
   editingCash,
 }: AddCashModalProps) {
   const isEditMode = !!editingCash;
   const [currency, setCurrency] = useState<CashCurrency>("USD");
   const [balance, setBalance] = useState("");
+  const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const modalRef = useRef<HTMLDivElement>(null);
-
-  // Get currencies that haven't been added yet (for add mode) - memoized to prevent infinite loops
-  const existingCurrencies = useMemo(
-    () => existingCash.map((ec) => ec.currency),
-    [existingCash]
-  );
-
-  const availableCurrencies = useMemo(
-    () =>
-      isEditMode
-        ? CASH_CURRENCIES
-        : CASH_CURRENCIES.filter((c) => !existingCurrencies.includes(c.code)),
-    [isEditMode, existingCurrencies]
-  );
 
   // Reset form when modal opens
   useEffect(() => {
@@ -53,18 +42,15 @@ export function AddCashModal({
       if (editingCash) {
         setCurrency(editingCash.currency);
         setBalance(String(editingCash.balance));
+        setNotes(editingCash.notes || "");
       } else {
-        // Default to first available currency
-        const firstAvailable = CASH_CURRENCIES.find(
-          (c) => !existingCurrencies.includes(c.code)
-        );
-        setCurrency(firstAvailable?.code ?? "USD");
+        setCurrency("USD");
         setBalance("");
+        setNotes("");
       }
       setError(null);
     }
-    // Only depend on isOpen and editingCash - not on computed arrays
-  }, [isOpen, editingCash, existingCurrencies]);
+  }, [isOpen, editingCash]);
 
   // Close on escape key
   useEffect(() => {
@@ -100,7 +86,11 @@ export function AddCashModal({
     setIsSubmitting(true);
 
     try {
-      await onSubmit(currency, parseFloat(balance));
+      if (isEditMode && onUpdate) {
+        await onUpdate(editingCash.id, parseFloat(balance), notes.trim() || undefined);
+      } else {
+        await onSubmit(currency, parseFloat(balance), notes.trim() || undefined);
+      }
       onClose();
     } catch (err) {
       setError(
@@ -117,45 +107,6 @@ export function AddCashModal({
 
   if (!isOpen) return null;
 
-  // No available currencies left
-  if (!isEditMode && availableCurrencies.length === 0) {
-    return createPortal(
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-        onClick={handleBackdropClick}
-      >
-        <div
-          ref={modalRef}
-          className="w-full max-w-md rounded-2xl border border-[var(--theme-card-border)] bg-surface/95 backdrop-blur-md shadow-2xl overflow-hidden"
-        >
-          <div className="px-6 py-4 bg-gradient-to-r from-nebula/40 to-cosmic/40 border-b border-[var(--theme-card-border)]">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">Add Cash</h2>
-              <button
-                onClick={onClose}
-                className="p-1 rounded hover:bg-surface/50 transition-colors text-muted hover:text-foreground"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div className="p-6 text-center">
-            <p className="text-muted">You have already added all supported currencies.</p>
-            <button
-              onClick={onClose}
-              className="mt-4 px-4 py-2 rounded-lg border border-[var(--theme-card-border)] text-foreground/80 hover:bg-surface hover:text-foreground transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>,
-      document.body
-    );
-  }
-
   const currencyInfo = CASH_CURRENCIES.find((c) => c.code === currency);
 
   return createPortal(
@@ -171,7 +122,7 @@ export function AddCashModal({
         <div className="shrink-0 px-6 py-4 bg-gradient-to-r from-nebula/40 to-cosmic/40 border-b border-[var(--theme-card-border)]">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground">
-              {isEditMode ? "Edit Cash Balance" : "Add Cash"}
+              {isEditMode ? "Edit Cash Entry" : "Add Cash"}
             </h2>
             <button
               onClick={onClose}
@@ -206,7 +157,7 @@ export function AddCashModal({
                          focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
                          transition-colors disabled:opacity-60"
             >
-              {(isEditMode ? CASH_CURRENCIES : availableCurrencies).map((c) => (
+              {CASH_CURRENCIES.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.symbol} {c.code} - {c.name}
                 </option>
@@ -239,9 +190,26 @@ export function AddCashModal({
             </div>
           </div>
 
+          {/* Notes */}
+          <div>
+            <label className="block text-sm font-medium text-foreground/80 mb-1.5">
+              Notes <span className="text-subtle">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="e.g., Savings account, Brokerage cash..."
+              className="w-full px-4 py-2.5 rounded-lg bg-surface-alt/50 border border-[var(--theme-card-border)]
+                         text-foreground placeholder-subtle
+                         focus:outline-none focus:ring-2 focus:ring-cosmic/50 focus:border-cosmic/50
+                         transition-colors"
+            />
+          </div>
+
           {/* Info text */}
           <p className="text-xs text-muted">
-            Cash holdings are tracked separately and converted to USD for portfolio totals.
+            You can add multiple entries of the same currency (e.g., different accounts).
           </p>
 
           {/* Actions */}

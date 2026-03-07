@@ -369,51 +369,59 @@ export async function deletePortfolioHolding(uid: string, symbol: string): Promi
 
 // Cash holding functions
 
-function convertCashHoldingFromFirestore(symbol: string, data: Record<string, unknown>): CashHolding {
+function convertCashHoldingFromFirestore(docId: string, data: Record<string, unknown>): CashHolding {
   return {
-    symbol,
-    currency: (data.currency as CashCurrency) || symbol.replace(CASH_SYMBOL_PREFIX, "") as CashCurrency,
+    id: docId,
+    currency: data.currency as CashCurrency,
     balance: (data.balance as number) || 0,
+    notes: data.notes as string | undefined,
     createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
     updatedAt: data.updatedAt ? (data.updatedAt as Timestamp).toDate() : new Date(),
   };
 }
 
-export function isCashHolding(symbol: string): boolean {
-  return symbol.startsWith(CASH_SYMBOL_PREFIX);
+export function isCashHolding(docId: string): boolean {
+  return docId.startsWith(CASH_SYMBOL_PREFIX);
 }
 
-export async function addOrUpdateCashHolding(
+export async function addCashHolding(
   uid: string,
   currency: CashCurrency,
-  balance: number
-): Promise<void> {
-  const symbol = `${CASH_SYMBOL_PREFIX}${currency}`;
-  const holdingRef = doc(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION, symbol);
-  const holdingSnap = await getDoc(holdingRef);
+  balance: number,
+  notes?: string
+): Promise<string> {
+  const portfolioRef = collection(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION);
+  const cashId = `${CASH_SYMBOL_PREFIX}${currency}-${crypto.randomUUID().slice(0, 8)}`;
+  const cashRef = doc(portfolioRef, cashId);
 
-  if (holdingSnap.exists()) {
-    // Update existing cash holding
-    await updateDoc(holdingRef, {
-      balance,
-      updatedAt: serverTimestamp(),
-    });
-  } else {
-    // Create new cash holding
-    await setDoc(holdingRef, {
-      symbol,
-      currency,
-      balance,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-  }
+  await setDoc(cashRef, {
+    currency,
+    balance,
+    ...(notes ? { notes } : {}),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return cashId;
 }
 
-export async function deleteCashHolding(uid: string, currency: CashCurrency): Promise<void> {
-  const symbol = `${CASH_SYMBOL_PREFIX}${currency}`;
-  const holdingRef = doc(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION, symbol);
-  await deleteDoc(holdingRef);
+export async function updateCashHolding(
+  uid: string,
+  cashId: string,
+  balance: number,
+  notes?: string
+): Promise<void> {
+  const cashRef = doc(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION, cashId);
+  await updateDoc(cashRef, {
+    balance,
+    ...(notes !== undefined ? { notes: notes || null } : {}),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteCashHolding(uid: string, cashId: string): Promise<void> {
+  const cashRef = doc(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION, cashId);
+  await deleteDoc(cashRef);
 }
 
 export async function getCashHoldings(uid: string): Promise<CashHolding[]> {
@@ -421,8 +429,8 @@ export async function getCashHoldings(uid: string): Promise<CashHolding[]> {
   const snapshot = await getDocs(portfolioRef);
 
   return snapshot.docs
-    .filter((doc) => doc.id.startsWith(CASH_SYMBOL_PREFIX))
-    .map((doc) => convertCashHoldingFromFirestore(doc.id, doc.data()));
+    .filter((docSnap) => docSnap.id.startsWith(CASH_SYMBOL_PREFIX))
+    .map((docSnap) => convertCashHoldingFromFirestore(docSnap.id, docSnap.data()));
 }
 
 export function subscribeToPortfolio(

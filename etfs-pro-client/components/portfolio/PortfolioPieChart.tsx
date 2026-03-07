@@ -10,9 +10,17 @@ import {
   Tooltip,
 } from "recharts";
 import type { PieLabelRenderProps } from "recharts";
-import type { PortfolioHoldingWithMetrics, CashHoldingWithMetrics } from "@/lib/types";
+import type { PortfolioHoldingWithMetrics, CashHoldingWithMetrics, CashCurrency } from "@/lib/types";
 import { formatCurrency } from "@/lib/calculations";
 import { getCurrencyName } from "@/lib/constants";
+
+interface GroupedCash {
+  currency: CashCurrency;
+  totalBalance: number;
+  totalValueInUSD: number;
+  allocationPercent: number;
+  entryCount: number;
+}
 
 interface PortfolioPieChartProps {
   holdings: PortfolioHoldingWithMetrics[];
@@ -126,11 +134,29 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
       .sort((a, b) => b.currentValue - a.currentValue);
   }, [holdings]);
 
-  // Process cash holdings for display
-  const cashDetails = useMemo(() => {
-    return cashHoldings
-      .filter((c) => c.valueInUSD > 0)
-      .sort((a, b) => b.valueInUSD - a.valueInUSD);
+  // Process cash holdings for display - group by currency
+  const cashDetails = useMemo((): GroupedCash[] => {
+    const groups: Record<CashCurrency, GroupedCash> = {} as Record<CashCurrency, GroupedCash>;
+
+    for (const cash of cashHoldings) {
+      if (cash.valueInUSD <= 0) continue;
+
+      if (!groups[cash.currency]) {
+        groups[cash.currency] = {
+          currency: cash.currency,
+          totalBalance: 0,
+          totalValueInUSD: 0,
+          allocationPercent: 0,
+          entryCount: 0,
+        };
+      }
+      groups[cash.currency].totalBalance += cash.balance;
+      groups[cash.currency].totalValueInUSD += cash.valueInUSD;
+      groups[cash.currency].allocationPercent += cash.allocationPercent;
+      groups[cash.currency].entryCount += 1;
+    }
+
+    return Object.values(groups).sort((a, b) => b.totalValueInUSD - a.totalValueInUSD);
   }, [cashHoldings]);
 
   // Split holdings AND cash into visible (above threshold) and others (below threshold)
@@ -143,7 +169,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
     const visibleH = holdingsDetails.filter((h) => h.allocationPercent >= breakdownThreshold);
     const othersH = holdingsDetails.filter((h) => h.allocationPercent < breakdownThreshold);
 
-    // Filter cash holdings by the same threshold
+    // Filter grouped cash holdings by the same threshold
     const visibleC = cashDetails.filter((c) => c.allocationPercent >= breakdownThreshold);
     const othersC = cashDetails.filter((c) => c.allocationPercent < breakdownThreshold);
 
@@ -155,7 +181,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
 
     // Combine holdings and cash into "Others"
     const othersHoldingsValue = othersH.reduce((s, h) => s + h.currentValue, 0);
-    const othersCashValue = othersC.reduce((s, c) => s + c.valueInUSD, 0);
+    const othersCashValue = othersC.reduce((s, c) => s + c.totalValueInUSD, 0);
     const othersValue = othersHoldingsValue + othersCashValue;
 
     const othersHoldingsAlloc = othersH.reduce((s, h) => s + h.allocationPercent, 0);
@@ -203,12 +229,12 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
       colors.push(OTHERS_COLOR);
     }
 
-    // Add visible cash holdings (those above threshold)
+    // Add visible cash holdings (grouped by currency, those above threshold)
     visibleCash.forEach((cash, i) => {
       visible.push({
         symbol: cash.currency,
         name: getCurrencyName(cash.currency),
-        value: cash.valueInUSD,
+        value: cash.totalValueInUSD,
         allocation: cash.allocationPercent,
         isCash: true,
       });
@@ -221,7 +247,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
   if (!pieData.length) return null;
 
   const totalSecuritiesValue = holdingsDetails.reduce((s, h) => s + h.currentValue, 0);
-  const totalCashValue = cashDetails.reduce((s, c) => s + c.valueInUSD, 0);
+  const totalCashValue = cashDetails.reduce((s, c) => s + c.totalValueInUSD, 0);
   const totalValue = totalSecuritiesValue + totalCashValue;
 
   return (
@@ -396,7 +422,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
               </div>
             )}
 
-            {/* Cash holdings rows (only those above threshold) */}
+            {/* Cash holdings rows (grouped by currency, only those above threshold) */}
             {visibleCash.map((cash, index) => (
               <div
                 key={cash.currency}
@@ -409,7 +435,10 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-foreground">{cash.currency}</span>
-                    <span className="text-xs text-muted">{getCurrencyName(cash.currency)}</span>
+                    <span className="text-xs text-muted">
+                      {getCurrencyName(cash.currency)}
+                      {cash.entryCount > 1 && ` (${cash.entryCount} entries)`}
+                    </span>
                   </div>
                   <div className="mt-1 h-1 rounded-full bg-surface/50 overflow-hidden">
                     <div
@@ -424,7 +453,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-sm font-mono font-semibold text-foreground">
-                    {formatCurrency(cash.valueInUSD)}
+                    {formatCurrency(cash.totalValueInUSD)}
                   </div>
                   <div className="text-xs text-muted">
                     Cash

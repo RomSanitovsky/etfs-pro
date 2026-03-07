@@ -198,9 +198,10 @@ export interface EditTransactionInput extends AddTransactionInput {
 export type CashCurrency = "USD" | "EUR" | "GBP" | "JPY" | "ILS" | "CHF" | "CAD" | "AUD";
 
 export interface CashHolding {
-  symbol: string; // e.g., "CASH-USD"
+  id: string; // Unique ID for this cash entry
   currency: CashCurrency;
   balance: number;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -211,8 +212,18 @@ export interface CashHoldingWithMetrics extends CashHolding {
   allocationPercent: number;
 }
 
+// Grouped cash holdings by currency for display
+export interface GroupedCashHolding {
+  currency: CashCurrency;
+  entries: CashHoldingWithMetrics[];
+  totalBalance: number;
+  totalValueInUSD: number;
+  allocationPercent: number;
+}
+
 export interface AddCashInput {
   currency: CashCurrency;
   balance: number;
+  notes?: string;
 }
 
