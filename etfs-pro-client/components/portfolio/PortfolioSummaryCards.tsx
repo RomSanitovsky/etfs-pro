@@ -21,6 +21,15 @@ function StatCard({ title, value, subtitle, icon, valueColor = "default" }: Stat
     valueColor === "green" ? "text-gain drop-shadow-[0_0_10px_var(--theme-gain)]" :
     "text-foreground";
 
+  // Determine font size based on value length
+  const getFontSizeClass = (val: string) => {
+    const len = val.length;
+    if (len > 12) return "text-sm sm:text-base";
+    if (len > 10) return "text-base sm:text-lg";
+    if (len > 8) return "text-lg sm:text-xl";
+    return "text-xl sm:text-2xl";
+  };
+
   return (
     <div className="group relative rounded-xl p-4 transition-all duration-300 hover:scale-[1.03] overflow-hidden">
       {/* Outer glow on hover */}
@@ -48,7 +57,7 @@ function StatCard({ title, value, subtitle, icon, valueColor = "default" }: Stat
           </div>
         </div>
 
-        <div className={`text-2xl font-bold ${valueColorClass} font-mono tracking-tight h-8 flex items-center`}>
+        <div className={`${getFontSizeClass(value)} font-bold ${valueColorClass} font-mono tracking-tight min-h-[2rem] flex items-center`}>
           {value}
         </div>
 
