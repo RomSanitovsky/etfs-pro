@@ -171,17 +171,18 @@ export function ExportButton({
       {hasOptions && isOpen && (
         <div
           className="absolute right-0 mt-2 w-64 rounded-xl overflow-hidden z-50
-                     bg-[#0d1117] border border-[var(--theme-card-border)]
+                     border border-[var(--theme-card-border)]
                      shadow-xl shadow-black/40
                      animate-in fade-in slide-in-from-top-2 duration-200"
+          style={{ backgroundColor: '#0d1117' }}
         >
           {/* Header */}
-          <div className="px-4 py-3 border-b border-[var(--theme-card-border)] bg-gradient-to-r from-cosmic/10 to-nebula/10">
+          <div className="px-4 py-3 border-b border-[var(--theme-card-border)]" style={{ backgroundColor: '#161b22' }}>
             <p className="text-xs font-semibold text-muted uppercase tracking-wider">Export Options</p>
           </div>
 
           {/* Options */}
-          <div className="py-2">
+          <div className="py-2" style={{ backgroundColor: '#0d1117' }}>
             {options.map((option) => (
               <button
                 key={option.id}
