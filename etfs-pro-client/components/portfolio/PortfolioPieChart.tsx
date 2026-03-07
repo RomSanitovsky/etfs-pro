@@ -10,11 +10,13 @@ import {
   Tooltip,
 } from "recharts";
 import type { PieLabelRenderProps } from "recharts";
-import type { PortfolioHoldingWithMetrics } from "@/lib/types";
+import type { PortfolioHoldingWithMetrics, CashHoldingWithMetrics } from "@/lib/types";
 import { formatCurrency } from "@/lib/calculations";
+import { getCurrencyName } from "@/lib/constants";
 
 interface PortfolioPieChartProps {
   holdings: PortfolioHoldingWithMetrics[];
+  cashHoldings?: CashHoldingWithMetrics[];
 }
 
 const THRESHOLD_OPTIONS = [0, 3, 5, 10, 15, 20];
@@ -39,11 +41,24 @@ const COLORS = [
   "#fb923c", // light orange
 ];
 
+// Green shades for cash holdings
+const CASH_COLORS = [
+  "#22c55e", // green-500
+  "#16a34a", // green-600
+  "#15803d", // green-700
+  "#166534", // green-800
+  "#14532d", // green-900
+  "#4ade80", // green-400
+  "#86efac", // green-300
+  "#bbf7d0", // green-200
+];
+
 interface ChartDataItem {
   symbol: string;
   name: string;
   value: number;
   allocation: number;
+  isCash?: boolean;
 }
 
 function CustomTooltip({
@@ -103,13 +118,20 @@ function renderCustomLabel(props: PieLabelRenderProps) {
   );
 }
 
-export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
+export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieChartProps) {
   const [breakdownThreshold, setBreakdownThreshold] = useState(5);
   const holdingsDetails = useMemo(() => {
     return holdings
       .filter((h) => h.currentValue > 0)
       .sort((a, b) => b.currentValue - a.currentValue);
   }, [holdings]);
+
+  // Process cash holdings for display
+  const cashDetails = useMemo(() => {
+    return cashHoldings
+      .filter((c) => c.valueInUSD > 0)
+      .sort((a, b) => b.valueInUSD - a.valueInUSD);
+  }, [cashHoldings]);
 
   // Split holdings into visible (above threshold) and others (below threshold)
   const { visibleHoldings, othersAggregate } = useMemo(() => {
@@ -136,13 +158,14 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
     };
   }, [holdingsDetails, breakdownThreshold]);
 
-  // Build pie chart data: visible holdings + combined "Others" slice
+  // Build pie chart data: visible holdings + combined "Others" slice + cash holdings
   const { pieData, pieColors } = useMemo(() => {
-    const visible = visibleHoldings.map((h, i) => ({
+    const visible = visibleHoldings.map((h) => ({
       symbol: h.symbol,
       name: h.name || h.symbol,
       value: h.currentValue,
       allocation: h.allocationPercent,
+      isCash: false,
     }));
     const colors = visibleHoldings.map((_, i) => COLORS[i % COLORS.length]);
 
@@ -152,16 +175,31 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
         name: `${othersAggregate.count} holdings`,
         value: othersAggregate.currentValue,
         allocation: othersAggregate.allocationPercent,
+        isCash: false,
       });
       colors.push(OTHERS_COLOR);
     }
 
+    // Add cash holdings
+    cashDetails.forEach((cash, i) => {
+      visible.push({
+        symbol: cash.currency,
+        name: getCurrencyName(cash.currency),
+        value: cash.valueInUSD,
+        allocation: cash.allocationPercent,
+        isCash: true,
+      });
+      colors.push(CASH_COLORS[i % CASH_COLORS.length]);
+    });
+
     return { pieData: visible, pieColors: colors };
-  }, [visibleHoldings, othersAggregate]);
+  }, [visibleHoldings, othersAggregate, cashDetails]);
 
   if (!pieData.length) return null;
 
-  const totalValue = holdingsDetails.reduce((s, h) => s + h.currentValue, 0);
+  const totalSecuritiesValue = holdingsDetails.reduce((s, h) => s + h.currentValue, 0);
+  const totalCashValue = cashDetails.reduce((s, c) => s + c.valueInUSD, 0);
+  const totalValue = totalSecuritiesValue + totalCashValue;
 
   return (
     <div className="mb-6">
@@ -327,6 +365,43 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
               </div>
             )}
 
+            {/* Cash holdings rows */}
+            {cashDetails.map((cash, index) => (
+              <div
+                key={cash.currency}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-surface/30 transition-colors"
+              >
+                <span
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{ backgroundColor: CASH_COLORS[index % CASH_COLORS.length] }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-foreground">{cash.currency}</span>
+                    <span className="text-xs text-muted">{getCurrencyName(cash.currency)}</span>
+                  </div>
+                  <div className="mt-1 h-1 rounded-full bg-surface/50 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${cash.allocationPercent}%`,
+                        backgroundColor: CASH_COLORS[index % CASH_COLORS.length],
+                        opacity: 0.7,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-sm font-mono font-semibold text-foreground">
+                    {formatCurrency(cash.valueInUSD)}
+                  </div>
+                  <div className="text-xs text-muted">
+                    Cash
+                  </div>
+                </div>
+              </div>
+            ))}
+
             {/* Total row */}
             <div className="flex items-center gap-3 px-3 py-2.5 mt-1 rounded-lg border-t border-[var(--theme-card-border)]">
               <span className="w-3 h-3 shrink-0" />
@@ -339,6 +414,7 @@ export function PortfolioPieChart({ holdings }: PortfolioPieChartProps) {
                 </div>
                 <div className="text-xs text-muted">
                   {holdingsDetails.length} holding{holdingsDetails.length !== 1 ? "s" : ""}
+                  {cashDetails.length > 0 && ` + ${cashDetails.length} cash`}
                 </div>
               </div>
             </div>

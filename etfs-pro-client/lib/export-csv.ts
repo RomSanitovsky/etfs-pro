@@ -1,4 +1,5 @@
-import type { StockData, PortfolioHoldingWithMetrics, PortfolioSummary } from "./types";
+import type { StockData, PortfolioHoldingWithMetrics, PortfolioSummary, CashHoldingWithMetrics } from "./types";
+import { getCurrencyName, getCurrencySymbol } from "./constants";
 
 /**
  * Escapes a CSV field value to handle commas, quotes, and newlines
@@ -136,9 +137,10 @@ export function exportWatchlistToCSV(stocks: StockData[]): void {
  */
 export function exportPortfolioToCSV(
   holdings: PortfolioHoldingWithMetrics[],
-  summary: PortfolioSummary | null
+  summary: PortfolioSummary | null,
+  cashHoldings: CashHoldingWithMetrics[] = []
 ): void {
-  if (holdings.length === 0) return;
+  if (holdings.length === 0 && cashHoldings.length === 0) return;
 
   const headers = [
     "Symbol",
@@ -181,7 +183,7 @@ export function exportPortfolioToCSV(
     [`Total Value: ${summary ? formatCurrency(summary.totalValue) : "-"}`],
     [`Total Cost: ${summary ? formatCurrency(summary.totalCost) : "-"}`],
     [`Total P&L: ${summary ? formatCurrency(summary.totalPnL) : "-"} (${summary ? formatPercent(summary.totalPnLPercent) : "-"})`],
-    [`Holdings: ${summary?.holdingsCount || holdings.length}`],
+    [`Holdings: ${summary?.holdingsCount || holdings.length}${cashHoldings.length > 0 ? ` + ${cashHoldings.length} cash` : ""}`],
     [`Expected Annual Dividends: ${summary ? formatCurrency(summary.expectedAnnualDividend) : "-"}`],
     [`Portfolio Yield: ${summary ? formatNumber(summary.portfolioDividendYield) + "%" : "-"}`],
     summary?.topGainer
@@ -194,13 +196,79 @@ export function exportPortfolioToCSV(
     ["HOLDINGS"],
   ].filter((row) => row.length > 0);
 
+  let csvContent = [
+    ...summarySection.map((row) => row.join(",")),
+    headers.join(","),
+    ...rows.map((row) => row.join(",")),
+  ].join("\n");
+
+  // Add cash holdings section if present
+  if (cashHoldings.length > 0) {
+    const cashHeaders = ["Currency", "Name", "Balance", "Value (USD)", "Exchange Rate", "Allocation %"];
+    const cashRows = cashHoldings.map((cash) => [
+      escapeCSVField(cash.currency),
+      escapeCSVField(getCurrencyName(cash.currency)),
+      `${getCurrencySymbol(cash.currency)}${formatNumber(cash.balance)}`,
+      formatCurrency(cash.valueInUSD),
+      formatNumber(cash.exchangeRate, 4),
+      formatNumber(cash.allocationPercent) + "%",
+    ]);
+
+    csvContent += "\n\nCASH HOLDINGS\n";
+    csvContent += cashHeaders.join(",") + "\n";
+    csvContent += cashRows.map((row) => row.join(",")).join("\n");
+  }
+
+  const filename = `portfolift-portfolio-${getDateString()}.csv`;
+  downloadCSV(csvContent, filename);
+}
+
+/**
+ * Export cash holdings to CSV
+ */
+export function exportPortfolioCashToCSV(cashHoldings: CashHoldingWithMetrics[]): void {
+  if (cashHoldings.length === 0) return;
+
+  const headers = [
+    "Currency",
+    "Name",
+    "Symbol",
+    "Balance",
+    "Value (USD)",
+    "Exchange Rate",
+    "Allocation %",
+  ];
+
+  const rows = cashHoldings.map((cash) => [
+    escapeCSVField(cash.currency),
+    escapeCSVField(getCurrencyName(cash.currency)),
+    escapeCSVField(getCurrencySymbol(cash.currency)),
+    formatNumber(cash.balance, 2),
+    formatCurrency(cash.valueInUSD),
+    formatNumber(cash.exchangeRate, 4),
+    formatNumber(cash.allocationPercent) + "%",
+  ]);
+
+  const totalValue = cashHoldings.reduce((sum, c) => sum + c.valueInUSD, 0);
+
+  const summarySection = [
+    ["PORTFOLIFT CASH HOLDINGS EXPORT"],
+    [`Generated: ${new Date().toLocaleString()}`],
+    [""],
+    ["SUMMARY"],
+    [`Total Cash Value (USD): ${formatCurrency(totalValue)}`],
+    [`Number of Currencies: ${cashHoldings.length}`],
+    [""],
+    ["CASH HOLDINGS"],
+  ];
+
   const csvContent = [
     ...summarySection.map((row) => row.join(",")),
     headers.join(","),
     ...rows.map((row) => row.join(",")),
   ].join("\n");
 
-  const filename = `portfolift-portfolio-${getDateString()}.csv`;
+  const filename = `portfolift-cash-${getDateString()}.csv`;
   downloadCSV(csvContent, filename);
 }
 

@@ -7,16 +7,18 @@ import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolio } from "@/hooks/usePortfolio";
-import type { AddTransactionInput } from "@/lib/types";
+import type { AddTransactionInput, CashCurrency } from "@/lib/types";
 import {
   PortfolioSummaryCards,
   PortfolioTable,
   AddTransactionModal,
+  AddCashModal,
   EmptyPortfolioState,
 } from "@/components/portfolio";
 import type { EditingTransaction } from "@/components/portfolio/AddTransactionModal";
+import type { EditingCash } from "@/components/portfolio/AddCashModal";
 import { ExportButton, ExportIcons } from "@/components/ExportButton";
-import { exportPortfolioToCSV, exportPortfolioDetailedToCSV } from "@/lib/export-csv";
+import { exportPortfolioToCSV, exportPortfolioDetailedToCSV, exportPortfolioCashToCSV } from "@/lib/export-csv";
 
 const PortfolioPieChart = lazy(() =>
   import("@/components/portfolio/PortfolioPieChart").then((m) => ({ default: m.PortfolioPieChart }))
@@ -27,6 +29,7 @@ export default function PortfolioPage() {
   const { user, loading: authLoading } = useAuth();
   const {
     holdings,
+    cashHoldings,
     summary,
     isLoading,
     error,
@@ -34,11 +37,16 @@ export default function PortfolioPage() {
     editTransaction,
     deleteTransaction,
     deleteHolding,
+    addCash,
+    updateCash,
+    deleteCash,
     refreshPrices,
   } = usePortfolio();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<EditingTransaction | null>(null);
+  const [isCashModalOpen, setIsCashModalOpen] = useState(false);
+  const [editingCash, setEditingCash] = useState<EditingCash | null>(null);
 
   const handleEditTransaction = useCallback(
     (symbol: string, transactionId: string) => {
@@ -71,6 +79,36 @@ export default function PortfolioPage() {
     [editingTransaction, editTransaction, addTransaction]
   );
 
+  const handleCashModalClose = useCallback(() => {
+    setIsCashModalOpen(false);
+    setEditingCash(null);
+  }, []);
+
+  const handleCashModalSubmit = useCallback(
+    async (currency: CashCurrency, balance: number) => {
+      if (editingCash) {
+        await updateCash(currency, balance);
+      } else {
+        await addCash(currency, balance);
+      }
+    },
+    [editingCash, updateCash, addCash]
+  );
+
+  const handleEditCash = useCallback((currency: CashCurrency, balance: number) => {
+    setEditingCash({ currency, balance });
+    setIsCashModalOpen(true);
+  }, []);
+
+  const handleDeleteCash = useCallback(
+    async (currency: CashCurrency) => {
+      if (window.confirm(`Are you sure you want to delete your ${currency} cash holding?`)) {
+        await deleteCash(currency);
+      }
+    },
+    [deleteCash]
+  );
+
   // Export options for the dropdown
   const exportOptions = useMemo(
     () => [
@@ -79,7 +117,7 @@ export default function PortfolioPage() {
         label: "Portfolio Summary",
         description: "Export holdings with current values and P&L",
         icon: ExportIcons.spreadsheet,
-        onClick: () => exportPortfolioToCSV(holdings, summary),
+        onClick: () => exportPortfolioToCSV(holdings, summary, cashHoldings),
       },
       {
         id: "transactions",
@@ -88,8 +126,19 @@ export default function PortfolioPage() {
         icon: ExportIcons.list,
         onClick: () => exportPortfolioDetailedToCSV(holdings),
       },
+      ...(cashHoldings.length > 0
+        ? [
+            {
+              id: "cash",
+              label: "Cash Holdings",
+              description: "Export cash holdings with conversion rates",
+              icon: ExportIcons.spreadsheet,
+              onClick: () => exportPortfolioCashToCSV(cashHoldings),
+            },
+          ]
+        : []),
     ],
-    [holdings, summary]
+    [holdings, summary, cashHoldings]
   );
 
   // Redirect unauthenticated or non-premium users
@@ -185,6 +234,20 @@ export default function PortfolioPage() {
                 </svg>
               </button>
 
+              {/* Add Cash button */}
+              <button
+                onClick={() => setIsCashModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg
+                           border border-gain/50 text-gain font-semibold
+                           hover:bg-gain/10 hover:border-gain
+                           transition-all duration-300"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Add Cash
+              </button>
+
               {/* Add transaction button */}
               <button
                 onClick={() => setIsModalOpen(true)}
@@ -211,12 +274,12 @@ export default function PortfolioPage() {
         )}
 
         {/* Main content */}
-        {holdings.length === 0 && !isLoading ? (
+        {holdings.length === 0 && cashHoldings.length === 0 && !isLoading ? (
           <EmptyPortfolioState onAddTransaction={() => setIsModalOpen(true)} />
         ) : (
           <>
             {/* Summary Cards */}
-            {summary && <PortfolioSummaryCards summary={summary} />}
+            {summary && <PortfolioSummaryCards summary={summary} cashHoldings={cashHoldings} />}
 
             {/* Allocation Pie Chart — lazy loaded */}
             <Suspense fallback={
@@ -231,15 +294,18 @@ export default function PortfolioPage() {
                 </div>
               </div>
             }>
-              <PortfolioPieChart holdings={holdings} />
+              <PortfolioPieChart holdings={holdings} cashHoldings={cashHoldings} />
             </Suspense>
 
             {/* Holdings Table */}
             <PortfolioTable
               holdings={holdings}
+              cashHoldings={cashHoldings}
               onEditTransaction={handleEditTransaction}
               onDeleteTransaction={deleteTransaction}
               onDeleteHolding={deleteHolding}
+              onEditCash={handleEditCash}
+              onDeleteCash={handleDeleteCash}
               isLoading={isLoading}
             />
           </>
@@ -265,6 +331,15 @@ export default function PortfolioPage() {
         onClose={handleModalClose}
         onSubmit={handleModalSubmit}
         editingTransaction={editingTransaction}
+      />
+
+      {/* Add/Edit Cash Modal */}
+      <AddCashModal
+        isOpen={isCashModalOpen}
+        onClose={handleCashModalClose}
+        onSubmit={handleCashModalSubmit}
+        existingCash={cashHoldings}
+        editingCash={editingCash}
       />
     </div>
   );

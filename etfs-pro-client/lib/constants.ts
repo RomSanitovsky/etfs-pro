@@ -47,3 +47,27 @@ export const FREE_FEATURES = [
   "Basic statistics",
   "Real-time price tracking",
 ] as const;
+
+// Cash holdings
+export const CASH_SYMBOL_PREFIX = "CASH-";
+
+export const CASH_CURRENCIES = [
+  { code: "USD" as const, name: "US Dollar", symbol: "$" },
+  { code: "EUR" as const, name: "Euro", symbol: "€" },
+  { code: "GBP" as const, name: "British Pound", symbol: "£" },
+  { code: "JPY" as const, name: "Japanese Yen", symbol: "¥" },
+  { code: "ILS" as const, name: "Israeli Shekel", symbol: "₪" },
+  { code: "CHF" as const, name: "Swiss Franc", symbol: "CHF" },
+  { code: "CAD" as const, name: "Canadian Dollar", symbol: "C$" },
+  { code: "AUD" as const, name: "Australian Dollar", symbol: "A$" },
+] as const;
+
+export function getCurrencySymbol(code: string): string {
+  const currency = CASH_CURRENCIES.find((c) => c.code === code);
+  return currency?.symbol ?? code;
+}
+
+export function getCurrencyName(code: string): string {
+  const currency = CASH_CURRENCIES.find((c) => c.code === code);
+  return currency?.name ?? code;
+}

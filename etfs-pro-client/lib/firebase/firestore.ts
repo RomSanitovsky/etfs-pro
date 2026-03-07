@@ -19,7 +19,8 @@ import {
 } from "firebase/firestore";
 import { User } from "firebase/auth";
 import { db } from "./config";
-import type { UserProfile, PortfolioHolding, PortfolioTransaction, SubscriptionStatus, AddTransactionInput, EditTransactionInput } from "@/lib/types";
+import type { UserProfile, PortfolioHolding, PortfolioTransaction, SubscriptionStatus, AddTransactionInput, EditTransactionInput, CashHolding, CashCurrency } from "@/lib/types";
+import { CASH_SYMBOL_PREFIX } from "@/lib/constants";
 import { DEFAULT_SYMBOLS, DEFAULTS_VERSION, FREE_TIER_SYMBOL_LIMIT, PREMIUM_SYMBOL_LIMIT, STORAGE_KEYS } from "@/lib/constants";
 import { DEFAULT_THEME, themes, type ThemeMode } from "@/lib/themes";
 
@@ -366,6 +367,64 @@ export async function deletePortfolioHolding(uid: string, symbol: string): Promi
   await deleteDoc(holdingRef);
 }
 
+// Cash holding functions
+
+function convertCashHoldingFromFirestore(symbol: string, data: Record<string, unknown>): CashHolding {
+  return {
+    symbol,
+    currency: (data.currency as CashCurrency) || symbol.replace(CASH_SYMBOL_PREFIX, "") as CashCurrency,
+    balance: (data.balance as number) || 0,
+    createdAt: data.createdAt ? (data.createdAt as Timestamp).toDate() : new Date(),
+    updatedAt: data.updatedAt ? (data.updatedAt as Timestamp).toDate() : new Date(),
+  };
+}
+
+export function isCashHolding(symbol: string): boolean {
+  return symbol.startsWith(CASH_SYMBOL_PREFIX);
+}
+
+export async function addOrUpdateCashHolding(
+  uid: string,
+  currency: CashCurrency,
+  balance: number
+): Promise<void> {
+  const symbol = `${CASH_SYMBOL_PREFIX}${currency}`;
+  const holdingRef = doc(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION, symbol);
+  const holdingSnap = await getDoc(holdingRef);
+
+  if (holdingSnap.exists()) {
+    // Update existing cash holding
+    await updateDoc(holdingRef, {
+      balance,
+      updatedAt: serverTimestamp(),
+    });
+  } else {
+    // Create new cash holding
+    await setDoc(holdingRef, {
+      symbol,
+      currency,
+      balance,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  }
+}
+
+export async function deleteCashHolding(uid: string, currency: CashCurrency): Promise<void> {
+  const symbol = `${CASH_SYMBOL_PREFIX}${currency}`;
+  const holdingRef = doc(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION, symbol);
+  await deleteDoc(holdingRef);
+}
+
+export async function getCashHoldings(uid: string): Promise<CashHolding[]> {
+  const portfolioRef = collection(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION);
+  const snapshot = await getDocs(portfolioRef);
+
+  return snapshot.docs
+    .filter((doc) => doc.id.startsWith(CASH_SYMBOL_PREFIX))
+    .map((doc) => convertCashHoldingFromFirestore(doc.id, doc.data()));
+}
+
 export function subscribeToPortfolio(
   uid: string,
   callback: (holdings: PortfolioHolding[]) => void,
@@ -377,10 +436,42 @@ export function subscribeToPortfolio(
   return onSnapshot(
     q,
     (snapshot) => {
-      const holdings = snapshot.docs.map((doc) =>
-        convertHoldingFromFirestore(doc.id, doc.data())
-      );
+      // Filter out cash holdings from regular portfolio holdings
+      const holdings = snapshot.docs
+        .filter((doc) => !doc.id.startsWith(CASH_SYMBOL_PREFIX))
+        .map((doc) => convertHoldingFromFirestore(doc.id, doc.data()));
       callback(holdings);
+    },
+    (error) => {
+      console.error("Portfolio subscription error:", error);
+      onError?.(error);
+    }
+  );
+}
+
+export function subscribeToPortfolioWithCash(
+  uid: string,
+  callback: (data: { holdings: PortfolioHolding[]; cashHoldings: CashHolding[] }) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  const portfolioRef = collection(getDb(), USERS_COLLECTION, uid, PORTFOLIO_SUBCOLLECTION);
+  const q = query(portfolioRef);
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const holdings: PortfolioHolding[] = [];
+      const cashHoldings: CashHolding[] = [];
+
+      for (const docSnap of snapshot.docs) {
+        if (docSnap.id.startsWith(CASH_SYMBOL_PREFIX)) {
+          cashHoldings.push(convertCashHoldingFromFirestore(docSnap.id, docSnap.data()));
+        } else {
+          holdings.push(convertHoldingFromFirestore(docSnap.id, docSnap.data()));
+        }
+      }
+
+      callback({ holdings, cashHoldings });
     },
     (error) => {
       console.error("Portfolio subscription error:", error);

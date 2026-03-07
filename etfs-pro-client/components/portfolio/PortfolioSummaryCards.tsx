@@ -1,10 +1,11 @@
 "use client";
 
-import type { PortfolioSummary } from "@/lib/types";
+import type { PortfolioSummary, CashHoldingWithMetrics } from "@/lib/types";
 import { formatCurrency } from "@/lib/calculations";
 
 interface PortfolioSummaryCardsProps {
   summary: PortfolioSummary;
+  cashHoldings?: CashHoldingWithMetrics[];
 }
 
 interface StatCardProps {
@@ -71,9 +72,15 @@ function StatCard({ title, value, subtitle, icon, valueColor = "default" }: Stat
   );
 }
 
-export function PortfolioSummaryCards({ summary }: PortfolioSummaryCardsProps) {
+export function PortfolioSummaryCards({ summary, cashHoldings = [] }: PortfolioSummaryCardsProps) {
   const pnlColor = summary.totalPnL >= 0 ? "green" : "red";
   const pnlSign = summary.totalPnL >= 0 ? "+" : "";
+
+  // Build holdings subtitle including cash
+  const cashCount = cashHoldings.length;
+  const holdingsSubtitle = cashCount > 0
+    ? `${summary.holdingsCount} securities + ${cashCount} cash`
+    : `${summary.holdingsCount} holdings`;
 
   return (
     <div className="mb-6">
@@ -91,7 +98,7 @@ export function PortfolioSummaryCards({ summary }: PortfolioSummaryCardsProps) {
         <StatCard
           title="Total Value"
           value={formatCurrency(summary.totalValue)}
-          subtitle={`${summary.holdingsCount} holdings`}
+          subtitle={holdingsSubtitle}
           icon={
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

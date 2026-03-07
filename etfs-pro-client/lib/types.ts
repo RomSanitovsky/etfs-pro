@@ -194,3 +194,25 @@ export interface EditTransactionInput extends AddTransactionInput {
   transactionId: string;
 }
 
+// Cash holdings types
+export type CashCurrency = "USD" | "EUR" | "GBP" | "JPY" | "ILS" | "CHF" | "CAD" | "AUD";
+
+export interface CashHolding {
+  symbol: string; // e.g., "CASH-USD"
+  currency: CashCurrency;
+  balance: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CashHoldingWithMetrics extends CashHolding {
+  valueInUSD: number;
+  exchangeRate: number;
+  allocationPercent: number;
+}
+
+export interface AddCashInput {
+  currency: CashCurrency;
+  balance: number;
+}
+
