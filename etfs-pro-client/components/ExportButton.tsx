@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface ExportOption {
   id: string;
@@ -38,18 +39,33 @@ export function ExportButton({
 }: ExportButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const portalDropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure we're on the client for portal rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      // Check if click is outside both the button and the dropdown
+      const isOutsideButton = buttonRef.current && !buttonRef.current.contains(target);
+      const isOutsideDropdown = portalDropdownRef.current && !portalDropdownRef.current.contains(target);
+
+      if (isOutsideButton && isOutsideDropdown) {
         setIsOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isOpen]);
 
   const handleExport = (exportFn: () => void) => {
     exportFn();
@@ -64,6 +80,14 @@ export function ExportButton({
       return;
     }
     if (options && options.length > 0) {
+      // Calculate position before opening
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        setDropdownPosition({
+          top: rect.bottom + 8, // 8px margin below button
+          right: window.innerWidth - rect.right,
+        });
+      }
       setIsOpen(!isOpen);
     } else if (onExport) {
       handleExport(onExport);
@@ -108,9 +132,10 @@ export function ExportButton({
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative">
       {/* Main Button */}
       <button
+        ref={buttonRef}
         onClick={handleClick}
         disabled={disabled || showSuccess}
         className={`
@@ -167,20 +192,21 @@ export function ExportButton({
         <span className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-cosmic/5 to-nebula/5 pointer-events-none" />
       </button>
 
-      {/* Dropdown Menu - Using pure inline styles to avoid CSS conflicts */}
-      {hasOptions && isOpen && (
+      {/* Dropdown Menu - Rendered via Portal to escape parent CSS contexts */}
+      {hasOptions && isOpen && mounted && createPortal(
         <div
+          ref={portalDropdownRef}
           style={{
-            position: 'absolute',
-            right: 0,
-            marginTop: '8px',
+            position: 'fixed',
+            top: `${dropdownPosition.top}px`,
+            right: `${dropdownPosition.right}px`,
             width: '256px',
             borderRadius: '12px',
             overflow: 'hidden',
-            zIndex: 9999,
+            zIndex: 999999,
             backgroundColor: '#0a0c10',
             border: '1px solid rgba(124, 58, 237, 0.3)',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.5)',
             isolation: 'isolate',
           }}
         >
@@ -292,7 +318,8 @@ export function ExportButton({
               Files open in Excel, Google Sheets, or Numbers
             </p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
