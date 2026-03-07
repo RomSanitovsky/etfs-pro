@@ -29,6 +29,7 @@ interface UsePortfolioReturn {
   holdings: PortfolioHoldingWithMetrics[];
   cashHoldings: CashHoldingWithMetrics[];
   summary: PortfolioSummary | null;
+  exchangeRates: Record<string, number>;
   isLoading: boolean;
   error: string | null;
   addTransaction: (input: AddTransactionInput) => Promise<void>;
@@ -413,6 +414,7 @@ export function usePortfolio(): UsePortfolioReturn {
     holdings: holdingsWithMetrics,
     cashHoldings,
     summary,
+    exchangeRates,
     isLoading,
     error,
     addTransaction,

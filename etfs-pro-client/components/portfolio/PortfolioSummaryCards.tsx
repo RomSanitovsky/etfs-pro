@@ -1,7 +1,7 @@
 "use client";
 
 import type { PortfolioSummary, CashHoldingWithMetrics } from "@/lib/types";
-import { formatCurrency } from "@/lib/calculations";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface PortfolioSummaryCardsProps {
   summary: PortfolioSummary;
@@ -73,6 +73,7 @@ function StatCard({ title, value, subtitle, icon, valueColor = "default" }: Stat
 }
 
 export function PortfolioSummaryCards({ summary, cashHoldings = [] }: PortfolioSummaryCardsProps) {
+  const { formatInDisplayCurrency } = useCurrency();
   const pnlColor = summary.totalPnL >= 0 ? "green" : "red";
   const pnlSign = summary.totalPnL >= 0 ? "+" : "";
 
@@ -97,7 +98,7 @@ export function PortfolioSummaryCards({ summary, cashHoldings = [] }: PortfolioS
         {/* Total Value */}
         <StatCard
           title="Total Value"
-          value={formatCurrency(summary.totalValue)}
+          value={formatInDisplayCurrency(summary.totalValue)}
           subtitle={holdingsSubtitle}
           icon={
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,7 +110,7 @@ export function PortfolioSummaryCards({ summary, cashHoldings = [] }: PortfolioS
         {/* Total Cost */}
         <StatCard
           title="Total Cost"
-          value={formatCurrency(summary.totalCost)}
+          value={formatInDisplayCurrency(summary.totalCost)}
           subtitle="invested"
           icon={
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,7 +122,7 @@ export function PortfolioSummaryCards({ summary, cashHoldings = [] }: PortfolioS
         {/* Total P&L */}
         <StatCard
           title="Unrealized P&L"
-          value={`${pnlSign}${formatCurrency(Math.abs(summary.totalPnL))}`}
+          value={formatInDisplayCurrency(summary.totalPnL, { showSign: true })}
           subtitle={`${pnlSign}${summary.totalPnLPercent.toFixed(2)}%`}
           valueColor={pnlColor}
           icon={
@@ -134,7 +135,7 @@ export function PortfolioSummaryCards({ summary, cashHoldings = [] }: PortfolioS
         {/* Annual Dividend */}
         <StatCard
           title="Annual Dividend"
-          value={formatCurrency(summary.expectedAnnualDividend)}
+          value={formatInDisplayCurrency(summary.expectedAnnualDividend)}
           subtitle={`${summary.portfolioDividendYield.toFixed(2)}% yield`}
           valueColor="green"
           icon={

@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import type { PieLabelRenderProps } from "recharts";
 import type { PortfolioHoldingWithMetrics, CashHoldingWithMetrics, CashCurrency } from "@/lib/types";
-import { formatCurrency } from "@/lib/calculations";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { getCurrencyName } from "@/lib/constants";
 
 interface GroupedCash {
@@ -69,13 +69,13 @@ interface ChartDataItem {
   isCash?: boolean;
 }
 
-function CustomTooltip({
-  active,
-  payload,
-}: {
+interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{ payload: ChartDataItem }>;
-}) {
+  formatValue: (value: number) => string;
+}
+
+function CustomTooltip({ active, payload, formatValue }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   const data = payload[0].payload;
 
@@ -86,7 +86,7 @@ function CustomTooltip({
         <p className="text-xs text-muted mb-1">{data.name}</p>
       )}
       <p className="text-sm text-foreground font-mono">
-        {formatCurrency(data.value)}
+        {formatValue(data.value)}
       </p>
       <p className="text-xs text-muted">
         {data.allocation.toFixed(2)}% of portfolio
@@ -127,6 +127,7 @@ function renderCustomLabel(props: PieLabelRenderProps) {
 }
 
 export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieChartProps) {
+  const { formatInDisplayCurrency } = useCurrency();
   const [breakdownThreshold, setBreakdownThreshold] = useState(5);
   const holdingsDetails = useMemo(() => {
     return holdings
@@ -298,7 +299,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
                     />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip formatValue={formatInDisplayCurrency} />} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -360,7 +361,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
                   {/* Value & P&L */}
                   <div className="text-right shrink-0">
                     <div className="text-sm font-mono font-semibold text-foreground">
-                      {formatCurrency(h.currentValue)}
+                      {formatInDisplayCurrency(h.currentValue)}
                     </div>
                     <div
                       className={`text-xs font-mono ${
@@ -404,7 +405,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-sm font-mono font-semibold text-foreground">
-                    {formatCurrency(othersAggregate.currentValue)}
+                    {formatInDisplayCurrency(othersAggregate.currentValue)}
                   </div>
                   {othersAggregate.hasCashOnly ? (
                     <div className="text-xs text-muted">Cash</div>
@@ -453,7 +454,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-sm font-mono font-semibold text-foreground">
-                    {formatCurrency(cash.totalValueInUSD)}
+                    {formatInDisplayCurrency(cash.totalValueInUSD)}
                   </div>
                   <div className="text-xs text-muted">
                     Cash
@@ -470,7 +471,7 @@ export function PortfolioPieChart({ holdings, cashHoldings = [] }: PortfolioPieC
               </div>
               <div className="text-right">
                 <div className="text-sm font-mono font-bold text-foreground">
-                  {formatCurrency(totalValue)}
+                  {formatInDisplayCurrency(totalValue)}
                 </div>
                 <div className="text-xs text-muted">
                   {holdingsDetails.length} holding{holdingsDetails.length !== 1 ? "s" : ""}

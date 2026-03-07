@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { PortfolioHoldingWithMetrics } from "@/lib/types";
-import { formatCurrency } from "@/lib/calculations";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { TransactionList } from "./TransactionList";
 
 interface PortfolioMobileCardProps {
@@ -21,6 +21,7 @@ export function PortfolioMobileCard({
 }: PortfolioMobileCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
+  const { formatInDisplayCurrency } = useCurrency();
 
   const pnlColor = holding.unrealizedPnL >= 0 ? "text-gain" : "text-loss";
   const pnlSign = holding.unrealizedPnL >= 0 ? "+" : "";
@@ -49,10 +50,10 @@ export function PortfolioMobileCard({
         <div className="flex items-center gap-2 shrink-0">
           <div className="text-right">
             <span className="font-mono font-semibold text-foreground">
-              {formatCurrency(holding.currentValue)}
+              {formatInDisplayCurrency(holding.currentValue)}
             </span>
             <div className={`text-xs font-mono ${pnlColor}`}>
-              {pnlSign}{formatCurrency(Math.abs(holding.unrealizedPnL))} ({pnlSign}{holding.unrealizedPnLPercent.toFixed(2)}%)
+              {formatInDisplayCurrency(holding.unrealizedPnL, { showSign: true })} ({pnlSign}{holding.unrealizedPnLPercent.toFixed(2)}%)
             </div>
           </div>
           {/* Chevron */}
@@ -82,13 +83,13 @@ export function PortfolioMobileCard({
               <div className="text-center">
                 <span className="text-[10px] text-muted uppercase block">Avg Cost</span>
                 <span className="text-sm font-mono text-foreground/80">
-                  {formatCurrency(holding.averageCost)}
+                  {formatInDisplayCurrency(holding.averageCost)}
                 </span>
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-muted uppercase block">Price</span>
                 <span className="text-sm font-mono text-foreground">
-                  {formatCurrency(holding.currentPrice)}
+                  {formatInDisplayCurrency(holding.currentPrice)}
                 </span>
               </div>
             </div>

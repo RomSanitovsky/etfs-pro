@@ -7,6 +7,7 @@ import { StarField } from "@/components/StarField";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePortfolio } from "@/hooks/usePortfolio";
+import { CurrencyProvider, useCurrency } from "@/contexts/CurrencyContext";
 import type { AddTransactionInput, CashCurrency, CashHoldingWithMetrics } from "@/lib/types";
 import {
   PortfolioSummaryCards,
@@ -15,6 +16,7 @@ import {
   AddCashModal,
   EmptyPortfolioState,
 } from "@/components/portfolio";
+import { CurrencySelector } from "@/components/portfolio/CurrencySelector";
 import type { EditingTransaction } from "@/components/portfolio/AddTransactionModal";
 import type { EditingCash } from "@/components/portfolio/AddCashModal";
 import { ExportButton, ExportIcons } from "@/components/ExportButton";
@@ -25,13 +27,15 @@ const PortfolioPieChart = lazy(() =>
   import("@/components/portfolio/PortfolioPieChart").then((m) => ({ default: m.PortfolioPieChart }))
 );
 
-export default function PortfolioPage() {
+// Inner component that uses both portfolio and currency contexts
+function PortfolioContent() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const {
     holdings,
     cashHoldings,
     summary,
+    exchangeRates,
     isLoading,
     error,
     addTransaction,
@@ -43,6 +47,14 @@ export default function PortfolioPage() {
     deleteCash,
     refreshPrices,
   } = usePortfolio();
+  const { setExchangeRates } = useCurrency();
+
+  // Sync exchange rates to currency context
+  useEffect(() => {
+    if (Object.keys(exchangeRates).length > 1) {
+      setExchangeRates(exchangeRates);
+    }
+  }, [exchangeRates, setExchangeRates]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<EditingTransaction | null>(null);
@@ -218,6 +230,9 @@ export default function PortfolioPage() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Currency selector */}
+              <CurrencySelector />
+
               {/* Export button */}
               <ExportButton
                 options={exportOptions}
@@ -356,5 +371,14 @@ export default function PortfolioPage() {
         editingCash={editingCash}
       />
     </div>
+  );
+}
+
+// Main page component with CurrencyProvider wrapper
+export default function PortfolioPage() {
+  return (
+    <CurrencyProvider>
+      <PortfolioContent />
+    </CurrencyProvider>
   );
 }

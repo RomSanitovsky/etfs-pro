@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { PortfolioHoldingWithMetrics } from "@/lib/types";
-import { formatCurrency } from "@/lib/calculations";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { TransactionList } from "./TransactionList";
 
 interface PortfolioRowProps {
@@ -20,6 +20,7 @@ export function PortfolioRow({
   onDeleteHolding,
 }: PortfolioRowProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { formatInDisplayCurrency } = useCurrency();
 
   const pnlColor = holding.unrealizedPnL >= 0 ? "text-gain" : "text-loss";
   const pnlSign = holding.unrealizedPnL >= 0 ? "+" : "";
@@ -65,23 +66,23 @@ export function PortfolioRow({
 
         {/* Avg Cost */}
         <td className="px-4 py-4 text-right font-mono text-foreground/80">
-          {formatCurrency(holding.averageCost)}
+          {formatInDisplayCurrency(holding.averageCost)}
         </td>
 
         {/* Current Price */}
         <td className="px-4 py-4 text-right font-mono text-foreground">
-          {formatCurrency(holding.currentPrice)}
+          {formatInDisplayCurrency(holding.currentPrice)}
         </td>
 
         {/* Current Value */}
         <td className="px-4 py-4 text-right font-mono text-foreground">
-          {formatCurrency(holding.currentValue)}
+          {formatInDisplayCurrency(holding.currentValue)}
         </td>
 
         {/* P&L */}
         <td className="px-4 py-4 text-right">
           <span className={`font-mono ${pnlColor}`}>
-            {pnlSign}{formatCurrency(Math.abs(holding.unrealizedPnL))}
+            {formatInDisplayCurrency(holding.unrealizedPnL, { showSign: true })}
           </span>
           <span className={`text-xs block ${pnlColor}`}>
             {pnlSign}{holding.unrealizedPnLPercent.toFixed(2)}%

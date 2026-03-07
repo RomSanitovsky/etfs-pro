@@ -6,7 +6,7 @@ import { PortfolioRow } from "./PortfolioRow";
 import { PortfolioMobileCard } from "./PortfolioMobileCard";
 import { MobileSortSelect } from "../MobileSortSelect";
 import { getCurrencyName, getCurrencySymbol } from "@/lib/constants";
-import { formatCurrency } from "@/lib/calculations";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface PortfolioTableProps {
   holdings: PortfolioHoldingWithMetrics[];
@@ -96,6 +96,7 @@ export function PortfolioTable({
   onDeleteCash,
   isLoading,
 }: PortfolioTableProps) {
+  const { formatInDisplayCurrency, displayCurrency } = useCurrency();
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: "currentValue",
     direction: "desc",
@@ -280,7 +281,7 @@ export function PortfolioTable({
                   <th className="w-10"></th>
                   <th className="px-4 py-3 text-xs font-semibold text-muted uppercase tracking-wider text-left">Currency</th>
                   <th className="px-4 py-3 text-xs font-semibold text-muted uppercase tracking-wider text-right">Balance</th>
-                  <th className="px-4 py-3 text-xs font-semibold text-muted uppercase tracking-wider text-right">Value (USD)</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-muted uppercase tracking-wider text-right">Value ({displayCurrency})</th>
                   <th className="px-4 py-3 text-xs font-semibold text-muted uppercase tracking-wider text-right">Rate</th>
                   <th className="px-4 py-3 text-xs font-semibold text-muted uppercase tracking-wider text-right">Allocation</th>
                   <th className="px-4 py-3 w-12"></th>
@@ -336,7 +337,7 @@ export function PortfolioTable({
                           {getCurrencySymbol(group.currency)}{group.totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
                         <td className="px-4 py-4 text-right font-mono font-semibold text-foreground">
-                          {formatCurrency(group.totalValueInUSD)}
+                          {formatInDisplayCurrency(group.totalValueInUSD)}
                         </td>
                         <td className="px-4 py-4 text-right font-mono text-muted text-sm">
                           {firstEntry.exchangeRate.toFixed(4)}
@@ -386,7 +387,7 @@ export function PortfolioTable({
                             {getCurrencySymbol(entry.currency)}{entry.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                           <td className="px-4 py-3 text-right font-mono text-foreground/80 text-sm">
-                            {formatCurrency(entry.valueInUSD)}
+                            {formatInDisplayCurrency(entry.valueInUSD)}
                           </td>
                           <td className="px-4 py-3 text-right font-mono text-muted text-xs">
                             —
@@ -497,8 +498,8 @@ export function PortfolioTable({
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-muted">Value (USD)</span>
-                        <p className="font-mono font-semibold text-foreground">{formatCurrency(group.totalValueInUSD)}</p>
+                        <span className="text-muted">Value ({displayCurrency})</span>
+                        <p className="font-mono font-semibold text-foreground">{formatInDisplayCurrency(group.totalValueInUSD)}</p>
                       </div>
                       <div>
                         <span className="text-muted">Rate</span>
@@ -545,7 +546,7 @@ export function PortfolioTable({
                               {getCurrencySymbol(entry.currency)}{entry.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </span>
                             <span className="font-mono text-foreground/80">
-                              {formatCurrency(entry.valueInUSD)}
+                              {formatInDisplayCurrency(entry.valueInUSD)}
                             </span>
                           </div>
                         </div>
