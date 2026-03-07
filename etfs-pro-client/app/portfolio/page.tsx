@@ -230,8 +230,8 @@ function PortfolioContent() {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Currency selector */}
-              <CurrencySelector />
+              {/* Currency selector - hidden for now, will enable later */}
+              {/* <CurrencySelector /> */}
 
               {/* Export button */}
               <ExportButton
