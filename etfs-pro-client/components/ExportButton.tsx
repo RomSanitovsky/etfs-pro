@@ -172,29 +172,36 @@ export function ExportButton({
         <div
           className="absolute right-0 mt-2 w-64 rounded-xl overflow-hidden z-50
                      border border-[var(--theme-card-border)]
-                     shadow-xl shadow-black/40
-                     animate-in fade-in slide-in-from-top-2 duration-200"
-          style={{ backgroundColor: '#0d1117' }}
+                     shadow-2xl shadow-black/60"
+          style={{ backgroundColor: '#0a0c10' }}
         >
           {/* Header */}
-          <div className="px-4 py-3 border-b border-[var(--theme-card-border)]" style={{ backgroundColor: '#161b22' }}>
+          <div
+            className="px-4 py-3 border-b border-[var(--theme-card-border)]"
+            style={{ backgroundColor: '#161b22' }}
+          >
             <p className="text-xs font-semibold text-muted uppercase tracking-wider">Export Options</p>
           </div>
 
           {/* Options */}
-          <div className="py-2" style={{ backgroundColor: '#0d1117' }}>
+          <div style={{ backgroundColor: '#0a0c10' }}>
             {options.map((option) => (
               <button
                 key={option.id}
                 onClick={() => handleExport(option.onClick)}
                 className="w-full px-4 py-3 flex items-start gap-3 text-left
-                           hover:bg-cosmic/10 transition-colors duration-150
-                           group/option"
+                           transition-colors duration-150 group/option"
+                style={{ backgroundColor: '#0a0c10' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1c2128'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0a0c10'}
               >
                 {/* Icon */}
-                <span className="flex-shrink-0 p-2 rounded-lg bg-[#1c2128] border border-[var(--theme-card-border)]
-                                 group-hover/option:border-cosmic/30 group-hover/option:bg-cosmic/20
-                                 transition-colors duration-150">
+                <span
+                  className="flex-shrink-0 p-2 rounded-lg border border-[var(--theme-card-border)]
+                             group-hover/option:border-cosmic/30
+                             transition-colors duration-150"
+                  style={{ backgroundColor: '#1c2128' }}
+                >
                   {option.icon}
                 </span>
 
@@ -222,7 +229,10 @@ export function ExportButton({
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2 border-t border-[var(--theme-card-border)] bg-[#161b22]">
+          <div
+            className="px-4 py-2 border-t border-[var(--theme-card-border)]"
+            style={{ backgroundColor: '#161b22' }}
+          >
             <p className="text-[10px] text-subtle text-center">
               Files open in Excel, Google Sheets, or Numbers
             </p>
